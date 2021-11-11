@@ -10,12 +10,24 @@ Fei Sun, fs2757
 Lin Yang, ly2565 
 Yihan Qiu, yq2321 
 Weiheng Zhang, wz2590 
- 
+
 # The tentative project title
 The Impact of COVID-19 Lockdowns on Air Quality in Chinese Cities
 
 # The motivation for this project
-In order to contain the COVID-19 outbreak, China entered lockdown in early February 2020, minimizing all industrial, transportation, and commercial activities. Although the lockdown caused tremendous loss to the economy, previous research has shown the air condition in the top four megacities of China improved significantly during the lockdown period, due to a dramatic decrease in automobile and industrial emissions. Our motivation is to find out whether “lockdown improves air quality" is a common phenomenon in Chinese cities including but not only limited to megacities. We are also interested in how the geographical location, population, and GDP of each city affect the degree of air quality improvement, and which pollutant’s daily air quality index(AQI) was affected the most. AQI is a variable describing the daily level of air pollution from pollutants such as PM2.5, PM10, NO2. Each pollutant has its own AQI value for each day.
+In order to contain the COVID-19 outbreak, China entered lockdown in early February 2020, minimizing all industrial, transportation, and commercial activities. Although the lockdown caused tremendous loss to the economy, previous research has shown the air condition in the top four megacities of China improved significantly during the lockdown period, due to a dramatic decrease in automobile and industrial emissions. Our motivation is to find out whether “lockdown improves air quality" is a common phenomenon in Chinese cities including but not only limited to megacities. We are also interested in how the geographical location, population, and GDP of each city affect the degree of air quality improvement, and which pollutant’s daily air quality index(AQI) was affected the most. AQI is a variable describing the daily level of air pollution from pollutants such as PM2.5, PM10, NO2. Each pollutant has its own AQI value for each day.  
+
+# The intended final products
+We will present interactive graphs and thematic maps showing the degree of improvement of daily average AQI for multiple pollutants, among thirty representative Chinese cities during lockdown compared to air quality data in the same months of the year 2019. 
+We will also build interactive graphs showing how the population and GDP of cities in the same geographical district correlate to the degree of improvement of daily average AQI.
+ 
+# The anticipated data sources
+[Air Quality Historical Data Platform](https://aqicn.org/data-platform/register/)
+[List of Chinese prefecture-level cities by GDP](https://en.wikipedia.org/wiki/List_of_Chinese_prefecture-level_cities_by_GDP)
+[China Population](https://populationstat.com/china/)
+ 
+
+
 
 
 # Coding challenges
