@@ -25,6 +25,16 @@ We will also build interactive graphs showing how the population and GDP of citi
 [Air Quality Historical Data Platform](https://aqicn.org/data-platform/register/)  
 [List of Chinese prefecture-level cities by GDP](https://en.wikipedia.org/wiki/List_of_Chinese_prefecture-level_cities_by_GDP)  
 [China Population](https://populationstat.com/china/)  
+
+### The planned analyses / visualizations
+We will make various plots to evaluate how lockdown policies affected air quality in most Chinese cities, and how population and GDP affected air quality improvements in these cities. We will also analyze which cities had the most and the least air quality improvements and figure out if there is an association between air quality improvements and geographical locations. Here’re our expected results:
+
+* A bar graph of mean AQI difference for each air pollutant(PM2.5, PM10, SO2, O3, NO2, CO) between 2019 and 2020.  
+* A boxplot of daily PM2.5 AQI from Feb. to Apr. (lockdown period) in the past year (2019, 2020) in 10 representative cities.  
+* A bar graph of mean PM2.5 AQI from Feb to Apr in the past three years in 10 representative cities.  
+* A line plot of trends in monthly average PM2.5 AQIs from 2019/02 - 2020/06 in 10 representative cities.  
+* Scatterplots of PM2.5 AQI differences vs. GDP and PM2.5 AQI differences vs. population in all cities.  
+* A map of China showing each city’s AQI difference between early 2020 and 2019.
   
 ### Coding challenges
 1. Although we already have accurate data on air quality in each city, the data of every 30 cities are independent files, so it is tedious to combine the air pollution data of each city into one file. Comparing data from different cities could be complicated.  
@@ -32,13 +42,7 @@ We will also build interactive graphs showing how the population and GDP of citi
 3. There are some errors and obscure information in the air quality data, so we need to review and investigate the data of each city carefully before we proceed.   
 4. It can be time-consuming to generate reader-friendly plots, especially plots containing multiple cities.  
   
-# The planned analyses / visualizations
-A bar graph of mean AQI difference for each air pollutant(PM2.5, PM10, SO2, O3, NO2, CO) between 2019 and 2020.  
-A boxplot of daily PM2.5 AQI from Feb. to Apr. (lockdown period) in the past year (2019, 2020) in 10 representative cities.  
-A bar graph of mean PM2.5 AQI from Feb to Apr in the past three years in 10 representative cities.  
-A line plot of trends in monthly average PM2.5 AQIs from 2019/02 - 2020/06 in 10 representative cities.  
-Scatterplots of PM2.5 AQI differences vs. GDP and PM2.5 AQI differences vs. population in all cities.  
-A map of China showing each city’s AQI difference between early 2020 and 2019.  
+ 
 
 
 
