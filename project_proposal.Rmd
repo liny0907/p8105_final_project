@@ -4,6 +4,15 @@ date: "11/11/2021"
 output: github_document
 ---
 
+The group members (names and UNIs)
+Zhuolun Huang, zh2494
+Fei Sun, fs2757 
+Lin Yang, ly2565 
+Yihan Qiu, yq2321 
+Weiheng Zhang, wz2590 
+ 
+The tentative project title
+The Impact of COVID-19 Lockdowns on Air Quality in Chinese Cities
 
 
 
