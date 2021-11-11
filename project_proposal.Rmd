@@ -5,11 +5,11 @@ output: github_document
 ---
 
 ### The group members (names and UNIs)
-Zhuolun Huang, zh2494
-Fei Sun, fs2757 
-Lin Yang, ly2565 
-Yihan Qiu, yq2321 
-Weiheng Zhang, wz2590 
+Zhuolun Huang, zh2494  
+Fei Sun, fs2757  
+Lin Yang, ly2565  
+Yihan Qiu, yq2321   
+Weiheng Zhang, wz2590  
 
 ### The tentative project title
 The Impact of COVID-19 Lockdowns on Air Quality in Chinese Cities
@@ -22,9 +22,9 @@ We will present interactive graphs and thematic maps showing the degree of impro
 We will also build interactive graphs showing how the population and GDP of cities in the same geographical district correlate to the degree of improvement of daily average AQI.
  
 ### The anticipated data sources
-[Air Quality Historical Data Platform](https://aqicn.org/data-platform/register/)
-[List of Chinese prefecture-level cities by GDP](https://en.wikipedia.org/wiki/List_of_Chinese_prefecture-level_cities_by_GDP)
-[China Population](https://populationstat.com/china/)
+[Air Quality Historical Data Platform](https://aqicn.org/data-platform/register/)  
+[List of Chinese prefecture-level cities by GDP](https://en.wikipedia.org/wiki/List_of_Chinese_prefecture-level_cities_by_GDP)  
+[China Population](https://populationstat.com/china/)  
 
 ### Coding challenges
 1. Although we already have accurate data on air quality in each city, the data of every 30 cities are independent files, so it is tedious to combine the air pollution data of each city into one file. Comparing data from different cities could be complicated.

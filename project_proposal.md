@@ -4,7 +4,10 @@ P8105 Final Project
 
 ### The group members (names and UNIs)
 
-Zhuolun Huang, zh2494 Fei Sun, fs2757 Lin Yang, ly2565 Yihan Qiu, yq2321
+Zhuolun Huang, zh2494  
+Fei Sun, fs2757  
+Lin Yang, ly2565  
+Yihan Qiu, yq2321  
 Weiheng Zhang, wz2590
 
 ### The tentative project title
@@ -41,9 +44,9 @@ daily average AQI.
 ### The anticipated data sources
 
 [Air Quality Historical Data
-Platform](https://aqicn.org/data-platform/register/) [List of Chinese
-prefecture-level cities by
-GDP](https://en.wikipedia.org/wiki/List_of_Chinese_prefecture-level_cities_by_GDP)
+Platform](https://aqicn.org/data-platform/register/)  
+[List of Chinese prefecture-level cities by
+GDP](https://en.wikipedia.org/wiki/List_of_Chinese_prefecture-level_cities_by_GDP)  
 [China Population](https://populationstat.com/china/)
 
 ### Coding challenges
