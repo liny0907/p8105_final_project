@@ -25,10 +25,6 @@ We will also build interactive graphs showing how the population and GDP of citi
 [Air Quality Historical Data Platform](https://aqicn.org/data-platform/register/)
 [List of Chinese prefecture-level cities by GDP](https://en.wikipedia.org/wiki/List_of_Chinese_prefecture-level_cities_by_GDP)
 [China Population](https://populationstat.com/china/)
- 
-
-
-
 
 # Coding challenges
 1. Although we already have accurate data on air quality in each city, the data of every 30 cities are independent files, so it is tedious to combine the air pollution data of each city into one file. Comparing data from different cities could be complicated.
