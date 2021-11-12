@@ -41,7 +41,14 @@ We will make various plots to evaluate how lockdown policies affected air qualit
 2. To evaluate the relationship between population/GDP and air quality improvements, we have to manually gather data from the web.  
 3. There are some errors and obscure information in the air quality data, so we need to review and investigate the data of each city carefully before we proceed.   
 4. It can be time-consuming to generate reader-friendly plots, especially plots containing multiple cities.  
-  
+
+### Timeline
+```{r}
+library(tidyverse)
+readxl::read_excel("data/project_timeline.xlsx") %>%
+  knitr::kable()
+```
+
  
 
 

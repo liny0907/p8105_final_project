@@ -84,3 +84,38 @@ geographical locations. Here’re our expected results:
     carefully before we proceed.  
 4.  It can be time-consuming to generate reader-friendly plots,
     especially plots containing multiple cities.
+
+### Timeline
+
+``` r
+library(tidyverse)
+```
+
+    ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──
+
+    ## ✓ ggplot2 3.3.5     ✓ purrr   0.3.4
+    ## ✓ tibble  3.1.3     ✓ dplyr   1.0.7
+    ## ✓ tidyr   1.1.3     ✓ stringr 1.4.0
+    ## ✓ readr   2.0.1     ✓ forcats 0.5.1
+
+    ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+    ## x dplyr::filter() masks stats::filter()
+    ## x dplyr::lag()    masks stats::lag()
+
+``` r
+readxl::read_excel("data/project_timeline.xlsx") %>%
+  knitr::kable()
+```
+
+| Date         | Work                                                    | Assignment due |
+|:-------------|:--------------------------------------------------------|:---------------|
+| 44513        | Complete proposal                                       | 11/13, 1pm     |
+| 11/16-11/19/ | Project review meeting with TA                          | 11/16-11/19    |
+| 11/20-11/21  | Complete data collection and division of labor          | NA             |
+| 11/21-11/26  | Individual data analysis                                | NA             |
+| 44527        | Group meeting: discuss everyone’s work and any problems | NA             |
+| 11/28-12/3   | Individual work                                         | NA             |
+| 12/4-12/7    | Webpage design and screencast                           | 12/11, 4PM     |
+| 12/7-12/10   | Group meeting: finalize report                          | NA             |
+| 44541        | Complete report                                         | 12/11, 4PM     |
+| 44541        | Peer assessment                                         | 12/11, 8PM     |
