@@ -43,11 +43,15 @@ We will make various plots to evaluate how lockdown policies affected air qualit
 4. It can be time-consuming to generate reader-friendly plots, especially plots containing multiple cities.  
 
 ### Timeline
-```{r}
+```{r, include = FALSE}
 library(tidyverse)
+```
+
+```{r, echo = FALSE}
 readxl::read_excel("data/project_timeline.xlsx") %>%
   knitr::kable()
 ```
+
 
  
 
