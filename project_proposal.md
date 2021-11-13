@@ -87,15 +87,15 @@ geographical locations. Here’re our expected results:
 
 ### Timeline
 
-| Date         | Work                                                    | Assignment due |
-|:-------------|:--------------------------------------------------------|:---------------|
-| 11/13        | Complete proposal                                       | 11/13, 1pm     |
-| 11/16-11/19/ | Project review meeting with TA                          | 11/16-11/19    |
-| 11/20-11/21  | Complete data collection and division of labor          | NA             |
-| 11/21-11/26  | Individual data analysis                                | NA             |
-| 11/27        | Group meeting: discuss everyone’s work and any problems | NA             |
-| 11/28-12/3   | Individual work                                         | NA             |
-| 12/4-12/7    | Webpage design and screencast                           | 12/11, 4PM     |
-| 12/7-12/10   | Group meeting: finalize report                          | NA             |
-| 12/11        | Complete report                                         | 12/11, 4PM     |
-| 12/11        | Peer assessment                                         | 12/11, 8PM     |
+| Date        | Work                                                    | Assignment due |
+|:------------|:--------------------------------------------------------|:---------------|
+| 11/13       | Complete proposal                                       | 11/13, 1pm     |
+| 11/16-11/19 | Project review meeting with TA                          | 11/16-11/19    |
+| 11/20-11/21 | Complete data collection and division of labor          | NA             |
+| 11/21-11/26 | Individual data analysis                                | NA             |
+| 11/27       | Group meeting: discuss everyone’s work and any problems | NA             |
+| 11/28-12/3  | Individual work                                         | NA             |
+| 12/4-12/7   | Webpage design and screencast                           | 12/11, 4PM     |
+| 12/7-12/10  | Group meeting: finalize report                          | NA             |
+| 12/11       | Complete report                                         | 12/11, 4PM     |
+| 12/11       | Peer assessment                                         | 12/11, 8PM     |
