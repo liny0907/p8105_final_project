@@ -177,14 +177,14 @@ xian = read_csv("data/xian-air-quality.csv") %>%
 
     ## Rows: 2865 Columns: 7
 
-    ## -- Column specification --------------------------------------------------------
+    ## ── Column specification ────────────────────────────────────────────────────────
     ## Delimiter: ","
     ## chr (1): date
     ## dbl (6): pm25, pm10, o3, no2, so2, co
 
     ## 
-    ## i Use `spec()` to retrieve the full column specification for this data.
-    ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ``` r
 xian_line = xian %>% 
@@ -193,7 +193,7 @@ xian_line = xian %>%
 xian_line
 ```
 
-    ## # A tibble: 760 x 7
+    ## # A tibble: 760 × 7
     ##    date        pm25  pm10    o3   no2   so2    co
     ##    <date>     <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
     ##  1 2018-07-01   124    54    80    17     4     8
@@ -206,7 +206,7 @@ xian_line
     ##  8 2018-07-08   150    51    35    18     2    10
     ##  9 2018-07-09   106    31    37    15     2    10
     ## 10 2018-07-10    71    34    27    13     2    10
-    ## # ... with 750 more rows
+    ## # … with 750 more rows
 
 It’s hard to observe significant effect on lockdown. Since time already
 affect PM25 AQI viberantly.
