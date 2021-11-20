@@ -1,101 +1,101 @@
-﻿rank,city,GDP,population
-1,Shanghai,38155,2424
-2,Beijing,35371,2171
-3,Shenzhen,26927,1302
-4,Guangzhou,23628,1491
-5,Chongqing,23605,3372
-6,Suzhou,19235,1073
-7,Chengdu,17012,1633
-8,Wuhan,16900,1112
-9,Hangzhou,15373,1036
-10,Tianjin,14104,1560
-11,Nanjing,14030,850
-12,Changsha,12580,816
-13,Ningbo,11985,821
-14,Wuxi,11852,658
-15,Qingdao,11741,940
-16,Zhengzhou,11380,1014
-17,Foshan,10751,846
-18,Quanzhou,9946,870
-19,Dongguan,9482,840
-20,Jinan,9443,883
-21,Hefei,9409,809
-22,Fuzhou,9392,774
-23,Nantong,9383,731
-24,Xi'an,9321,1255
-25,Yantai,7653,713
-26,Changzhou,7400,520
-27,Xuzhou,7151,892
-28,Dalian,7001,596
-29,Tangshan,6890,794
-30,Wenzhou,6606,918
-31,Kunming,6475,727
-32,Shenyang,6470,832
-33,Xiamen,5995,411
-34,Changchun,5904,800
-35,Yangzhou,5850,500
-36,Shijiazhuang,5809,1096
-37,Shaoxing,5780,501
-38,ynz,5702,825
-39,Weifang,5688,937
-40,Nanchang,5596,555
-41,Jiaxing,5370,466
-42,Harbin,5249,952
-43,Taizhou,5134,612
-44,Taizhou,5133,506
-45,Luoyang,5050,714
-46,Xiangyang,4812,605
-47,Zhangzhou,4741,510
-48,Linyi,4600,1124
-49,Jinhua,4559,557
-50,Nanning,4506,757
-51,Jining,4370,835
-52,Yichang,4306,417
-53,Huizhou,4177,483
-54,Yulin,4136,370
-55,Zhenjiang,4127,320
-56,Guiyang,4039,489
-57,Taiyuan,4028,443
-58,Handan,3902,953
-59,Baoding,3881,1170
-60,Yueyang,3876,569
-61,Huai'an,3871,564
-62,Nanyang,3776,1002
-63,Zibo,3642,471
-64,Changde,3624,583
-65,Wuhu,3618,374
-66,Erdo,3605,201
-67,Cangzhou,3588,759
-68,Langfang,3526,480
-69,Urumqi,3493,351
-70,Zunyi,3483,806
-71,Ganzhou,3474,982
-72,Zhuhai,3435,190
-73,Heze,3409,843
-74,Maoming,3252,803
-75,city in Hunan,3205,721
-76,Jiangmen,3146,460
-77,Lianyungang,3139,452
-78,city in Guangxi,3128,405
-79,Huzhou,3122,300
-80,Jiujiang,3121,490
-81,Xu Chang,3119,444
-82,Zhongshan,3101,331
-83,Suqian,3099,493
-84,Zhoukou,3081,868
-85,Zhanjiang,3065,734
-86,Texas,3022,581
-87,Zhuzhou,3003,403
-88,Weihai,2963,283
-89,Baotou,2957,289
-90,Hu hehao,2944,312
-91,doy,2916,214
-92,Chuzhou,2909,411
-93,Xinxiang,2876,580
-94,Mianyang,2856,485
-95,Anyang,2842,517
-96,Lanzhou,2837,402
-97,Fuyang,2705,821
-98,Shangqiu,2702,732
-99,Xinyang,2698,647
-100,Zhumadian,2695,703
+rank	city	GDP	population
+1	Shanghai	38155	2424
+2	Beijing	35371	2171
+3	Shenzhen	26927	1302
+4	Guangzhou	23628	1491
+5	Chongqing	23605	3372
+6	Suzhou	19235	1073
+7	Chengdu	17012	1633
+8	Wuhan	16900	1112
+9	Hangzhou	15373	1036
+10	Tianjin	14104	1560
+11	Nanjing	14030	850
+12	Changsha	12580	816
+13	Ningbo	11985	821
+14	Wuxi	11852	658
+15	Qingdao	11741	940
+16	Zhengzhou	11380	1014
+17	Foshan	10751	846
+18	Quanzhou	9946	870
+19	Dongguan	9482	840
+20	Jinan	9443	883
+21	Hefei	9409	809
+22	Fuzhou	9392	774
+23	Nantong	9383	731
+24	Xi'an	9321	1255
+25	Yantai	7653	713
+26	Changzhou	7400	520
+27	Xuzhou	7151	892
+28	Dalian	7001	596
+29	Tangshan	6890	794
+30	Wenzhou	6606	918
+31	Kunming	6475	727
+32	Shenyang	6470	832
+33	Xiamen	5995	411
+34	Changchun	5904	800
+35	Yangzhou	5850	500
+36	Shijiazhuang	5809	1096
+37	Shaoxing	5780	501
+38	ynz	5702	825
+39	Weifang	5688	937
+40	Nanchang	5596	555
+41	Jiaxing	5370	466
+42	Harbin	5249	952
+43	Taizhou	5134	612
+44	Taizhou	5133	506
+45	Luoyang	5050	714
+46	Xiangyang	4812	605
+47	Zhangzhou	4741	510
+48	Linyi	4600	1124
+49	Jinhua	4559	557
+50	Nanning	4506	757
+51	Jining	4370	835
+52	Yichang	4306	417
+53	Huizhou	4177	483
+54	Yulin	4136	370
+55	Zhenjiang	4127	320
+56	Guiyang	4039	489
+57	Taiyuan	4028	443
+58	Handan	3902	953
+59	Baoding	3881	1170
+60	Yueyang	3876	569
+61	Huai'an	3871	564
+62	Nanyang	3776	1002
+63	Zibo	3642	471
+64	Changde	3624	583
+65	Wuhu	3618	374
+66	Erdo	3605	201
+67	Cangzhou	3588	759
+68	Langfang	3526	480
+69	Urumqi	3493	351
+70	Zunyi	3483	806
+71	Ganzhou	3474	982
+72	Zhuhai	3435	190
+73	Heze	3409	843
+74	Maoming	3252	803
+75	city in Hunan	3205	721
+76	Jiangmen	3146	460
+77	Lianyungang	3139	452
+78	city in Guangxi	3128	405
+79	Huzhou	3122	300
+80	Jiujiang	3121	490
+81	Xu Chang	3119	444
+82	Zhongshan	3101	331
+83	Suqian	3099	493
+84	Zhoukou	3081	868
+85	Zhanjiang	3065	734
+86	Texas	3022	581
+87	Zhuzhou	3003	403
+88	Weihai	2963	283
+89	Baotou	2957	289
+90	Hu hehao	2944	312
+91	doy	2916	214
+92	Chuzhou	2909	411
+93	Xinxiang	2876	580
+94	Mianyang	2856	485
+95	Anyang	2842	517
+96	Lanzhou	2837	402
+97	Fuyang	2705	821
+98	Shangqiu	2702	732
+99	Xinyang	2698	647
+100	Zhumadian	2695	703
