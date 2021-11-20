@@ -120,6 +120,22 @@ geographical locations. Here’re our expected results:
 4.  It can be time-consuming to generate reader-friendly plots,
     especially plots containing multiple cities.
 
+<<<<<<< HEAD
+### Timeline
+
+| Date        | Work                                                    | Assignment due |
+|:------------|:--------------------------------------------------------|:---------------|
+| 11/13       | Complete proposal                                       | 11/13, 1pm     |
+| 11/16-11/19 | Project review meeting with TA                          | 11/16-11/19    |
+| 11/20-11/21 | Complete data collection and division of labor          | NA             |
+| 11/21-11/26 | Individual data analysis                                | NA             |
+| 11/27       | Group meeting: discuss everyone’s work and any problems | NA             |
+| 11/28-12/3  | Individual work                                         | NA             |
+| 12/4-12/7   | Webpage design and screencast                           | 12/11, 4PM     |
+| 12/7-12/10  | Group meeting: finalize report                          | NA             |
+| 12/11       | Complete report                                         | 12/11, 4PM     |
+| 12/11       | Peer assessment                                         | 12/11, 8PM     |
+=======
 # The planned analyses / visualizations
 
 A bar graph of mean AQI difference for each air pollutant(PM2.5, PM10,
@@ -131,6 +147,7 @@ in monthly average PM2.5 AQIs from 2019/02 - 2020/06 in 10
 representative cities. Scatterplots of PM2.5 AQI differences vs. GDP and
 PM2.5 AQI differences vs. population in all cities. A map of China
 showing each city’s AQI difference between early 2020 and 2019.
+<<<<<<< HEAD
 =======
     Comparing data from different cities could be complicated.  
 2.  To evaluate the relationship between population/GDP and air quality
@@ -156,3 +173,6 @@ showing each city’s AQI difference between early 2020 and 2019.
 | 12/11       | Complete report                                         | 12/11, 4PM     |
 | 12/11       | Peer assessment                                         | 12/11, 8PM     |
 >>>>>>> a6d9e31fb9bbf9c664fda2db13d6f5a4f8d212c2
+=======
+>>>>>>> 47a1a00b42b1bf0e4c7ac440b9b2fbf57dde368e
+>>>>>>> ab75b470012025eb2e55f249e8bd9b61a927aa67

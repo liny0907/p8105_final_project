@@ -1,7 +1,7 @@
-initial\_analysis
+barGraph + boxPlot + line Charts + Map of China
 ================
 Weiheng Zhang
-2021/11/17
+2021/11/19
 
 ``` r
 library(tidyverse)
@@ -101,13 +101,8 @@ Now we will see how the distribution of daily PM25 AQI differ between
 time period 2019 Feb-Aprl and 2020 Feb-Aprl.
 
 ``` r
-city_PM25_Distribution = 
-  tibble(city = character(),
-         period = character(),
-         PM25 = numeric())
-```
+city_PM25_Distribution = tibble()
 
-``` r
 for (city_file in city_files) {
 
   path = str_c("data/", city_file)
@@ -117,29 +112,32 @@ for (city_file in city_files) {
     mutate(date = as.Date(date, "%Y/%m/%d")) %>%
     arrange(date)
   
-  PM25_19 = cityAir %>% 
+  city_19 = cityAir %>% 
     filter(date %within% period_19) %>% 
-    select(pm25)
+    mutate(period = "2019Feb-Aprl",
+           day = format(date,"%m-%d"),
+           city = city) %>% 
+    relocate(city, period, day)
   
-  for (day_value in PM25_19){
-    city_PM25_Distribution = 
-      city_PM25_Distribution %>% 
-      add_row(city = city, 
+  #add a fake date "2019-02-29" with all AQI values as NA
+  city_19 = 
+    city_19 %>% 
+    add_row(city = city, 
             period = "2019Feb-Aprl", 
-            PM25 = day_value)
-  }
+            day = "02-29") %>% 
+    mutate(day = as.factor(day))
   
-  PM25_20 = cityAir %>% 
+  
+  city_20 = cityAir %>% 
     filter(date %within% period_20) %>% 
-    select(pm25)
+    mutate(period = "2020Feb-Aprl",
+           day = format(date,"%m-%d"),
+           day = as.factor(day),
+           city = city) %>% 
+    relocate(city, period, day)
   
-  for (day_value in PM25_20){
-    city_PM25_Distribution = 
-      city_PM25_Distribution %>% 
-      add_row(city = city, 
-            period = "2020Feb-Aprl", 
-            PM25 = day_value)
-  }
+  city_PM25_Distribution = rbind(city_PM25_Distribution, city_19)
+  city_PM25_Distribution = rbind(city_PM25_Distribution, city_20)
 }
 ```
 
@@ -147,8 +145,9 @@ for (city_file in city_files) {
 city_PM25_Distribution %>% 
   mutate(period = factor(period, levels = c("2020Feb-Aprl", "2019Feb-Aprl"))) %>% 
   group_by(city, period) %>% 
-  ggplot(aes(y = city, x = PM25, fill = period)) + 
+  ggplot(aes(y = city, x = pm25, fill = period)) + 
   geom_boxplot() + 
+  scale_fill_hue(direction = -1) +
   stat_summary(
     fun = mean, 
     geom = "point", 
@@ -159,73 +158,32 @@ city_PM25_Distribution %>%
     xlab = "Daily PM25 AQI")
 ```
 
-    ## Warning: Removed 31 rows containing non-finite values (stat_boxplot).
+    ## Warning: Removed 61 rows containing non-finite values (stat_boxplot).
 
-    ## Warning: Removed 31 rows containing non-finite values (stat_summary).
+    ## Warning: Removed 61 rows containing non-finite values (stat_summary).
+
+![](initial_analysis_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+Line chart of daily pm25 AQI changes for all 30 cities. Note that year
+2019 does not have the date “Feb 29”, but year 2020 does.
+
+``` r
+city_PM25_Distribution %>% 
+  ggplot(aes(x = day, y = pm25, color = period)) + 
+  geom_line(aes(group = period), size = 0.8) + 
+  #geom_point() +
+  scale_color_hue(direction = 1) +
+  ylim(0, 400) +
+  labs(
+    title = "Daily PM25 AQI Starting From Feb 1 to Aprl 30",
+    x = "Day",
+    y = "Daily PM25 AQI",
+    color = "year period") +
+  facet_wrap(~city, nrow = 10) +
+  scale_x_discrete(breaks = c("02-01", "02-11", "02-21", 
+                              "03-01", "03-11", "03-21", 
+                              "04-01", "04-11", "04-21")) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+```
 
 ![](initial_analysis_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
-
-(Demo. In Progress)Line chart of monthly average pm25 for Xi’an
-
-``` r
-date_interval = interval(ymd("2018-07-01"), ymd("2020-07-31"))
-
-xian = read_csv("data/xian-air-quality.csv") %>% 
-    mutate(date = as.Date(date, "%Y/%m/%d")) %>%
-    arrange(date)
-```
-
-    ## Rows: 2865 Columns: 7
-
-    ## -- Column specification --------------------------------------------------------
-    ## Delimiter: ","
-    ## chr (1): date
-    ## dbl (6): pm25, pm10, o3, no2, so2, co
-
-    ## 
-    ## i Use `spec()` to retrieve the full column specification for this data.
-    ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-``` r
-xian_line = xian %>% 
-  filter(date %within% date_interval)
-
-xian_line
-```
-
-    ## # A tibble: 760 x 7
-    ##    date        pm25  pm10    o3   no2   so2    co
-    ##    <date>     <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
-    ##  1 2018-07-01   124    54    80    17     4     8
-    ##  2 2018-07-02    96    52    61    15     2     9
-    ##  3 2018-07-03   119    39    41    14     2     8
-    ##  4 2018-07-04    94    20    41    14     1    10
-    ##  5 2018-07-05    55    44    84    19     2    11
-    ##  6 2018-07-06    84    68    93    27     3    12
-    ##  7 2018-07-07   131    75   115    31     4    11
-    ##  8 2018-07-08   150    51    35    18     2    10
-    ##  9 2018-07-09   106    31    37    15     2    10
-    ## 10 2018-07-10    71    34    27    13     2    10
-    ## # ... with 750 more rows
-
-It’s hard to observe significant effect on lockdown. Since time already
-affect PM25 AQI viberantly.
-
-``` r
-xian_monavg_pm25 = xian_line %>% 
-  mutate(month = floor_date(date, "month")) %>%
-  group_by(month) %>%
-  summarize(avg = mean(pm25, na.rm = T))
-
-xian_monavg_pm25 %>%
-  ggplot(aes(x = month, y = avg)) +
-  geom_line(size = 0.8) + 
-  geom_point() +
-  scale_x_date(date_breaks = "1 month", minor_breaks = "1 month") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  labs(
-    title = "Monthly average PM25 AQI of Xi'an"
-  )
-```
-
-![](initial_analysis_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
