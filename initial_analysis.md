@@ -157,9 +157,9 @@ city_PM25_Distribution %>%
     xlab = "Daily PM25 AQI")
 ```
 
-    ## Warning: Removed 61 rows containing non-finite values (stat_boxplot).
+    ## Warning: Removed 60 rows containing non-finite values (stat_boxplot).
 
-    ## Warning: Removed 61 rows containing non-finite values (stat_summary).
+    ## Warning: Removed 60 rows containing non-finite values (stat_summary).
 
 ![](initial_analysis_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
