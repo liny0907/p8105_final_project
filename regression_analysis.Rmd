@@ -27,8 +27,8 @@ scale_fill_discrete = scale_fill_viridis_d
 
 Load and clean air quality datasets for 100 cities.
 ```{r, message = FALSE}
-df = tibble(
-  file = list.files("100_cities_data")[-22]) %>% 
+city_100_df = tibble(
+  file = list.files("100_cities_data")) %>% 
   mutate(
     city = str_remove(file, "-air-quality.csv"),
     path = str_c("100_cities_data/", file),
@@ -44,13 +44,13 @@ df = tibble(
 Select pm2.5 data during the lockdown period (Feb-Apr) for both 2019 and 2020.
 ```{r}
 pm25_2020_mean = 
-  df %>% 
+  city_100_df %>% 
   filter(date > "2020-01-31" & date < "2020-05-01") %>% 
   group_by(city) %>% 
   summarize(mean_pm25_2020 = mean(pm25, na.rm = T))
- 
+
 pm25_2019_mean = 
-  df %>% 
+  city_100_df %>% 
   filter(date > "2019-01-31" & date < "2019-05-01") %>% 
   group_by(city) %>% 
   summarize(mean_pm25_2019 = mean(pm25, na.rm = T))
@@ -60,6 +60,22 @@ pm25_diff =
   mutate(diff = mean_pm25_2019 - mean_pm25_2020)
 
 pm25_diff
+```
+
+Load the gdp and population dataset and join it to `pm25_diff`.
+
+```{r}
+gdp_pop_df = 
+  read_csv("data/gpd_and_popluation.csv") %>% 
+  janitor::clean_names() %>% 
+  mutate(pop_million = population_thousand / 1000,
+         gdp_log = log(gdp_billion)) %>% 
+  select(-rank, -population_thousand)
+
+df = left_join(pm25_diff, gdp_pop_df) 
+
+fit = lm(diff ~gdp_log + pop_million, data = df)
+summary(fit)
 ```
 
 
