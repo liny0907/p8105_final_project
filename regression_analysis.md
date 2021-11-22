@@ -53,46 +53,52 @@ city_100_df = tibble(
     date = as.Date(date, format = "%Y/%m/%d"))
 ```
 
-Select pm2.5 data during the lockdown period (Feb-Apr) for both 2019 and
+Select pm2.5 AQI during the lockdown period (Feb-Apr) for both 2019 and
 2020.
 
 ``` r
-pm25_2020_mean = 
+pm25_2020 = 
   city_100_df %>% 
   filter(date > "2020-01-31" & date < "2020-05-01") %>% 
-  group_by(city) %>% 
-  summarize(mean_pm25_2020 = mean(pm25, na.rm = T))
-
-pm25_2019_mean = 
+  rename(pm25_2020 = pm25) %>% 
+  mutate(date = format(date, format = "%m-%d")) %>% 
+  select(city, date, pm25_2020)
+  
+pm25_2019 = 
   city_100_df %>% 
   filter(date > "2019-01-31" & date < "2019-05-01") %>% 
-  group_by(city) %>% 
-  summarize(mean_pm25_2019 = mean(pm25, na.rm = T))
-
-pm25_diff = 
-  left_join(pm25_2020_mean, pm25_2019_mean) %>% 
-  mutate(diff = mean_pm25_2019 - mean_pm25_2020)
+  rename(pm25_2019 = pm25) %>% 
+  mutate(date = format(date, format = "%m-%d")) %>% 
+  select(city, date, pm25_2019)
 ```
 
-    ## Joining, by = "city"
+Calculate daily pm2.5 AQI differences between 2019 and 2020 for each
+city.
 
 ``` r
+pm25_diff = 
+  left_join(pm25_2020, pm25_2019, by = c("city", "date")) %>% 
+  drop_na() %>% 
+  mutate(pm25_diff = pm25_2019 - pm25_2020) %>% 
+  group_by(city) %>% 
+  summarize(mean_diff = mean(pm25_diff, na.rm = T))
+
 pm25_diff
 ```
 
-    ## # A tibble: 100 × 4
-    ##    city      mean_pm25_2020 mean_pm25_2019   diff
-    ##    <chr>              <dbl>          <dbl>  <dbl>
-    ##  1 Anyang             135.            179. 44.0  
-    ##  2 Baoding            125.            151. 26.1  
-    ##  3 Baotou             123.            128.  4.78 
-    ##  4 Beijing            101.            117. 15.6  
-    ##  5 Cangzhou           113.            134. 21.6  
-    ##  6 Changchun          130.            131.  0.970
-    ##  7 Changde            114.            116.  2.06 
-    ##  8 Changsha           120.            125.  4.98 
-    ##  9 Changzhou           97.0           124. 26.6  
-    ## 10 Chengdu            120.            130. 10.4  
+    ## # A tibble: 100 × 2
+    ##    city      mean_diff
+    ##    <chr>         <dbl>
+    ##  1 Anyang        45.5 
+    ##  2 Baoding       28.4 
+    ##  3 Baotou         6.53
+    ##  4 Beijing       16.0 
+    ##  5 Cangzhou      23.3 
+    ##  6 Changchun      1.18
+    ##  7 Changde        1.61
+    ##  8 Changsha       4.03
+    ##  9 Changzhou     27.1 
+    ## 10 Chengdu       10.5 
     ## # … with 90 more rows
 
 Load the gdp and population dataset and join it to `pm25_diff`.
@@ -102,8 +108,8 @@ gdp_pop_df =
   read_csv("data/gpd_and_popluation.csv") %>% 
   janitor::clean_names() %>% 
   mutate(pop_million = population_thousand / 1000,
-         gdp_log = log(gdp_billion)) %>% 
-  select(-rank, -population_thousand)
+         gdp_ln = log(gdp_billion, base = exp(1))) %>% 
+  select(city, gdp_ln, pop_million)
 ```
 
     ## Rows: 100 Columns: 4
@@ -123,26 +129,28 @@ df = left_join(pm25_diff, gdp_pop_df)
 
     ## Joining, by = "city"
 
+Fit linear models
+
 ``` r
-fit = lm(diff ~gdp_log + pop_million, data = df)
+fit = lm(mean_diff ~gdp_ln + pop_million, data = df)
 summary(fit)
 ```
 
     ## 
     ## Call:
-    ## lm(formula = diff ~ gdp_log + pop_million, data = df)
+    ## lm(formula = mean_diff ~ gdp_ln + pop_million, data = df)
     ## 
     ## Residuals:
     ##      Min       1Q   Median       3Q      Max 
-    ## -20.0454  -9.5463  -0.2099   9.1562  29.9935 
+    ## -21.0218  -9.5258  -0.4169   8.8149  30.9338 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)
-    ## (Intercept)   5.4869    12.1043   0.453    0.651
-    ## gdp_log       1.6398     2.1967   0.747    0.457
-    ## pop_million  -0.1435     0.3379  -0.425    0.672
+    ## (Intercept)   6.7908    12.5002   0.543    0.588
+    ## gdp_ln        1.4845     2.2686   0.654    0.514
+    ## pop_million  -0.1217     0.3490  -0.349    0.728
     ## 
-    ## Residual standard error: 10.81 on 95 degrees of freedom
+    ## Residual standard error: 11.16 on 95 degrees of freedom
     ##   (2 observations deleted due to missingness)
-    ## Multiple R-squared:  0.006099,   Adjusted R-squared:  -0.01482 
-    ## F-statistic: 0.2915 on 2 and 95 DF,  p-value: 0.7478
+    ## Multiple R-squared:  0.004806,   Adjusted R-squared:  -0.01615 
+    ## F-statistic: 0.2294 on 2 and 95 DF,  p-value: 0.7955

@@ -41,26 +41,37 @@ city_100_df = tibble(
     date = as.Date(date, format = "%Y/%m/%d"))
 ```
 
-Select pm2.5 data during the lockdown period (Feb-Apr) for both 2019 and 2020.
+Select pm2.5 AQI during the lockdown period (Feb-Apr) for both 2019 and 2020.
 ```{r}
-pm25_2020_mean = 
+pm25_2020 = 
   city_100_df %>% 
   filter(date > "2020-01-31" & date < "2020-05-01") %>% 
-  group_by(city) %>% 
-  summarize(mean_pm25_2020 = mean(pm25, na.rm = T))
-
-pm25_2019_mean = 
+  rename(pm25_2020 = pm25) %>% 
+  mutate(date = format(date, format = "%m-%d")) %>% 
+  select(city, date, pm25_2020)
+  
+pm25_2019 = 
   city_100_df %>% 
   filter(date > "2019-01-31" & date < "2019-05-01") %>% 
-  group_by(city) %>% 
-  summarize(mean_pm25_2019 = mean(pm25, na.rm = T))
+  rename(pm25_2019 = pm25) %>% 
+  mutate(date = format(date, format = "%m-%d")) %>% 
+  select(city, date, pm25_2019)
 
+```
+
+Calculate daily pm2.5 AQI differences between 2019 and 2020 for each city.
+
+```{r}
 pm25_diff = 
-  left_join(pm25_2020_mean, pm25_2019_mean) %>% 
-  mutate(diff = mean_pm25_2019 - mean_pm25_2020)
+  left_join(pm25_2020, pm25_2019, by = c("city", "date")) %>% 
+  drop_na() %>% 
+  mutate(pm25_diff = pm25_2019 - pm25_2020) %>% 
+  group_by(city) %>% 
+  summarize(mean_diff = mean(pm25_diff, na.rm = T))
 
 pm25_diff
 ```
+
 
 Load the gdp and population dataset and join it to `pm25_diff`.
 
@@ -69,15 +80,19 @@ gdp_pop_df =
   read_csv("data/gpd_and_popluation.csv") %>% 
   janitor::clean_names() %>% 
   mutate(pop_million = population_thousand / 1000,
-         gdp_log = log(gdp_billion)) %>% 
-  select(-rank, -population_thousand)
+         gdp_ln = log(gdp_billion, base = exp(1))) %>% 
+  select(city, gdp_ln, pop_million)
 
 df = left_join(pm25_diff, gdp_pop_df) 
-
-fit = lm(diff ~gdp_log + pop_million, data = df)
-summary(fit)
 ```
 
+
+
+Fit linear models
+```{r}
+fit = lm(mean_diff ~gdp_ln + pop_million, data = df)
+summary(fit)
+```
 
 
 
