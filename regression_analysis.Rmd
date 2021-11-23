@@ -87,7 +87,6 @@ df = left_join(pm25_diff, gdp_pop_df)
 ```
 
 
-
 Fit linear models
 ```{r}
 fit = lm(mean_diff ~gdp_ln + pop_million, data = df)
@@ -95,6 +94,25 @@ summary(fit)
 ```
 
 
+
+Scatterplots of PM2.5 AQI differences vs. GDP and PM2.5 AQI differences vs. population in all cities. 
+
+```{r}
+df %>% 
+  ggplot() +
+  geom_point(aes(x = mean_diff, y = gdp_ln, color = city)) +
+  theme(legend.position =  "none") +
+  labs(title = "PM2.5 AQI differences vs GDP", x = "PM2.5 AQI differences", y = "GDP")
+```
+
+
+```{r}
+df %>% 
+  ggplot() +
+  geom_point(aes(x = mean_diff, y = pop_million, color = city)) +
+  theme(legend.position =  "none") +
+  labs(title = "PM2.5 AQI differences vs popoluation", x = "PM2.5 AQI differences", y = "Popluation")
+```
 
 
 
