@@ -1,0 +1,100 @@
+---
+title: "Regression Analysis"
+author: "Lin Yang"
+date: "11/20/2021"
+output: github_document
+---
+
+```{r}
+library(tidyverse)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
+Load and clean air quality datasets for 100 cities.
+```{r, message = FALSE}
+city_100_df = tibble(
+  file = list.files("100_cities_data")) %>% 
+  mutate(
+    city = str_remove(file, "-air-quality.csv"),
+    path = str_c("100_cities_data/", file),
+    data = map(path, read_csv)
+  ) %>% 
+  unnest(data) %>% 
+  select(-file, -path) %>% 
+  mutate(
+    city = str_to_title(city),
+    date = as.Date(date, format = "%Y/%m/%d"))
+```
+
+Select pm2.5 AQI during the lockdown period (Feb-Apr) for both 2019 and 2020.
+```{r}
+pm25_2020 = 
+  city_100_df %>% 
+  filter(date > "2020-01-31" & date < "2020-05-01") %>% 
+  rename(pm25_2020 = pm25) %>% 
+  mutate(date = format(date, format = "%m-%d")) %>% 
+  select(city, date, pm25_2020)
+  
+pm25_2019 = 
+  city_100_df %>% 
+  filter(date > "2019-01-31" & date < "2019-05-01") %>% 
+  rename(pm25_2019 = pm25) %>% 
+  mutate(date = format(date, format = "%m-%d")) %>% 
+  select(city, date, pm25_2019)
+
+```
+
+Calculate daily pm2.5 AQI differences between 2019 and 2020 for each city.
+
+```{r}
+pm25_diff = 
+  left_join(pm25_2020, pm25_2019, by = c("city", "date")) %>% 
+  drop_na() %>% 
+  mutate(pm25_diff = pm25_2019 - pm25_2020) %>% 
+  group_by(city) %>% 
+  summarize(mean_diff = mean(pm25_diff, na.rm = T))
+
+pm25_diff
+```
+
+
+Load the gdp and population dataset and join it to `pm25_diff`.
+
+```{r}
+gdp_pop_df = 
+  read_csv("data/gpd_and_popluation.csv") %>% 
+  janitor::clean_names() %>% 
+  mutate(pop_million = population_thousand / 1000,
+         gdp_ln = log(gdp_billion, base = exp(1))) %>% 
+  select(city, gdp_ln, pop_million)
+
+df = left_join(pm25_diff, gdp_pop_df) 
+```
+
+
+
+Fit linear models
+```{r}
+fit = lm(mean_diff ~gdp_ln + pop_million, data = df)
+summary(fit)
+```
+
+
+
+
+

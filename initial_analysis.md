@@ -21,8 +21,7 @@ scale_fill_discrete = scale_fill_viridis_d
 ```
 
 ``` r
-city_files = list.files("data")[-1]
-city_files = city_files[-19] #remove "project_timeline.xlsx"
+city_files = list.files("30_cities_data")
 ```
 
 Time period we are interested in
@@ -47,7 +46,7 @@ city_period_meanPM25 =
 for (city_file in city_files) {
   #print(city_file)
   
-  path = str_c("data/", city_file)
+  path = str_c("30_cities_data/", city_file)
   city = strsplit(city_file, split = '-')[[1]][1]
   
   cityAir = read_csv(path) %>% 
@@ -105,7 +104,7 @@ city_PM25_Distribution = tibble()
 
 for (city_file in city_files) {
 
-  path = str_c("data/", city_file)
+  path = str_c("30_cities_data/", city_file)
   city = strsplit(city_file, split = '-')[[1]][1]
   
   cityAir = read_csv(path) %>% 
@@ -158,9 +157,9 @@ city_PM25_Distribution %>%
     xlab = "Daily PM25 AQI")
 ```
 
-    ## Warning: Removed 61 rows containing non-finite values (stat_boxplot).
+    ## Warning: Removed 60 rows containing non-finite values (stat_boxplot).
 
-    ## Warning: Removed 61 rows containing non-finite values (stat_summary).
+    ## Warning: Removed 60 rows containing non-finite values (stat_summary).
 
 ![](initial_analysis_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
