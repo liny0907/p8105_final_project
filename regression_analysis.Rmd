@@ -7,6 +7,7 @@ output: github_document
 
 ```{r}
 library(tidyverse)
+library(ggridges)
 
 knitr::opts_chunk$set(
   fig.width = 6,
@@ -95,6 +96,35 @@ summary(fit)
 ```
 
 
+Load weather data for 10 representative cities.
+```{r}
+weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c("CHM00054511", "CHM00058362", "CHM00050953", "CHM00054342", "CHM00055591", "CHM00056294", "CHM00056778", "CHM00059287", "CHM00057036", "CHM00057494"),
+    var = c("PRCP", "TAVG"), 
+    date_min = "2020-02-01",
+    date_max = "2020-04-30") %>%
+  mutate(
+    name = recode(
+      id, 
+      CHM00054511 = "Beijing", 
+      CHM00058362 = "Shanghai",
+      CHM00050953 = "Harbin",
+      CHM00054342 = "Shenyang",
+      CHM00055591 = "Lasa",
+      CHM00056294 = "Chengdu",
+      CHM00056778 = "Kunming",
+      CHM00059287 = "Guangzhou",
+      CHM00057036 = "Xian",
+      CHM00057494 = "Wuhan"),
+    tavg = tavg / 10,
+    prcp = prcp / 10) %>%
+  select(-id) %>% 
+  rename(city = name) %>% 
+  relocate(city)
+
+weather_df
+```
 
 
 
