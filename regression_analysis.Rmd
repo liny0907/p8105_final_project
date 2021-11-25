@@ -97,7 +97,7 @@ summary(fit)
 
 
 Load weather data for 10 representative cities.
-```{r}
+```{r, message = FALSE}
 weather_df = 
   rnoaa::meteo_pull_monitors(
     c("CHM00054511", "CHM00058362", "CHM00050953", "CHM00054342", "CHM00055591", "CHM00056294", "CHM00056778", "CHM00059287", "CHM00057036", "CHM00057494"),

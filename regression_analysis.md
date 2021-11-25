@@ -184,73 +184,7 @@ weather_df =
   select(-id) %>% 
   rename(city = name) %>% 
   relocate(city)
-```
 
-    ## Registered S3 method overwritten by 'hoardr':
-    ##   method           from
-    ##   print.cache_info httr
-
-    ## using cached file: ~/Library/Caches/R/noaa_ghcnd/CHM00054511.dly
-
-    ## date created (size, mb): 2021-11-25 17:49:10 (1.703)
-
-    ## file min/max dates: 1945-10-01 / 2021-11-30
-
-    ## using cached file: ~/Library/Caches/R/noaa_ghcnd/CHM00058362.dly
-
-    ## date created (size, mb): 2021-11-25 17:46:32 (0.736)
-
-    ## file min/max dates: 1991-01-01 / 2021-11-30
-
-    ## using cached file: ~/Library/Caches/R/noaa_ghcnd/CHM00050953.dly
-
-    ## date created (size, mb): 2021-11-25 18:39:26 (1.73)
-
-    ## file min/max dates: 1951-01-01 / 2021-11-30
-
-    ## using cached file: ~/Library/Caches/R/noaa_ghcnd/CHM00054342.dly
-
-    ## date created (size, mb): 2021-11-25 18:39:30 (1.716)
-
-    ## file min/max dates: 1951-01-01 / 2021-11-30
-
-    ## using cached file: ~/Library/Caches/R/noaa_ghcnd/CHM00055591.dly
-
-    ## date created (size, mb): 2021-11-25 18:39:34 (1.593)
-
-    ## file min/max dates: 1955-01-01 / 2021-11-30
-
-    ## using cached file: ~/Library/Caches/R/noaa_ghcnd/CHM00056294.dly
-
-    ## date created (size, mb): 2021-11-25 18:39:37 (1.398)
-
-    ## file min/max dates: 1951-01-01 / 2003-12-31
-
-    ## using cached file: ~/Library/Caches/R/noaa_ghcnd/CHM00056778.dly
-
-    ## date created (size, mb): 2021-11-25 18:39:41 (1.739)
-
-    ## file min/max dates: 1942-07-01 / 2021-11-30
-
-    ## using cached file: ~/Library/Caches/R/noaa_ghcnd/CHM00059287.dly
-
-    ## date created (size, mb): 2021-11-25 18:39:45 (1.718)
-
-    ## file min/max dates: 1945-11-01 / 2021-11-30
-
-    ## using cached file: ~/Library/Caches/R/noaa_ghcnd/CHM00057036.dly
-
-    ## date created (size, mb): 2021-11-25 18:39:49 (1.482)
-
-    ## file min/max dates: 1951-01-01 / 2008-12-31
-
-    ## using cached file: ~/Library/Caches/R/noaa_ghcnd/CHM00057494.dly
-
-    ## date created (size, mb): 2021-11-25 18:39:53 (1.686)
-
-    ## file min/max dates: 1951-01-01 / 2021-11-30
-
-``` r
 weather_df
 ```
 
