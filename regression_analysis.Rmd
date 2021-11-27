@@ -87,13 +87,30 @@ gdp_pop_df =
 df = left_join(pm25_diff, gdp_pop_df) 
 ```
 
-
-
 Fit linear models
 ```{r}
 fit = lm(mean_diff ~gdp_ln + pop_million, data = df)
 summary(fit)
+
+fit %>% 
+  broom::tidy() %>% 
+  select(term, estimate, p.value) %>% 
+  knitr::kable(digit = 3)
 ```
+
+Model Diagnostics
+
+```{r}
+df %>% 
+  modelr::add_residuals(fit) %>% 
+  ggplot(aes(x = gdp_ln, y = resid)) + geom_violin()
+
+df %>% 
+  modelr::add_residuals(fit) %>% 
+  ggplot(aes(x = pop_million, y = resid)) + geom_violin()
+```
+
+
 
 
 Load weather data for 10 representative cities.
@@ -124,6 +141,23 @@ weather_df =
   relocate(city)
 
 weather_df
+```
+
+Join `weather_df` to the AQI dataset of 10 cities and fit a linear model.
+```{r}
+city_10_df =
+  city_100_df %>% 
+  filter(date > "2020-01-31" & date < "2020-05-01") %>% 
+  filter(city %in% c("Beijing", "Shanghai", "Harbin", "Shenyang", "Lasa", "Chengdu", "Kunming", "Guangzhou", "Xian", "Wuhan"))
+
+pm25_tavg_df = 
+  left_join(city_10_df, weather_df, by = c("city", "date")) %>% 
+  arrange(date) %>% 
+  select(city, date, pm25, tavg) %>% 
+  drop_na()
+
+fit2 = lm(pm25 ~tavg, data = pm25_tavg_df)
+summary(fit2)
 ```
 
 
