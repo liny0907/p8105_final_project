@@ -110,7 +110,7 @@ After fitting a linear model for mean pm2.5 AQI difference dependent on gdp_ln a
 
 ## Model Diagnostics
 
-```{r, warning = FALSE}
+```{r, warning = FALSE, dpi = 300}
 diff_gdp_pop_df %>% 
   modelr::add_residuals(fit) %>% 
   ggplot(aes(x = gdp_ln, y = resid)) + geom_violin()
@@ -123,7 +123,7 @@ diff_gdp_pop_df %>%
 ## Cross Validation
 
 Fit three models for `mean_diff` vs. `gdp_ln`.
-```{r, warning = FALSE}
+```{r, warning = FALSE, dpi = 300}
 linear_mod_gdp = lm(mean_diff ~ gdp_ln, data = diff_gdp_pop_df)
 smooth_mod_gdp = gam(mean_diff ~ s(gdp_ln), data = diff_gdp_pop_df)
 wiggly_mod_gdp = gam(mean_diff ~ s(gdp_ln, k = 30), sp = 10e-6, data = diff_gdp_pop_df)
@@ -140,7 +140,7 @@ diff_gdp_pop_df %>%
 ```
 
 Fit three models for `mean_diff` vs. `pop_ln`.
-```{r, warning = FALSE}
+```{r, warning = FALSE, dpi = 300}
 linear_mod_pop = lm(mean_diff ~ pop_ln, data = diff_gdp_pop_df)
 smooth_mod_pop = gam(mean_diff ~ s(pop_ln), data = diff_gdp_pop_df)
 wiggly_mod_pop = gam(mean_diff ~ s(pop_ln, k = 30), sp = 10e-6, data = diff_gdp_pop_df)
@@ -157,7 +157,7 @@ diff_gdp_pop_df %>%
 ```
 
 Cross validation for `mean_diff` vs. `gdp_ln`.
-```{r}
+```{r, dpi = 300}
 cv_df_gdp = 
   crossv_mc(diff_gdp_pop_df, 100) %>% 
   mutate(
@@ -186,7 +186,7 @@ cv_df_gdp %>%
 ```
 
 Cross validation for `mean_diff` vs. `pop_ln`.
-```{r}
+```{r, dpi = 300}
 cv_df_pop = 
   crossv_mc(diff_gdp_pop_df, 100) %>% 
   mutate(
