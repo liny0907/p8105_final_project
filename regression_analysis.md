@@ -157,6 +157,41 @@ summary(fit)
     ## Multiple R-squared:  0.004806,   Adjusted R-squared:  -0.01615 
     ## F-statistic: 0.2294 on 2 and 95 DF,  p-value: 0.7955
 
+``` r
+fit %>% 
+  broom::tidy() %>% 
+  select(term, estimate, p.value) %>% 
+  knitr::kable(digit = 3)
+```
+
+| term         | estimate | p.value |
+|:-------------|---------:|--------:|
+| (Intercept)  |    6.791 |   0.588 |
+| gdp\_ln      |    1.485 |   0.514 |
+| pop\_million |   -0.122 |   0.728 |
+
+Model Diagnostics
+
+``` r
+df %>% 
+  modelr::add_residuals(fit) %>% 
+  ggplot(aes(x = gdp_ln, y = resid)) + geom_violin()
+```
+
+    ## Warning: Removed 2 rows containing non-finite values (stat_ydensity).
+
+<img src="regression_analysis_files/figure-gfm/unnamed-chunk-7-1.png" width="90%" />
+
+``` r
+df %>% 
+  modelr::add_residuals(fit) %>% 
+  ggplot(aes(x = pop_million, y = resid)) + geom_violin()
+```
+
+    ## Warning: Removed 2 rows containing non-finite values (stat_ydensity).
+
+<img src="regression_analysis_files/figure-gfm/unnamed-chunk-7-2.png" width="90%" />
+
 Load weather data for 10 representative cities.
 
 ``` r
@@ -202,3 +237,41 @@ weather_df
     ##  9 Beijing 2020-02-09   0    -0.5
     ## 10 Beijing 2020-02-10   0     1.8
     ## # … with 890 more rows
+
+Join `weather_df` to the AQI dataset of 10 cities and fit a linear
+model.
+
+``` r
+city_10_df =
+  city_100_df %>% 
+  filter(date > "2020-01-31" & date < "2020-05-01") %>% 
+  filter(city %in% c("Beijing", "Shanghai", "Harbin", "Shenyang", "Lasa", "Chengdu", "Kunming", "Guangzhou", "Xian", "Wuhan"))
+
+pm25_tavg_df = 
+  left_join(city_10_df, weather_df, by = c("city", "date")) %>% 
+  arrange(date) %>% 
+  select(city, date, pm25, tavg) %>% 
+  drop_na()
+
+fit2 = lm(pm25 ~tavg, data = pm25_tavg_df)
+summary(fit2)
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = pm25 ~ tavg, data = pm25_tavg_df)
+    ## 
+    ## Residuals:
+    ##    Min     1Q Median     3Q    Max 
+    ## -89.14 -34.89  -3.13  28.88 484.86 
+    ## 
+    ## Coefficients:
+    ##               Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept) 103.166384   2.570307  40.138   <2e-16 ***
+    ## tavg         -0.002121   0.196853  -0.011    0.991    
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 48.94 on 880 degrees of freedom
+    ## Multiple R-squared:  1.32e-07,   Adjusted R-squared:  -0.001136 
+    ## F-statistic: 0.0001161 on 1 and 880 DF,  p-value: 0.9914
