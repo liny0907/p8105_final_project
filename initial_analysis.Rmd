@@ -27,12 +27,15 @@ scale_fill_discrete = scale_fill_viridis_d
 
 ```{r}
 city_files = list.files("30_cities_data")
+onehundrd_city_files = list.files("100_cities_data")
 ```
 
 Time period we are interested in
 ```{r}
+period_18 = interval(ymd("2018-02-01"), ymd("2018-04-30"))
 period_19 = interval(ymd("2019-02-01"), ymd("2019-04-30"))
 period_20 = interval(ymd("2020-02-01"), ymd("2020-04-30"))
+period_21 = interval(ymd("2021-02-01"), ymd("2021-04-30"))
 ```
 
 
@@ -214,9 +217,82 @@ city_PM25_Distribution %>%
 ```
 
 
+```{r}
+city_4year_meanPM25 = 
+  tibble(city = character(),
+         mean_18 = numeric(),
+         mean_19 = numeric(),
+         mean_20 = numeric(),
+         mean_21 = numeric())
+```
+
+A bar graph of mean PM2.5 AQI from Feb to Apr in the past four years in 30 representative cities.
+
+```{r message = FALSE}
+for (city_file in city_files) {
+  #print(city_file)
+  
+  path = str_c("30_cities_data/", city_file)
+  city = strsplit(city_file, split = '-')[[1]][1]
+  
+  cityAir = read_csv(path) %>% 
+    mutate(date = as.Date(date, "%Y/%m/%d")) %>%
+    arrange(date)
+  
+  cityAir_18 = cityAir %>% 
+    filter(date %within% period_18)
+  
+  cityAir_19 = cityAir %>% 
+    filter(date %within% period_19) 
+  
+  cityAir_20 = cityAir %>% 
+    filter(date %within% period_20)
+  
+  cityAir_21 = cityAir %>% 
+    filter(date %within% period_21)
+  
+  mean_18 = mean(cityAir_18$pm25, na.rm = T)
+  mean_19 = mean(cityAir_19$pm25, na.rm = T)
+  mean_20 = mean(cityAir_20$pm25, na.rm = T)
+  mean_21 = mean(cityAir_21$pm25, na.rm = T)
+  
+  city_4year_meanPM25 = 
+    city_4year_meanPM25 %>%
+    add_row(city = city,
+            mean_18 = mean_18,
+            mean_19 = mean_19, 
+            mean_20 = mean_20, 
+            mean_21 = mean_21)
+}
+```
+
+```{r}
+city_4year_meanPM25 = 
+  city_4year_meanPM25 %>% 
+  mutate(city = factor(city)) %>% 
+  pivot_longer(
+    mean_18:mean_21,
+    values_to = "mean",
+    names_to = "years"
+  )
+```
 
 
+```{r dpi=300}
+city_4year_meanPM25 %>% 
+  ggplot() +
+  geom_bar(
+    aes(y = years, x = mean, fill = years), 
+  stat = "identity") +
+  facet_wrap(~city, nrow = 5) +
+  #scale_x_continuous(breaks = scales::pretty_breaks(n = 20)) +
+  theme(legend.position = "none") +
+  labs(
+    title = "A bar graph of mean PM2.5 AQI from Feb to Apr in the past four years",
+    x = "PM25 AQI Mean",
+    y = "City")
 
+```
 
 
 
