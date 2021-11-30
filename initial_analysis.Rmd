@@ -295,7 +295,7 @@ city_4year_meanPM25 %>%
 
 ```
 
-### NO2
+# The difference AQI mean for "NO2"
 
 The daily mean NO2 AQI from Feb to Aprl of year 2019 and year 2020 in each city.
 ```{r}
@@ -433,7 +433,7 @@ city_no2_Distribution =
 
 city_no2_Distribution %>% 
   group_by(city, period) %>% 
-  ggplot(aes(y = city, x = pm25, fill = period)) + 
+  ggplot(aes(y = city, x = no2, fill = period)) + 
   geom_boxplot() + 
   scale_fill_hue(direction = -1) +
   stat_summary(
