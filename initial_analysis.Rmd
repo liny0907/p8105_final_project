@@ -83,7 +83,7 @@ city_period_meanPM25 =
   city_period_meanPM25 %>% 
   mutate(
     city = paste(
-      toupper(substring(city, 1, 1)), 
+      toupper(substring(city, 1, 1)), #首字母大写
       substring(city, 2), 
       sep = ""),
     city = fct_reorder(city, mean_diff, .desc = T))
@@ -96,9 +96,8 @@ city_period_meanPM25 =
 city_period_meanPM25 %>% 
   arrange(mean_diff) %>% 
   ggplot() +
-  geom_bar(
-    aes(x = mean_diff, y = city, fill = city), 
-  stat = "identity") +
+  geom_col(
+    aes(x = mean_diff, y = city, fill = city)) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 20)) +
   theme(legend.position = "none") +
   labs(
