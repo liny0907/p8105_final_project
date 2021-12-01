@@ -83,7 +83,7 @@ pm25_171819= rbind(pm25_2017,pm25_2018,pm25_2019)
 pm25_1920= rbind(pm25_2020,pm25_2019)
 ```
 
-# Chi test: figure out if there is an association between air quality improvements and geographical locations.
+# chi-squared test: figure out if there is an association between air quality level and geographical locations.
 
 Are cities and air quality level dependent at 5% level of significance? In other words, given the data collected above, is there a relationship between the cities and the level of air quality that they have obtained?
 
@@ -111,14 +111,14 @@ city_level=
   summarise(n=n())%>%
   pivot_wider(names_from = "level", values_from = "n")
 #把na 缺失的数据换乘0
-city_level[is.na(city_level)]= 0 
+city_level[is.na(city_level)]= 0
 knitr::kable(city_level)
 
 ```
 
 ```{r}
 #这个我在想想因为直接用table换matrix 前面index number去除不了 就做不了test
-airquality_level=read.csv("/Users/sunfei/Desktop/p8105_final_project/test (Fei)/city_air_quality_level.csv", row.names = 1 )
+airquality_level=read.csv("test (Fei)/city_air_quality_level.csv", row.names = 1 )
 #chi test
 chisq.test(airquality_level, simulate.p.value = TRUE)
 qchisq(0.05, 174, lower.tail=TRUE) 
@@ -140,19 +140,23 @@ mean_2020=pm25_2020%>%
   drop_na() %>% 
   select(-date)%>%
   group_by(city)%>%
-  summarise(mean=mean(pm25))
+  summarise(mean=mean(pm25))%>%
+  select(mean)%>%
+  pull()
 
 #算17 18 19年的总mean
 mean_171819=pm25_171819%>%
   drop_na() %>% 
   select(-date)%>%
   group_by(city)%>%
-  summarise(mean=mean(pm25)) 
+  summarise(mean=mean(pm25))%>%
+  select(mean) %>%
+  pull()
 
 mean2020 = c(101.08889,129.68182,119.76136,120.07955,118.375,85.51136,79.71591,104.68182,118.10227,99.15909,121.125,93.875,109.44318,47.64773,117.04545,103.63529,89.17045,96.43182,124.36364,86.70455,132.56818,112.28409,123.22727,112.10227,119.30682,111.55682,130.88636,112.95455,
 95,125.65909)
-mean17181= c(122.5618,130.83146,131.89139,138.58052,122.62547,101.99625,104.67416,119.70037,128.25468,133.51311,153.8764,107.58801,127.83895,70.38202,122.91011,131.98876,102.31461,121.94382,131.01124,108.02622,170.88015,138.64419,141.02622,131.56015,148.14286,153.50562,156.21348,125.71536,113.98876,153.83895)
-t.test(mean2020, mean17181, paired = T)
+mean171819= c(122.5618,130.83146,131.89139,138.58052,122.62547,101.99625,104.67416,119.70037,128.25468,133.51311,153.8764,107.58801,127.83895,70.38202,122.91011,131.98876,102.31461,121.94382,131.01124,108.02622,170.88015,138.64419,141.02622,131.56015,148.14286,153.50562,156.21348,125.71536,113.98876,153.83895)
+t.test(mean_2020, mean_171819, paired = T)
 qt(0.05, 29)
 ```
 For a Two-Sample Paired T-test, the p-value(5.679e-12 that is less than 0.05 significance level. We can reject the null hypothesis (H0) and indicates there is no evidence to conclude that the true mean difference between the average number of AQI (pm25) for each 30 cities from February to April 2020 and the average number between 2017-2019 is equal to zero and there are different mean for each 30 cities between 2020 and 2017-2019.
