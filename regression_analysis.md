@@ -109,7 +109,7 @@ represents one unique city. Below are key variables: `city`: city name
 (Feb-Apr) between 2019 and 2020. `gdp_ln`: log of 2019 GDP in billions
 `pop_ln`: log of 2019 population in thousands
 
-## Fit linear models
+Fit linear models \#\# Fit linear models
 
 ``` r
 fit = lm(mean_diff ~gdp_ln + pop_ln, data = diff_gdp_pop_df)
