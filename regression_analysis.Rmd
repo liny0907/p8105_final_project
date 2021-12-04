@@ -84,19 +84,17 @@ diff_gdp_pop_df =
   select(-mean_pm25_2020, -mean_pm25_2019)
 diff_gdp_pop_df
 ```
-We learned that air quality improvement in a city may correlates to the city's GDP and population, so we created a data frame containing mean pm2.5 AQI differences between 2019 and 2020, GDP and population in 2019 for 100 representative cities. The resulting data frame of `diff_gdp_pop_df` contains `r nrow(diff_gdp_pop_df)` observations of `r ncol(diff_gdp_pop_df)` variables. Each row represents one unique city. Below are key variables:
+We learned that air quality improvements in a city may correlate to the city's GDP and population, so we created a data frame containing mean pm2.5 AQI differences between 2019 and 2020, GDP and population in 2019 for 100 representative cities. The resulting data frame of `diff_gdp_pop_df` contains `r nrow(diff_gdp_pop_df)` observations of `r ncol(diff_gdp_pop_df)` variables. Each row represents one unique city. Below are key variables:
 `city`: city name
-`pm25_diff` mean pm2.5 AQI difference during the lockdown period (Feb-Apr) between 2019 and 2020. 
-`gdp_trillion`: log of 2019 GDP in billions
-`pop_million`: log of 2019 population in thousands
+`pm25_diff` difference of mean pm2.5 AQI during the lockdown period (Feb-Apr) between 2019 and 2020
+`gdp_trillion`: 2019 GDP in trillion
+`pop_million`: 2019 population in thousand
 
 
-## Fit linear models
+## Box-Cox Transformation
 
-
-```{r}
-#Since the boxcox only works with positive values for the response variable y, we removed pm25_diff less than 0 to check if any transformation is appropriate here. 
-
+Since the boxcox function only works with positive values for the response variable y, we removed pm25_diff less than 0 to check if a transformation is appropriate here. 
+```{r, dpi = 300}
 pos_diff_gdp_pop_df =
   diff_gdp_pop_df %>% 
   filter(pm25_diff > 0)
@@ -112,14 +110,13 @@ trans_diff_gdp_pop_df =
   mutate(sqrt_pm25_diff = sqrt(pm25_diff))
 
 trans_fit = lm(sqrt_pm25_diff ~gdp_trillion + pop_million, data = trans_diff_gdp_pop_df)
-summary(trans_fit)
-broom::tidy(trans_fit)
-  
+
+trans_fit %>% 
+  broom::tidy() %>% 
+  knitr::kable(caption = "Linear Regression Results")
 ```
 
-
-
-After fitting a linear model for mean pm2.5 AQI difference dependent on gdp_trillion and pop_million, gdp_trillion variable has a slope of -0.0436 and pop_million variable has a slope of -0.0103. However, p values of the two linear models are both very large. Therefore, we don't have enough evidence to support that air quality improvement has a linear relationship with GDP and population. 
+After fitting a linear model for sqrt(mean pm2.5 AQI difference) dependent on gdp_trillion and pop_million, gdp_trillion variable has a slope of 0.0436 and pop_million variable has a slope of -0.0103 with p values of 0.909 and 0.846 which are extremely large. Therefore, GDP and population in a city don't have significant effects on predictions of air quality improvement, in other words, we don't have enough evidence to support that air quality improvement has a linear relationship with GDP and population. 
 
 ## Model Diagnostics
 
@@ -143,6 +140,11 @@ trans_diff_gdp_pop_df %>%
   geom_point(alpha = 0.2) +
   geom_smooth(color = "red", method = "lm", se = FALSE)
   
+```
+
+```{r, dpi = 300}
+par(mfrow = c(2,2))
+plot(trans_fit)
 ```
 
 ## Cross Validation
@@ -196,7 +198,10 @@ cv_df %>%
     x = "Model",
     y = "RMSE",
     title = "Distribution of RMSE across Models (Log(Mean PM2.5 AQI Difference) vs GDP +Population)") +
-  theme(title = element_text(size = 8, face ="bold"))
+  theme(
+    title = element_text(size = 6, face = "bold"),
+    axis.title.x = element_text(size = 10),
+    axis.title.y = element_text(size = 10))
 ```
 
 We then did cross validation for three different kinds of models of mean PM2.5 AQI difference vs. gdp_trillion and pop_million. The scatterplots indicated that none of the three models fitted well. The distribution of RMSE values for each model suggested that linear and smooth models worked slightly better than wiggly model. But the RMSE values of all the three models were significantly large, confirming them were all bad fits. 
@@ -249,7 +254,7 @@ pm25_tavg_df =
 
 ## Find appropriate transformation
 
-```{r}
+```{r, dpi = 300}
 fit_tavg = lm(pm25 ~tavg, data = pm25_tavg_df)
 MASS::boxcox(fit_tavg)
 
@@ -258,8 +263,9 @@ log_pm25_tavg_df =
   mutate(lnpm25 = log(pm25))
 
 log_fit = lm(lnpm25 ~tavg, data = log_pm25_tavg_df)
-summary(log_fit)
-broom::tidy(log_fit)
+log_fit %>%
+  broom::tidy() %>% 
+  knitr::kable(caption = "Linear Regression Results")
 ```
 
 Model diagnostics
@@ -271,7 +277,14 @@ log_pm25_tavg_df %>%
   geom_point(alpha = 0.2) +
   geom_smooth(method = "lm", color = "red", se = FALSE)
 ```
+
 Residuals appear to be evenly distributed around 0, which is an indication of constant variance. 
+
+```{r, dpi = 300}
+par(mfrow = c(2,2))
+plot(log_fit)
+```
+
 
 ## Cross validation
 

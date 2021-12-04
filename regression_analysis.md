@@ -94,21 +94,23 @@ diff_gdp_pop_df
     ## 10 Chengdu      10.4          1.70        16.3 
     ## # … with 90 more rows
 
-We learned that air quality improvement in a city may correlates to the
+We learned that air quality improvements in a city may correlate to the
 city’s GDP and population, so we created a data frame containing mean
 pm2.5 AQI differences between 2019 and 2020, GDP and population in 2019
 for 100 representative cities. The resulting data frame of
 `diff_gdp_pop_df` contains 100 observations of 4 variables. Each row
 represents one unique city. Below are key variables: `city`: city name
-`pm25_diff` mean pm2.5 AQI difference during the lockdown period
-(Feb-Apr) between 2019 and 2020. `gdp_trillion`: log of 2019 GDP in
-billions `pop_million`: log of 2019 population in thousands
+`pm25_diff` difference of mean pm2.5 AQI during the lockdown period
+(Feb-Apr) between 2019 and 2020 `gdp_trillion`: 2019 GDP in trillion
+`pop_million`: 2019 population in thousand
 
-## Fit linear models
+## Box-Cox Transformation
+
+Since the boxcox function only works with positive values for the
+response variable y, we removed pm25\_diff less than 0 to check if a
+transformation is appropriate here.
 
 ``` r
-#Since the boxcox only works with positive values for the response variable y, we removed pm25_diff less than 0 to check if any transformation is appropriate here. 
-
 pos_diff_gdp_pop_df =
   diff_gdp_pop_df %>% 
   filter(pm25_diff > 0)
@@ -129,46 +131,28 @@ trans_diff_gdp_pop_df =
   mutate(sqrt_pm25_diff = sqrt(pm25_diff))
 
 trans_fit = lm(sqrt_pm25_diff ~gdp_trillion + pop_million, data = trans_diff_gdp_pop_df)
-summary(trans_fit)
+
+trans_fit %>% 
+  broom::tidy() %>% 
+  knitr::kable(caption = "Linear Regression Results")
 ```
 
-    ## 
-    ## Call:
-    ## lm(formula = sqrt_pm25_diff ~ gdp_trillion + pop_million, data = trans_diff_gdp_pop_df)
-    ## 
-    ## Residuals:
-    ##     Min      1Q  Median      3Q     Max 
-    ## -3.2233 -1.3186  0.3737  1.2338  2.9555 
-    ## 
-    ## Coefficients:
-    ##              Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)   3.71878    0.27997  13.283   <2e-16 ***
-    ## gdp_trillion  0.04364    0.37960   0.115    0.909    
-    ## pop_million  -0.01029    0.05296  -0.194    0.846    
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 1.458 on 91 degrees of freedom
-    ## Multiple R-squared:  0.0004662,  Adjusted R-squared:  -0.0215 
-    ## F-statistic: 0.02122 on 2 and 91 DF,  p-value: 0.979
+| term          |   estimate | std.error |  statistic |   p.value |
+|:--------------|-----------:|----------:|-----------:|----------:|
+| (Intercept)   |  3.7187826 | 0.2799728 | 13.2826555 | 0.0000000 |
+| gdp\_trillion |  0.0436444 | 0.3796025 |  0.1149740 | 0.9087190 |
+| pop\_million  | -0.0102924 | 0.0529619 | -0.1943355 | 0.8463464 |
 
-``` r
-broom::tidy(trans_fit)
-```
+Linear Regression Results
 
-    ## # A tibble: 3 × 5
-    ##   term         estimate std.error statistic  p.value
-    ##   <chr>           <dbl>     <dbl>     <dbl>    <dbl>
-    ## 1 (Intercept)    3.72      0.280     13.3   5.10e-23
-    ## 2 gdp_trillion   0.0436    0.380      0.115 9.09e- 1
-    ## 3 pop_million   -0.0103    0.0530    -0.194 8.46e- 1
-
-After fitting a linear model for mean pm2.5 AQI difference dependent on
-gdp\_trillion and pop\_million, gdp\_trillion variable has a slope of
--0.0436 and pop\_million variable has a slope of -0.0103. However, p
-values of the two linear models are both very large. Therefore, we don’t
-have enough evidence to support that air quality improvement has a
-linear relationship with GDP and population.
+After fitting a linear model for sqrt(mean pm2.5 AQI difference)
+dependent on gdp\_trillion and pop\_million, gdp\_trillion variable has
+a slope of 0.0436 and pop\_million variable has a slope of -0.0103 with
+p values of 0.909 and 0.846 which are extremely large. Therefore, GDP
+and population in a city don’t have significant effects on predictions
+of air quality improvement, in other words, we don’t have enough
+evidence to support that air quality improvement has a linear
+relationship with GDP and population.
 
 ## Model Diagnostics
 
@@ -199,6 +183,13 @@ trans_diff_gdp_pop_df %>%
 
 <img src="regression_analysis_files/figure-gfm/unnamed-chunk-7-2.png" width="90%" />
 
+``` r
+par(mfrow = c(2,2))
+plot(trans_fit)
+```
+
+<img src="regression_analysis_files/figure-gfm/unnamed-chunk-8-1.png" width="90%" />
+
 ## Cross Validation
 
 Fit three models for `sqrt_pm25_diff` vs. `gdp_trillion` and
@@ -221,7 +212,7 @@ trans_diff_gdp_pop_df %>%
     title = "Sqrt(Mean PM2.5 AQI Difference) vs GDP and Population")
 ```
 
-<img src="regression_analysis_files/figure-gfm/unnamed-chunk-8-1.png" width="90%" />
+<img src="regression_analysis_files/figure-gfm/unnamed-chunk-9-1.png" width="90%" />
 
 Cross validation for `mean_diff` vs. `gdp_trillion` and `pop_million`.
 
@@ -255,10 +246,13 @@ cv_df %>%
     x = "Model",
     y = "RMSE",
     title = "Distribution of RMSE across Models (Log(Mean PM2.5 AQI Difference) vs GDP +Population)") +
-  theme(title = element_text(size = 8, face ="bold"))
+  theme(
+    title = element_text(size = 6, face = "bold"),
+    axis.title.x = element_text(size = 10),
+    axis.title.y = element_text(size = 10))
 ```
 
-<img src="regression_analysis_files/figure-gfm/unnamed-chunk-9-1.png" width="90%" />
+<img src="regression_analysis_files/figure-gfm/unnamed-chunk-10-1.png" width="90%" />
 
 We then did cross validation for three different kinds of models of mean
 PM2.5 AQI difference vs. gdp\_trillion and pop\_million. The
@@ -338,7 +332,7 @@ fit_tavg = lm(pm25 ~tavg, data = pm25_tavg_df)
 MASS::boxcox(fit_tavg)
 ```
 
-<img src="regression_analysis_files/figure-gfm/unnamed-chunk-12-1.png" width="90%" />
+<img src="regression_analysis_files/figure-gfm/unnamed-chunk-13-1.png" width="90%" />
 
 ``` r
 log_pm25_tavg_df =
@@ -346,37 +340,17 @@ log_pm25_tavg_df =
   mutate(lnpm25 = log(pm25))
 
 log_fit = lm(lnpm25 ~tavg, data = log_pm25_tavg_df)
-summary(log_fit)
+log_fit %>%
+  broom::tidy() %>% 
+  knitr::kable(caption = "Linear Regression Results")
 ```
 
-    ## 
-    ## Call:
-    ## lm(formula = lnpm25 ~ tavg, data = log_pm25_tavg_df)
-    ## 
-    ## Residuals:
-    ##      Min       1Q   Median       3Q      Max 
-    ## -1.89540 -0.31293  0.07044  0.34306  1.83461 
-    ## 
-    ## Coefficients:
-    ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) 4.500715   0.025005 179.993   <2e-16 ***
-    ## tavg        0.002836   0.001915   1.481    0.139    
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 0.4761 on 880 degrees of freedom
-    ## Multiple R-squared:  0.002485,   Adjusted R-squared:  0.001352 
-    ## F-statistic: 2.193 on 1 and 880 DF,  p-value: 0.139
+| term        |  estimate | std.error |  statistic |   p.value |
+|:------------|----------:|----------:|-----------:|----------:|
+| (Intercept) | 4.5007147 | 0.0250049 | 179.993116 | 0.0000000 |
+| tavg        | 0.0028357 | 0.0019151 |   1.480744 | 0.1390328 |
 
-``` r
-broom::tidy(log_fit)
-```
-
-    ## # A tibble: 2 × 5
-    ##   term        estimate std.error statistic p.value
-    ##   <chr>          <dbl>     <dbl>     <dbl>   <dbl>
-    ## 1 (Intercept)  4.50      0.0250     180.     0    
-    ## 2 tavg         0.00284   0.00192      1.48   0.139
+Linear Regression Results
 
 Model diagnostics
 
@@ -389,9 +363,17 @@ log_pm25_tavg_df %>%
   geom_smooth(method = "lm", color = "red", se = FALSE)
 ```
 
-<img src="regression_analysis_files/figure-gfm/unnamed-chunk-13-1.png" width="90%" />
+<img src="regression_analysis_files/figure-gfm/unnamed-chunk-14-1.png" width="90%" />
+
 Residuals appear to be evenly distributed around 0, which is an
 indication of constant variance.
+
+``` r
+par(mfrow = c(2,2))
+plot(log_fit)
+```
+
+<img src="regression_analysis_files/figure-gfm/unnamed-chunk-15-1.png" width="90%" />
 
 ## Cross validation
 
@@ -411,7 +393,7 @@ log_pm25_tavg_df %>%
   facet_grid(~model)
 ```
 
-<img src="regression_analysis_files/figure-gfm/unnamed-chunk-14-1.png" width="90%" />
+<img src="regression_analysis_files/figure-gfm/unnamed-chunk-16-1.png" width="90%" />
 
 ``` r
 cv_tavg_df = 
@@ -444,4 +426,4 @@ cv_tavg_df %>%
     title = "Distribution of RMSE across Models (Log(pm2.5 AQI) vs Tavg)")
 ```
 
-<img src="regression_analysis_files/figure-gfm/unnamed-chunk-15-1.png" width="90%" />
+<img src="regression_analysis_files/figure-gfm/unnamed-chunk-17-1.png" width="90%" />
