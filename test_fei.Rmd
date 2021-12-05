@@ -1,8 +1,11 @@
 ---
 title: "test"
 author: "FEI SUN"
-date: "2021/11/19"
-output: github_document
+date: "2021/11/19" 
+html_document:
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -128,7 +131,7 @@ Null hypothesis (H0): The true mean difference between the average number of AQI
 Alternative hypothesis (H1):  The true mean difference between the average number of AQI (pm25) for each 30 cities from February to April 2020 and the average number between 2017-2019 is not equal to zero.
 
 ```{r}
-mean_2020=pm25_2020%>%
+mean_20=pm25_2020%>%
   drop_na() %>% 
   select(-date)%>%
   group_by(city)%>%
@@ -145,7 +148,36 @@ mean_171819=pm25_171819%>%
   select(mean) %>%
   pull()
 
-t.test(mean_2020, mean_171819, paired = T)
+table1=pm25_2020%>%
+  drop_na() %>% 
+  select(-date)%>%
+  group_by(city)%>%
+  summarise(mean_2020=mean(pm25))
+
+table2=pm25_171819%>%
+  drop_na() %>% 
+  select(-date)%>%
+  group_by(city)%>%
+  summarise(mean_2017_2018_2019=mean(pm25))%>%
+  select(-city) 
+
+table3=pm25_2020%>%
+  drop_na() %>% 
+  select(-date)%>%
+  group_by(city)%>%
+  summarise(standard_deviation_2020=sd(pm25))
+
+table4=pm25_171819%>%
+  drop_na() %>% 
+  select(-date)%>%
+  group_by(city)%>%
+  summarise(standard_deviation_2017_2018_2019=sd(pm25))%>%
+  select(-city) 
+
+knitr::kable(bind_cols(table1,table2))
+knitr::kable(bind_cols(table3,table4))
+
+t.test(mean_20, mean_171819, paired = T)
 qt(0.05, 29)
 ```
 For a Two-Sample Paired T-test, the p-value(5.679e-12) that is less than 0.05 significance level. We can reject the null hypothesis (H0) and indicates there is no evidence to conclude that the true mean difference between the average number of AQI (pm25) for each 30 cities from February to April 2020 and the average number between 2017-2019 is equal to zero and there are different mean for each 30 cities between 2020 and 2017-2019.
