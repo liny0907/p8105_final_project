@@ -136,6 +136,7 @@ mean_2020=pm25_2020%>%
   select(mean)%>%
   pull()
 
+
 mean_171819=pm25_171819%>%
   drop_na() %>% 
   select(-date)%>%
