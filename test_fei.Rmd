@@ -1,12 +1,17 @@
 ---
 title: "test"
 author: "FEI SUN"
+<<<<<<< HEAD
+date: "2021/11/19"
+output: html_document
+=======
 date: "2021/11/19" 
 output: 
   html_document:
     code_folding: hide
 editor_options: 
   chunk_output_type: console
+>>>>>>> f0b511cf1ec57ffdfe3f6218650b18eb2895aac2
 ---
 
 ```{r setup, include=FALSE}
