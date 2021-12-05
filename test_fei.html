@@ -11,7 +11,7 @@
 
 
 
-<title>test</title>
+<title>Hypothesis Test</title>
 
 <script src="site_libs/header-attrs-2.10/header-attrs.js"></script>
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
@@ -382,13 +382,11 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">test</h1>
+<h1 class="title toc-ignore">Hypothesis Test</h1>
 
 </div>
 
 
-<div id="clean-data" class="section level1">
-<h1>clean data</h1>
 <pre class="r"><code>city_30_df_pm25 = tibble(
   file = list.files(&quot;30_cities_data&quot;)) %&gt;% 
   mutate(
@@ -431,9 +429,8 @@ pm25_2017 =
 pm25_171819= rbind(pm25_2017,pm25_2018,pm25_2019)
 
 pm25_1920= rbind(pm25_2020,pm25_2019)</code></pre>
-</div>
-<div id="chi-squared-test-figure-out-if-there-is-an-association-between-air-quality-level-and-geographical-locations." class="section level1">
-<h1>chi-squared test: figure out if there is an association between air quality level and geographical locations.</h1>
+<div id="chi-squared-test" class="section level1">
+<h1>Chi-Squared Test</h1>
 <p>Are cities and air quality level dependent at 5% level of significance? In other words, given the data collected above, is there a relationship between the cities and the level of air quality that they have obtained?</p>
 <p>Null hypothesis (H0): the air quality level and the different cities variables of the contingency table are independent in 2020 between February to April.</p>
 <p>Alternative hypothesis (H1): the air quality level and the different cities variables of the contingency table are dependent in 2020 between February to April.</p>
@@ -458,6 +455,8 @@ city_level=
   pivot_wider(names_from = &quot;level&quot;, values_from = &quot;n&quot;)</code></pre>
 <pre><code>## `summarise()` has grouped output by &#39;city&#39;. You can override using the `.groups` argument.</code></pre>
 <pre class="r"><code>city_level[is.na(city_level)]= 0 </code></pre>
+<div id="air-quality-level-table" class="section level2">
+<h2>Air Quality Level Table</h2>
 <pre class="r"><code>airquality_level=read.csv(&quot;test (Fei)/city_air_quality_level.csv&quot;, row.names = 1 )
 knitr::kable(airquality_level)</code></pre>
 <table>
@@ -805,10 +804,14 @@ knitr::kable(airquality_level)</code></pre>
 ## X-squared = 1363.2, df = NA, p-value = 0.0004998</code></pre>
 <pre class="r"><code>qchisq(0.05, 174, lower.tail=TRUE) </code></pre>
 <pre><code>## [1] 144.494</code></pre>
+</div>
+<div id="chi-squared-test-result" class="section level2">
+<h2>Chi-Squared Test Result</h2>
 <p>For a Chi-square test, the p-value(0.0004998) that is less than 0.05 significance level. We can reject the null hypothesis (H0) and indicates there is no evidence to conclude that the air quality level and the different cities variables of the contingency table are independent and there is a relationship between them.</p>
 </div>
-<div id="two-sample-paired-t-testfigure-out-whether-the-true-mean-difference-between-the-average-number-of-aqi-pm25-for-each-30-cities-from-february-to-april-2020-and-the-average-number-between-2017-2019-is-equal-to-zero" class="section level1">
-<h1>Two-Sample Paired T-test:figure out whether the true mean difference between the average number of AQI (pm25) for each 30 cities from February to April 2020 and the average number between 2017-2019 is equal to zero</h1>
+</div>
+<div id="two-sample-paired-t-test" class="section level1">
+<h1>Two-Sample Paired T-test</h1>
 <p>Null hypothesis (H0): The true mean difference between the average number of AQI (pm25) for each 30 cities from February to April 2020 and the average number between 2017-2019 is equal to zero.</p>
 <p>Alternative hypothesis (H1): The true mean difference between the average number of AQI (pm25) for each 30 cities from February to April 2020 and the average number between 2017-2019 is not equal to zero.</p>
 <pre class="r"><code>mean_20=pm25_2020%&gt;%
@@ -853,9 +856,10 @@ table4=pm25_171819%&gt;%
   group_by(city)%&gt;%
   summarise(standard_deviation_2017_2018_2019=sd(pm25))%&gt;%
   select(-city) </code></pre>
-</div>
-<div id="mean-table" class="section level1">
-<h1>Mean Table</h1>
+<div id="t-test-table" class="section level2">
+<h2>T Test Table</h2>
+<div id="mean-table" class="section level3">
+<h3>Mean Table</h3>
 <pre class="r"><code>knitr::kable(bind_cols(table1,table2))</code></pre>
 <table>
 <thead>
@@ -1019,8 +1023,8 @@ table4=pm25_171819%&gt;%
 </tbody>
 </table>
 </div>
-<div id="standard-deviation-table" class="section level1">
-<h1>Standard Deviation Table</h1>
+<div id="standard-deviation-table" class="section level3">
+<h3>Standard Deviation Table</h3>
 <pre class="r"><code>knitr::kable(bind_cols(table3,table4))</code></pre>
 <table>
 <thead>
@@ -1197,7 +1201,12 @@ table4=pm25_171819%&gt;%
 ##               -20.16268</code></pre>
 <pre class="r"><code>qt(0.05, 29)</code></pre>
 <pre><code>## [1] -1.699127</code></pre>
+</div>
+</div>
+<div id="t-test-result" class="section level2">
+<h2>T Test Result</h2>
 <p>For a Two-Sample Paired T-test, the p-value(5.679e-12) that is less than 0.05 significance level. We can reject the null hypothesis (H0) and indicates there is no evidence to conclude that the true mean difference between the average number of AQI (pm25) for each 30 cities from February to April 2020 and the average number between 2017-2019 is equal to zero and there are different mean for each 30 cities between 2020 and 2017-2019.</p>
+</div>
 </div>
 
 

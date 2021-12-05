@@ -7,7 +7,7 @@ output:
     toc_float: true
 ---
 
-```{r message = FALSE}
+```{r message = FALSE, include = FALSE}
 library(tidyverse)
 library(lubridate)
 library(dplyr)
@@ -27,22 +27,26 @@ scale_fill_discrete = scale_fill_viridis_d
 
 
 
-### 100 Cities' 2020 Minus 2019 Feb-Aprl daily average PM25 AQI, on the map of China.
+# Maps of air pollutans in cities 
 
-Time period we are interested in
-```{r}
+### Time period
+
+2019-02-01 to 2019-04-3
+
+```{r message = FALSE, include = FALSE}
 period_19 = interval(ymd("2019-02-01"), ymd("2019-04-30"))
 period_20 = interval(ymd("2020-02-01"), ymd("2020-04-30"))
 ```
 
+### Data processing 
 Compute the 19&20 mean daily AQI change of PM25 during Feb-Aprl for 100 cities.
 
-```{r}
+```{r message = FALSE, include = FALSE}
 all_cities_files = list.files("100_cities_data")
 ```
 
 The daily mean PM2.5 AQI from Feb to Aprl of year 2019 and year 2020 in each city.
-```{r}
+```{r message = FALSE, include = FALSE}
 all_city_period_meanPM25 = 
   tibble(city = character(),
          mean_19 = numeric(),
@@ -50,7 +54,7 @@ all_city_period_meanPM25 =
          mean_diff = numeric())
 ```
 
-```{r message=FALSE}
+```{r message = FALSE, include = FALSE}
 for (city_file in all_cities_files) {
   #print(city_file)
   
@@ -82,7 +86,7 @@ for (city_file in all_cities_files) {
 ```
 
 
-```{r message=FALSE}
+```{r message = FALSE, include = FALSE}
 all_city_period_meanPM25 = 
   all_city_period_meanPM25 %>% 
   mutate(
@@ -94,12 +98,11 @@ all_city_period_meanPM25 =
 ```
 
 
-```{r message=FALSE}
+```{r message = FALSE, include = FALSE}
 cities_locations = read_csv("data/100_cities_location.csv")
 all_city_period_meanPM25 = merge(all_city_period_meanPM25, cities_locations)
 ```
 
-Draw the map.
 ```{r message=FALSE}
 pal <- colorNumeric(palette = "RdBu", domain = c(-45, 45), reverse = TRUE)
 
