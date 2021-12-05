@@ -1,7 +1,5 @@
 ---
 title: "Regression Analysis"
-author: "Lin Yang"
-date: "11/20/2021"
 output: 
   html_document:
     code_folding: hide
@@ -26,13 +24,12 @@ options(
 scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 ```
-# Regression Analysis
+
 
 ## Mean PM2.5 AQI Difference vs GDP and Population
 
-### Create a data frame for regression analysis
-
-```{r, message = FALSE}
+### Data frame for regression analysis
+```{r, message = FALSE, include = FALSE}
 city_100_df = 
   tibble(
   file = list.files("100_cities_data")) %>% 
@@ -46,10 +43,7 @@ city_100_df =
   mutate(
     city = str_to_title(city),
     date = as.Date(date, format = "%Y/%m/%d"))
-```
 
-Select pm2.5 AQI during the lockdown period (Feb-Apr) and calculated mean pm2.5 AQI for both 2019 and 2020. Combine two data sets to get mean AQI differences between 2019 and 2020 for 100 cities.
-```{r, message = FALSE}
 pm25_2020 = 
   city_100_df %>% 
   filter(date > "2020-01-31" & date < "2020-05-01") %>% 
@@ -67,11 +61,7 @@ pm25_diff =
   mutate(pm25_diff = mean_pm25_2019 - mean_pm25_2020)
 
 pm25_diff
-```
 
-Load the gdp and population dataset and join it to `pm25_diff`.
-
-```{r, message = FALSE}
 gdp_pop_df = 
   read_csv("data/gpd_and_popluation.csv") %>% 
   janitor::clean_names() %>% 
@@ -85,6 +75,7 @@ diff_gdp_pop_df =
   select(-mean_pm25_2020, -mean_pm25_2019)
 diff_gdp_pop_df
 ```
+
 We learned that air quality improvements in a city may correlate to the city's GDP and population, so we created a data frame containing mean pm2.5 AQI differences between 2019 and 2020, GDP and population in 2019 for 100 representative cities. The resulting data frame of `diff_gdp_pop_df` contains `r nrow(diff_gdp_pop_df)` observations of `r ncol(diff_gdp_pop_df)` variables. Each row represents one unique city. Below are key variables:
 `city`: city name
 `pm25_diff` difference of mean pm2.5 AQI during the lockdown period (Feb-Apr) between 2019 and 2020
@@ -105,6 +96,7 @@ MASS::boxcox(fit)
 ```
 
 The box-cox plot shows that log-likelihood has the maximum value around lambda = 0.5, so square root of pm25_diff is the recommended transformation. 
+
 
 ### MLR
 ```{r}
@@ -152,7 +144,7 @@ trans_diff_gdp_pop_df %>%
     title = "Sqrt(Mean PM2.5 AQI Difference) vs GDP and Population")
 ```
 
-Cross validation for `mean_diff` vs. `gdp_trillion` and `pop_million`.
+Cross validation for `sqrt_pm25_diff` vs. `gdp_trillion` and `pop_million`.
 ```{r, dpi = 300}
 cv_df = 
   crossv_mc(trans_diff_gdp_pop_df, 100) %>% 
@@ -193,10 +185,11 @@ We then did cross validation for three different models of mean PM2.5 AQI differ
 
 ## Daily PM2.5 AQI vs Daily Average Temperature
 
-### Create a data frame containing weather data for regression analysis
+
+### Data frame for regression analysis
 
 Load weather data for 10 representative cities.
-```{r, message = FALSE}
+```{r, message = FALSE, include = FALSE}
 weather_df = 
   rnoaa::meteo_pull_monitors(
     c("CHM00054511", "CHM00058362", "CHM00050953", "CHM00054342", "CHM00055591", "CHM00056294", "CHM00056778", "CHM00059287", "CHM00057036", "CHM00057494"),
@@ -223,10 +216,7 @@ weather_df =
   relocate(city)
 
 weather_df
-```
 
-Join `weather_df` to the AQI dataset of 10 cities.
-```{r, message = FALSE}
 city_10_df =
   city_100_df %>% 
   filter(date > "2020-01-31" & date < "2020-05-01") %>% 
@@ -238,6 +228,7 @@ pm25_tavg_df =
   select(city, date, pm25, tavg) %>% 
   filter(pm25 != "NA")
 ```
+
 
 ### Find appropriate transformation
 
@@ -268,7 +259,8 @@ Residuals seem to be evenly distributed around 0, which is an indication of cons
 
 ### Cross validation
 
-Fit three models
+Fit three models for `lnpm25` vs. `tavg`.
+
 ```{r, dpi = 300}
 linear_mod_tavg = lm(lnpm25 ~ tavg, data = log_pm25_tavg_df)
 smooth_mod_tavg = gam(lnpm25 ~ s(tavg), data = log_pm25_tavg_df)
@@ -283,7 +275,7 @@ log_pm25_tavg_df %>%
   facet_grid(~model)
 ```
 
-
+Cross validation for `lnpm25` vs. `tavg`.
 ```{r, dpi = 300}
 cv_tavg_df = 
   crossv_mc(log_pm25_tavg_df, 100) %>% 
