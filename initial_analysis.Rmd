@@ -1,12 +1,10 @@
 ---
-title: "barGraph + boxPlot + line Charts"
-author: "Weiheng Zhang"
-date: "2021/11/19"
+title: "Data Exploration"
 output: 
   html_document:
     code_folding: hide
-editor_options: 
-  chunk_output_type: console
+    toc: true
+    toc_float: true
 ---
 
 

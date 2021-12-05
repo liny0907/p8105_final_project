@@ -2,13 +2,7 @@
 title: "Plot_ly Interactive barGraph + boxPlot + line Charts"
 author: "Weiheng Zhang"
 date: "2021/12/04"
-output: 
-  html_document:
-    code_folding: hide
-    toc: true
-    toc_float: true
-editor_options: 
-  chunk_output_type: console
+output: html_document
 ---
 
 
