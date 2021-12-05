@@ -2,7 +2,11 @@
 title: "barGraph + boxPlot + line Charts"
 author: "Weiheng Zhang"
 date: "2021/11/19"
-output: html_document
+output: 
+  html_document:
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
 ---
 
 

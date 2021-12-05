@@ -1,0 +1,47 @@
+---
+title: "Report"
+date: "2021/11/19"
+output: html_document
+---
+
+## Motivation
+
+Recently, the COVID-19 pandemic has been a huge challenge for human beings. It was first identified in Wuhan, China in late December 2019, and then rapidly spread out worldwide. In order to contain the sudden COVID-19 outbreak, China implemented the lockdown policy in early February 2020, minimizing industrial, transportational, and commercial activities. Although the lockdown caused a tremendous economic loss, previous research had shown that the air condition in the top four megacities of China improved significantly during the lockdown period due to a dramatic decrease in automobile and industrial emissions (Wang et al., 2020). Bearing this in mind, we are motivated to find out whether “lockdown improves overall air quality" is a common phenomenon in Chinese cities including but not only limited to megacities. In addition, if there is indeed an association between lockdown and overall air quality, we are also interested in exploring the relationship between air quality improvement and other potentially correlated variables, for example, GDP, population, and temperature.
+
+## Related Work
+1.	Positive effects of COVID-19 lockdown on air quality of industrial cities (Ankleshwar and Vapi) of Western India. [link] (https://www.nature.com/articles/s41598-021-83393-9)
+2.	Impacts of primary emissions and secondary aerosol formation on air pollution in an urban area of China during the COVID-19 lockdown. [link] (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7997682/)
+3.	Four-Month Changes in Air Quality during and after the COVID-19 Lockdown in Six Megacities in China. [link] (https://pubs.acs.org/doi/10.1021/acs.estlett.0c00605)
+
+## Introduction
+
+The lockdown period started from early February to late April 2020. To ensure complete data coverage, we applied air quality data from February 1st to April 30th , 2020. Out of over 600 Chinese cities, we selected 30 representative ones based on geographical locations. For convenience, they are either municipalities or provincial capitals.
+
+It has been established that seasonal variation does have a significant impact on air quality. Therefore, to control for the effects that different seasons have on air quality, we compared 30 cities’ air quality data during the lockdown period with the data during the same time period in 2019.
+
+The air condition in a given area is usually denoted by the Air Quality Index (AQI), which is a variable describing the daily level of air pollution for five major pollutants. Each pollutant has its own AQI and for the purpose of this project, we will limit intended study objects to PM2.5, PM10, and NO2. 
+
+
+## Questions
+
+1.	Is there a positive relationship between lockdown and air quality in the 30 cities that we are interested in? In other words, does lockdown improve the overall air quality level in each city?
+
+2.	Since the 30 cities are characterized by distinct locations, we are further interested in exploring whether location affects air quality improvement as well. If this statement holds, then which geographical area had the most significant improvement? Which one had the least?
+
+3.	The AQI is divided into 6 categories according to its value. Arranged in an ascending order, they are Good, Moderate, Unhealthy for Sensitive Groups, Unhealthy, Very Unhealthy, and Hazardous. Considering that the 30 cities are of different conditions, we want to investigate whether each city shares the same distribution of AQI categories or not. 
+
+4.	Besides lockdown, are there any other potential variables that might be correlated with air quality improvement? We have come up with possible variables like GDP, population, and temperature and will conduct multiple linear regression to see if they are related.
+
+## Discussion
+
+Overall, we found that there was a significant relationship between the lockdown and air quality level for 30 cities combined, which was consistent with our initial hypothesis. The air quality for the 30 cities was generally better during the lockdown compared to the same period in the past year. However, contrary to what we expected before, none of GDP, population, and temperature served as predictors for air quality improvement after we conducted the regression analysis. 
+
+The map of China included in our analysis exhibits the distribution of magnitude of air quality improvement during the lockdown period across 100 cities. Each dot represents a city we selected, and the color indicates its degree of air quality improvement. The bluer the dot is, the more improvement it had made. 
+
+We can see that most cities with significant air quality improvement tend to cluster in the North China and Yangtze River Delta region. This might be partially explained by the economic structure. Industrial output value accounts for a relatively large proportion of GDP in these two areas. Normally, there are a lot of industrial activities going on there. However, during the lockdown period, nearly all of them were partially or completely suspended. As industry does have an unignorable negative impact on air quality, it’s not difficult to see why notable air quality improvement could be observed in these two regions.
+
+There are a few notable limitations in our project. Firstly, besides GDP, population, and temperature, there might be variables that are more closely related to air quality improvements, for example, industrial output value. However, due to limited access to expected datasets, we failed to include it in our regression model.  In addition, the 30 cities we selected are not representative since they are all relatively large in terms of scale. There are many more small cities that we hadn’t investigated. Therefore, the results we obtained in this project were not generalizable to all Chinese cities.  Finally, the datasets we found contained a lot of missing values, which might undermine the reliability and validity of our study in some degree.
+
+This project also further implicates that current economic and social development is nearly always at the expense of environmental degradation.  However, there are promising ways that could tackle this problem effectively.  For example, choosing means of transportation that are more environmental-friendly, using cleaner and renewable energies for production, and reducing hazardous substance emission could all ameliorate the situation to some extent.
+
+
