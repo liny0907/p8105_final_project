@@ -397,7 +397,6 @@ div.tocify {
 <h2>Mean PM2.5 AQI Difference vs GDP and Population</h2>
 <div id="create-a-data-frame-for-regression-analysis" class="section level3">
 <h3>Create a data frame for regression analysis</h3>
-<p>Load and clean air quality datasets for 100 cities.</p>
 <pre class="r"><code>city_100_df = 
   tibble(
   file = list.files(&quot;100_cities_data&quot;)) %&gt;% 
@@ -693,10 +692,13 @@ log_fit %&gt;%
 </tr>
 </tbody>
 </table>
-<p>###Model diagnostics</p>
+</div>
+<div id="model-diagnostics-1" class="section level3">
+<h3>Model diagnostics</h3>
 <pre class="r"><code>par(mfrow = c(2,2))
 plot(log_fit)</code></pre>
-<p><img src="regression_analysis_files/figure-html/unnamed-chunk-13-1.png" width="1800" /> Residuals seem to be evenly distributed around 0, which is an indication of constant variance. There are some potential outliers, such as #766 and 163. The normal QQ plot shows a roughly straight line, meaning residuals are normally distributed. Therefore, our model fitting for daily pm2.5 AQI difference dependent on daily average temperature doesn’t violate assumptions on residuals.</p>
+<p><img src="regression_analysis_files/figure-html/unnamed-chunk-13-1.png" width="1800" /></p>
+<p>Residuals seem to be evenly distributed around 0, which is an indication of constant variance. There are some potential outliers, such as #766 and 163. The normal QQ plot shows a roughly straight line, meaning residuals are normally distributed. Therefore, our model fitting for daily pm2.5 AQI difference dependent on daily average temperature doesn’t violate assumptions on residuals.</p>
 </div>
 <div id="cross-validation-1" class="section level3">
 <h3>Cross validation</h3>

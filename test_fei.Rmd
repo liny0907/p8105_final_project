@@ -1,17 +1,10 @@
 ---
 title: "test"
-author: "FEI SUN"
-<<<<<<< HEAD
-date: "2021/11/19"
-output: html_document
-=======
-date: "2021/11/19" 
 output: 
   html_document:
     code_folding: hide
-editor_options: 
-  chunk_output_type: console
->>>>>>> f0b511cf1ec57ffdfe3f6218650b18eb2895aac2
+    toc: true
+    toc_float: true
 ---
 
 ```{r setup, include=FALSE}
@@ -40,7 +33,7 @@ scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 ```
 
-#clean data
+# clean data
 ```{r, message = FALSE}
 city_30_df_pm25 = tibble(
   file = list.files("30_cities_data")) %>% 

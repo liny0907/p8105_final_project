@@ -2,15 +2,11 @@
 title: "Regression Analysis"
 author: "Lin Yang"
 date: "11/20/2021"
-<<<<<<< HEAD
 output: 
   html_document:
     code_folding: hide
     toc: true
     toc_float: true
-=======
-output: github_document
->>>>>>> f0b511cf1ec57ffdfe3f6218650b18eb2895aac2
 ---
 
 ```{r, include = FALSE}
@@ -19,12 +15,6 @@ library(ggridges)
 library(modelr)
 library(mgcv)
 library(patchwork)
-
-#knitr::opts_chunk$set(
-#  fig.width = 6,
-#  fig.asp = .6,
-#  out.width = "90%"
-#)
 
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
 
@@ -42,7 +32,6 @@ scale_fill_discrete = scale_fill_viridis_d
 
 ### Create a data frame for regression analysis
 
-Load and clean air quality datasets for 100 cities.
 ```{r, message = FALSE}
 city_100_df = 
   tibble(
@@ -103,17 +92,7 @@ We learned that air quality improvements in a city may correlate to the city's G
 `pop_million`: 2019 population in thousand
 
 
-<<<<<<< HEAD
-Fit linear models
-=======
-## Fit linear models
-
-```{r}
-fit = lm(mean_diff ~gdp_ln + pop_ln, data = diff_gdp_pop_df)
-summary(fit)
-=======
 ### Find Appropriate Transformation
->>>>>>> 31d942372fd608c8189d208d3f7241e9bac09eb9
 
 Since the boxcox function only works with positive values for the response variable y, we removed pm25_diff less than 0 to check if a transformation is appropriate here. 
 ```{r, dpi = 300}
@@ -276,14 +255,13 @@ log_fit %>%
   knitr::kable(caption = "Linear Regression Results")
 ```
 
-###Model diagnostics
+### Model diagnostics
 
 ```{r, dpi = 300, fig.height = 6, fig.width = 6}
 par(mfrow = c(2,2))
 plot(log_fit)
 ```
-<<<<<<< HEAD
-=======
+
 Residuals seem to be evenly distributed around 0, which is an indication of constant variance. There are some potential outliers, such as #766 and 163. The normal QQ plot shows a roughly straight line, meaning residuals are normally distributed. Therefore, our model fitting for daily pm2.5 AQI difference dependent on daily average temperature doesn't violate assumptions on residuals. 
 
 
@@ -338,7 +316,7 @@ cv_tavg_df %>%
 ```
 
 
->>>>>>> 31d942372fd608c8189d208d3f7241e9bac09eb9
+
 
 
 

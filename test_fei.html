@@ -9,7 +9,6 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="FEI SUN" />
 
 
 <title>test</title>
@@ -30,6 +29,9 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
@@ -225,6 +227,69 @@ $(document).ready(function () {
 
 
 
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
 
 </head>
 
@@ -232,6 +297,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -308,13 +383,12 @@ $(document).ready(function () {
 
 
 <h1 class="title toc-ignore">test</h1>
-<h4 class="author">FEI SUN</h4>
-<h4 class="date">2021/11/19</h4>
 
 </div>
 
 
-<p>#clean data</p>
+<div id="clean-data" class="section level1">
+<h1>clean data</h1>
 <pre class="r"><code>city_30_df_pm25 = tibble(
   file = list.files(&quot;30_cities_data&quot;)) %&gt;% 
   mutate(
@@ -357,6 +431,7 @@ pm25_2017 =
 pm25_171819= rbind(pm25_2017,pm25_2018,pm25_2019)
 
 pm25_1920= rbind(pm25_2020,pm25_2019)</code></pre>
+</div>
 <div id="chi-squared-test-figure-out-if-there-is-an-association-between-air-quality-level-and-geographical-locations." class="section level1">
 <h1>chi-squared test: figure out if there is an association between air quality level and geographical locations.</h1>
 <p>Are cities and air quality level dependent at 5% level of significance? In other words, given the data collected above, is there a relationship between the cities and the level of air quality that they have obtained?</p>
@@ -382,7 +457,7 @@ city_level=
   summarise(n=n())%&gt;%
   pivot_wider(names_from = &quot;level&quot;, values_from = &quot;n&quot;)</code></pre>
 <pre><code>## `summarise()` has grouped output by &#39;city&#39;. You can override using the `.groups` argument.</code></pre>
-<pre class="r"><code>city_level[is.na(city_level)]= 0</code></pre>
+<pre class="r"><code>city_level[is.na(city_level)]= 0 </code></pre>
 <pre class="r"><code>airquality_level=read.csv(&quot;test (Fei)/city_air_quality_level.csv&quot;, row.names = 1 )
 knitr::kable(airquality_level)</code></pre>
 <table>
@@ -411,142 +486,6 @@ knitr::kable(airquality_level)</code></pre>
 <tbody>
 <tr class="odd">
 <td align="left">Beijing</td>
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-<td align="right">38</td>
-<td align="right">35</td>
-<td align="right">50</td>
-<td align="right">50</td>
-<td align="right">6</td>
-<td align="right">0</td>
-<td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="left">Changchun</td>
-<td align="right">29</td>
-<td align="right">2</td>
-<td align="right">54</td>
-<td align="right">74</td>
-<td align="right">13</td>
-<td align="right">5</td>
-<td align="right">0</td>
-</tr>
-<tr class="odd">
-<td align="left">Changsha</td>
-<td align="right">33</td>
-<td align="right">3</td>
-<td align="right">37</td>
-<td align="right">103</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="left">Chengdu</td>
-<td align="right">43</td>
-<td align="right">1</td>
-<td align="right">39</td>
-<td align="right">94</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-</tr>
-<tr class="odd">
-<td align="left">Chongqing</td>
-<td align="right">33</td>
-<td align="right">0</td>
-<td align="right">46</td>
-<td align="right">98</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="left">Fuzhou</td>
-<td align="right">2</td>
-<td align="right">18</td>
-<td align="right">101</td>
-<td align="right">56</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-</tr>
-<tr class="odd">
-<td align="left">Guangzhou</td>
-<td align="right">6</td>
-<td align="right">24</td>
-<td align="right">110</td>
-<td align="right">37</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="left">Guiyang</td>
-<td align="right">6</td>
-<td align="right">0</td>
-<td align="right">77</td>
-<td align="right">94</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-</tr>
-<tr class="odd">
-<td align="left">Harbin</td>
-<td align="right">25</td>
-<td align="right">7</td>
-<td align="right">63</td>
-<td align="right">66</td>
-<td align="right">13</td>
-<td align="right">2</td>
-<td align="right">1</td>
-</tr>
-<tr class="even">
-<td align="left">Hefei</td>
-<td align="right">26</td>
-<td align="right">3</td>
-<td align="right">61</td>
-<td align="right">86</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">0</td>
-</tr>
-<tr class="odd">
-<td align="left">Jinan</td>
-<td align="right">53</td>
-<td align="right">1</td>
-<td align="right">35</td>
-<td align="right">80</td>
-<td align="right">8</td>
-<td align="right">0</td>
-<td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="left">Kunming</td>
-<td align="right">4</td>
-<td align="right">1</td>
-<td align="right">101</td>
-<td align="right">71</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-</tr>
-<tr class="odd">
-<td align="left">Lanzhou</td>
-<td align="right">3</td>
-<td align="right">0</td>
-<td align="right">50</td>
-<td align="right">124</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-=======
->>>>>>> f0b511cf1ec57ffdfe3f6218650b18eb2895aac2
-<td align="right">14</td>
->>>>>>> 027cd3560b581ef39ab84d429444feb67288d0ea
 <td align="right">19</td>
 <td align="right">31</td>
 <td align="right">23</td>
@@ -677,188 +616,6 @@ knitr::kable(airquality_level)</code></pre>
 </tr>
 <tr class="even">
 <td align="left">Lhasa</td>
-<<<<<<< HEAD
-=======
-<td align="right">0</td>
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-<td align="right">91</td>
-<td align="right">86</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-</tr>
-<tr class="odd">
-<td align="left">Nanchang</td>
-<td align="right">21</td>
-<td align="right">1</td>
-<td align="right">58</td>
-<td align="right">97</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="left">Nanjing</td>
-<td align="right">31</td>
-<td align="right">0</td>
-<td align="right">56</td>
-<td align="right">87</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-</tr>
-<tr class="odd">
-<td align="left">Nanning</td>
-<td align="right">7</td>
-<td align="right">13</td>
-<td align="right">112</td>
-<td align="right">45</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="left">Shanghai</td>
-<td align="right">19</td>
-<td align="right">5</td>
-<td align="right">82</td>
-<td align="right">67</td>
-<td align="right">3</td>
-<td align="right">1</td>
-<td align="right">0</td>
-</tr>
-<tr class="odd">
-<td align="left">Shenyang</td>
-<td align="right">47</td>
-<td align="right">1</td>
-<td align="right">56</td>
-<td align="right">65</td>
-<td align="right">8</td>
-<td align="right">0</td>
-<td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="left">Shenzhen</td>
-<td align="right">3</td>
-<td align="right">2</td>
-<td align="right">129</td>
-<td align="right">43</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-</tr>
-<tr class="odd">
-<td align="left">Shijiazhuang</td>
-<td align="right">50</td>
-<td align="right">0</td>
-<td align="right">34</td>
-<td align="right">70</td>
-<td align="right">19</td>
-<td align="right">4</td>
-<td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="left">Suzhou</td>
-<td align="right">44</td>
-<td align="right">0</td>
-<td align="right">51</td>
-<td align="right">80</td>
-<td align="right">2</td>
-<td align="right">0</td>
-<td align="right">0</td>
-</tr>
-<tr class="odd">
-<td align="left">Taiyuan</td>
-<td align="right">45</td>
-<td align="right">3</td>
-<td align="right">54</td>
-<td align="right">62</td>
-<td align="right">13</td>
-<td align="right">0</td>
-<td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="left">Tianjin</td>
-<td align="right">45</td>
-<td align="right">19</td>
-<td align="right">56</td>
-<td align="right">49</td>
-<td align="right">7</td>
-<td align="right">1</td>
-<td align="right">0</td>
-</tr>
-<tr class="odd">
-<td align="left">Wuhan</td>
-<td align="right">47</td>
-<td align="right">1</td>
-<td align="right">26</td>
-<td align="right">102</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="left">Wulumuqi</td>
-<td align="right">41</td>
-<td align="right">6</td>
-<td align="right">79</td>
-<td align="right">34</td>
-<td align="right">13</td>
-<td align="right">4</td>
-<td align="right">0</td>
-</tr>
-<tr class="odd">
-<td align="left">Xian</td>
-<td align="right">44</td>
-<td align="right">0</td>
-<td align="right">27</td>
-<td align="right">92</td>
-<td align="right">14</td>
-<td align="right">0</td>
-<td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="left">Xining</td>
-<td align="right">8</td>
-<td align="right">0</td>
-<td align="right">44</td>
-<td align="right">125</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-</tr>
-<tr class="odd">
-<td align="left">Yinchuan</td>
-<td align="right">20</td>
-<td align="right">2</td>
-<td align="right">107</td>
-<td align="right">48</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="left">Zhengzhou</td>
-<td align="right">51</td>
-<td align="right">2</td>
-<td align="right">29</td>
-<td align="right">83</td>
-<td align="right">10</td>
-<td align="right">2</td>
-<td align="right">0</td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#这个我在想想因为直接用table换matrix 前面index number去除不了 就做不了test</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>airquality_level<span class="ot">=</span><span class="fu">read.csv</span>(<span class="st">&quot;test (Fei)/city_air_quality_level.csv&quot;</span>, <span class="at">row.names =</span> <span class="dv">1</span> )</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#chi test</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">chisq.test</span>(airquality_level, <span class="at">simulate.p.value =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
-=======
->>>>>>> 027cd3560b581ef39ab84d429444feb67288d0ea
->>>>>>> f0b511cf1ec57ffdfe3f6218650b18eb2895aac2
 <td align="right">56</td>
 <td align="right">32</td>
 <td align="right">0</td>
@@ -1071,7 +828,6 @@ mean_171819=pm25_171819%&gt;%
   select(mean) %&gt;%
   pull()
 
-<<<<<<< HEAD
 table1=pm25_2020%&gt;%
   drop_na() %&gt;% 
   select(-date)%&gt;%
@@ -1428,13 +1184,6 @@ table4=pm25_171819%&gt;%
 </tbody>
 </table>
 <pre class="r"><code>t.test(mean_20, mean_171819, paired = T)</code></pre>
-=======
-t.test(mean_2020, mean_171819, paired = T)</code></pre>
-<<<<<<< HEAD
-=======
->>>>>>> f080d9ebea4abd61d50e52a00911fe1246d55a7b
->>>>>>> 027cd3560b581ef39ab84d429444feb67288d0ea
->>>>>>> f0b511cf1ec57ffdfe3f6218650b18eb2895aac2
 <pre><code>## 
 ##  Paired t-test
 ## 
@@ -1453,6 +1202,8 @@ t.test(mean_2020, mean_171819, paired = T)</code></pre>
 
 
 
+</div>
+</div>
 
 </div>
 
@@ -1490,6 +1241,35 @@ $(document).ready(function () {
 });
 </script>
 
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

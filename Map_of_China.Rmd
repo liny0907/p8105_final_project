@@ -1,8 +1,10 @@
 ---
 title: "Map_of_China"
-author: "Weiheng Zhang"
-date: "2021/11/26"
-output: html_document
+output: 
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
 ---
 
 ```{r message = FALSE}
