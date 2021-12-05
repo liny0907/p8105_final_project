@@ -2,13 +2,7 @@
 title: "Plot_ly Interactive barGraph + boxPlot + line Charts"
 author: "Weiheng Zhang"
 date: "2021/12/04"
-output: 
-  html_document:
-    code_folding: hide
-    toc: true
-    toc_float: true
-editor_options: 
-  chunk_output_type: console
+output: html_document
 ---
 
 
@@ -141,6 +135,7 @@ city_period_diff =
 city_period_diff %>% 
   plot_ly(x = ~pm25, y = ~city25, type = "bar", color = ~city25,
           colors = viridis_pal(option = "D")(3), visible = T) %>% 
+  add_trace(x = ~no2) %>% 
   layout(title = "Feb-Aprl Daily mean PM2.5 AQI Difference, 2020 minus 2019",
          xaxis = list(title = "y"),
          yaxis = list(title = "x"),

@@ -2,15 +2,8 @@
 title: "Map_of_China"
 author: "Weiheng Zhang"
 date: "2021/11/26"
-output: 
-  html_document:
-    code_folding: hide
-    toc: true
-    toc_float: true
-editor_options: 
-  chunk_output_type: console
+output: html_document
 ---
-
 
 ```{r message = FALSE}
 library(tidyverse)
@@ -32,7 +25,7 @@ scale_fill_discrete = scale_fill_viridis_d
 
 
 
-# 100 Cities' 2020 Minus 2019 Feb-Aprl daily average PM25 AQI, on the map of China.
+### 100 Cities' 2020 Minus 2019 Feb-Aprl daily average PM25 AQI, on the map of China.
 
 Time period we are interested in
 ```{r}
@@ -40,13 +33,13 @@ period_19 = interval(ymd("2019-02-01"), ymd("2019-04-30"))
 period_20 = interval(ymd("2020-02-01"), ymd("2020-04-30"))
 ```
 
-# Compute the 19&20 mean daily AQI change of PM25 during Feb-Aprl for 100 cities.
+Compute the 19&20 mean daily AQI change of PM25 during Feb-Aprl for 100 cities.
 
 ```{r}
 all_cities_files = list.files("100_cities_data")
 ```
 
-# The daily mean PM2.5 AQI from Feb to Aprl of year 2019 and year 2020 in each city.
+The daily mean PM2.5 AQI from Feb to Aprl of year 2019 and year 2020 in each city.
 ```{r}
 all_city_period_meanPM25 = 
   tibble(city = character(),
@@ -104,7 +97,7 @@ cities_locations = read_csv("data/100_cities_location.csv")
 all_city_period_meanPM25 = merge(all_city_period_meanPM25, cities_locations)
 ```
 
-# Draw the map.
+Draw the map.
 ```{r message=FALSE}
 pal <- colorNumeric(palette = "RdBu", domain = c(-45, 45), reverse = TRUE)
 

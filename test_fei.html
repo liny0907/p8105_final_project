@@ -31,6 +31,7 @@
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
@@ -218,6 +219,9 @@ $(document).ready(function () {
 </style>
 
 <!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
 
 
 
@@ -292,6 +296,14 @@ $(document).ready(function () {
 </div><!--/.navbar -->
 
 <div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
 
 
 
@@ -376,10 +388,10 @@ knitr::kable(airquality_level)</code></pre>
 <table>
 <colgroup>
 <col width="13%" />
-<col width="10%" />
 <col width="5%" />
 <col width="9%" />
 <col width="31%" />
+<col width="10%" />
 <col width="15%" />
 <col width="10%" />
 <col width="6%" />
@@ -387,10 +399,10 @@ knitr::kable(airquality_level)</code></pre>
 <thead>
 <tr class="header">
 <th align="left"></th>
-<th align="right">Unhealthy</th>
 <th align="right">Good</th>
 <th align="right">Moderate</th>
 <th align="right">Unhealthy.for.Sensitive.People</th>
+<th align="right">Unhealthy</th>
 <th align="right">Very.Unhealthy</th>
 <th align="right">Hazardous</th>
 <th align="right">Total</th>
@@ -399,110 +411,246 @@ knitr::kable(airquality_level)</code></pre>
 <tbody>
 <tr class="odd">
 <td align="left">Beijing</td>
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+<td align="right">38</td>
+<td align="right">35</td>
+<td align="right">50</td>
+<td align="right">50</td>
+<td align="right">6</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Changchun</td>
+<td align="right">29</td>
+<td align="right">2</td>
+<td align="right">54</td>
+<td align="right">74</td>
+<td align="right">13</td>
+<td align="right">5</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Changsha</td>
+<td align="right">33</td>
+<td align="right">3</td>
+<td align="right">37</td>
+<td align="right">103</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Chengdu</td>
+<td align="right">43</td>
+<td align="right">1</td>
+<td align="right">39</td>
+<td align="right">94</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Chongqing</td>
+<td align="right">33</td>
+<td align="right">0</td>
+<td align="right">46</td>
+<td align="right">98</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Fuzhou</td>
+<td align="right">2</td>
+<td align="right">18</td>
+<td align="right">101</td>
+<td align="right">56</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Guangzhou</td>
+<td align="right">6</td>
+<td align="right">24</td>
+<td align="right">110</td>
+<td align="right">37</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Guiyang</td>
+<td align="right">6</td>
+<td align="right">0</td>
+<td align="right">77</td>
+<td align="right">94</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Harbin</td>
+<td align="right">25</td>
+<td align="right">7</td>
+<td align="right">63</td>
+<td align="right">66</td>
+<td align="right">13</td>
+<td align="right">2</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">Hefei</td>
+<td align="right">26</td>
+<td align="right">3</td>
+<td align="right">61</td>
+<td align="right">86</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Jinan</td>
+<td align="right">53</td>
+<td align="right">1</td>
+<td align="right">35</td>
+<td align="right">80</td>
+<td align="right">8</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Kunming</td>
+<td align="right">4</td>
+<td align="right">1</td>
+<td align="right">101</td>
+<td align="right">71</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Lanzhou</td>
+<td align="right">3</td>
+<td align="right">0</td>
+<td align="right">50</td>
+<td align="right">124</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+=======
+>>>>>>> f0b511cf1ec57ffdfe3f6218650b18eb2895aac2
 <td align="right">14</td>
+>>>>>>> 027cd3560b581ef39ab84d429444feb67288d0ea
 <td align="right">19</td>
 <td align="right">31</td>
 <td align="right">23</td>
+<td align="right">14</td>
 <td align="right">3</td>
 <td align="right">0</td>
 <td align="right">90</td>
 </tr>
 <tr class="even">
 <td align="left">Changchun</td>
-<td align="right">8</td>
 <td align="right">2</td>
 <td align="right">29</td>
 <td align="right">37</td>
+<td align="right">8</td>
 <td align="right">7</td>
 <td align="right">5</td>
 <td align="right">88</td>
 </tr>
 <tr class="odd">
 <td align="left">Changsha</td>
-<td align="right">15</td>
 <td align="right">2</td>
 <td align="right">17</td>
 <td align="right">54</td>
+<td align="right">15</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">88</td>
 </tr>
 <tr class="even">
 <td align="left">Chengdu</td>
-<td align="right">18</td>
 <td align="right">1</td>
 <td align="right">22</td>
 <td align="right">47</td>
+<td align="right">18</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">88</td>
 </tr>
 <tr class="odd">
 <td align="left">Chongqing</td>
-<td align="right">15</td>
 <td align="right">0</td>
 <td align="right">20</td>
 <td align="right">53</td>
+<td align="right">15</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">88</td>
 </tr>
 <tr class="even">
 <td align="left">Fuzhou</td>
-<td align="right">0</td>
 <td align="right">9</td>
 <td align="right">56</td>
 <td align="right">23</td>
+<td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">88</td>
 </tr>
 <tr class="odd">
 <td align="left">Guangzhou</td>
-<td align="right">3</td>
 <td align="right">17</td>
 <td align="right">52</td>
 <td align="right">16</td>
+<td align="right">3</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">88</td>
 </tr>
 <tr class="even">
 <td align="left">Guiyang</td>
-<td align="right">3</td>
 <td align="right">0</td>
 <td align="right">42</td>
 <td align="right">43</td>
+<td align="right">3</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">88</td>
 </tr>
 <tr class="odd">
 <td align="left">Harbin</td>
-<td align="right">12</td>
 <td align="right">7</td>
 <td align="right">36</td>
 <td align="right">25</td>
+<td align="right">12</td>
 <td align="right">6</td>
 <td align="right">1</td>
 <td align="right">87</td>
 </tr>
 <tr class="even">
 <td align="left">Hefei</td>
-<td align="right">4</td>
 <td align="right">3</td>
 <td align="right">45</td>
 <td align="right">36</td>
+<td align="right">4</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">88</td>
 </tr>
 <tr class="odd">
 <td align="left">Jinan</td>
-<td align="right">19</td>
 <td align="right">1</td>
 <td align="right">21</td>
 <td align="right">47</td>
+<td align="right">19</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">88</td>
@@ -510,9 +658,9 @@ knitr::kable(airquality_level)</code></pre>
 <tr class="even">
 <td align="left">Kunming</td>
 <td align="right">1</td>
-<td align="right">1</td>
 <td align="right">50</td>
 <td align="right">36</td>
+<td align="right">1</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">88</td>
@@ -520,18 +668,200 @@ knitr::kable(airquality_level)</code></pre>
 <tr class="odd">
 <td align="left">Lanzhou</td>
 <td align="right">0</td>
-<td align="right">0</td>
 <td align="right">26</td>
 <td align="right">62</td>
+<td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">88</td>
 </tr>
 <tr class="even">
 <td align="left">Lhasa</td>
+<<<<<<< HEAD
+=======
+<td align="right">0</td>
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+<td align="right">91</td>
+<td align="right">86</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Nanchang</td>
+<td align="right">21</td>
+<td align="right">1</td>
+<td align="right">58</td>
+<td align="right">97</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Nanjing</td>
+<td align="right">31</td>
 <td align="right">0</td>
 <td align="right">56</td>
+<td align="right">87</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Nanning</td>
+<td align="right">7</td>
+<td align="right">13</td>
+<td align="right">112</td>
+<td align="right">45</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Shanghai</td>
+<td align="right">19</td>
+<td align="right">5</td>
+<td align="right">82</td>
+<td align="right">67</td>
+<td align="right">3</td>
+<td align="right">1</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Shenyang</td>
+<td align="right">47</td>
+<td align="right">1</td>
+<td align="right">56</td>
+<td align="right">65</td>
+<td align="right">8</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Shenzhen</td>
+<td align="right">3</td>
+<td align="right">2</td>
+<td align="right">129</td>
+<td align="right">43</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Shijiazhuang</td>
+<td align="right">50</td>
+<td align="right">0</td>
+<td align="right">34</td>
+<td align="right">70</td>
+<td align="right">19</td>
+<td align="right">4</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Suzhou</td>
+<td align="right">44</td>
+<td align="right">0</td>
+<td align="right">51</td>
+<td align="right">80</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Taiyuan</td>
+<td align="right">45</td>
+<td align="right">3</td>
+<td align="right">54</td>
+<td align="right">62</td>
+<td align="right">13</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Tianjin</td>
+<td align="right">45</td>
+<td align="right">19</td>
+<td align="right">56</td>
+<td align="right">49</td>
+<td align="right">7</td>
+<td align="right">1</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Wuhan</td>
+<td align="right">47</td>
+<td align="right">1</td>
+<td align="right">26</td>
+<td align="right">102</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Wulumuqi</td>
+<td align="right">41</td>
+<td align="right">6</td>
+<td align="right">79</td>
+<td align="right">34</td>
+<td align="right">13</td>
+<td align="right">4</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Xian</td>
+<td align="right">44</td>
+<td align="right">0</td>
+<td align="right">27</td>
+<td align="right">92</td>
+<td align="right">14</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Xining</td>
+<td align="right">8</td>
+<td align="right">0</td>
+<td align="right">44</td>
+<td align="right">125</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Yinchuan</td>
+<td align="right">20</td>
+<td align="right">2</td>
+<td align="right">107</td>
+<td align="right">48</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Zhengzhou</td>
+<td align="right">51</td>
+<td align="right">2</td>
+<td align="right">29</td>
+<td align="right">83</td>
+<td align="right">10</td>
+<td align="right">2</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#这个我在想想因为直接用table换matrix 前面index number去除不了 就做不了test</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>airquality_level<span class="ot">=</span><span class="fu">read.csv</span>(<span class="st">&quot;test (Fei)/city_air_quality_level.csv&quot;</span>, <span class="at">row.names =</span> <span class="dv">1</span> )</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#chi test</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">chisq.test</span>(airquality_level, <span class="at">simulate.p.value =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+=======
+>>>>>>> 027cd3560b581ef39ab84d429444feb67288d0ea
+>>>>>>> f0b511cf1ec57ffdfe3f6218650b18eb2895aac2
+<td align="right">56</td>
 <td align="right">32</td>
+<td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
@@ -539,50 +869,50 @@ knitr::kable(airquality_level)</code></pre>
 </tr>
 <tr class="odd">
 <td align="left">Nanchang</td>
-<td align="right">10</td>
 <td align="right">0</td>
 <td align="right">28</td>
 <td align="right">50</td>
+<td align="right">10</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">88</td>
 </tr>
 <tr class="even">
 <td align="left">Nanjing</td>
-<td align="right">4</td>
 <td align="right">0</td>
 <td align="right">42</td>
 <td align="right">39</td>
+<td align="right">4</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">85</td>
 </tr>
 <tr class="odd">
 <td align="left">Nanning</td>
-<td align="right">4</td>
 <td align="right">10</td>
 <td align="right">52</td>
 <td align="right">22</td>
+<td align="right">4</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">88</td>
 </tr>
 <tr class="even">
 <td align="left">Shanghai</td>
-<td align="right">3</td>
 <td align="right">5</td>
 <td align="right">49</td>
 <td align="right">29</td>
+<td align="right">3</td>
 <td align="right">1</td>
 <td align="right">1</td>
 <td align="right">88</td>
 </tr>
 <tr class="odd">
 <td align="left">Shenyang</td>
-<td align="right">24</td>
 <td align="right">1</td>
 <td align="right">28</td>
 <td align="right">33</td>
+<td align="right">24</td>
 <td align="right">2</td>
 <td align="right">0</td>
 <td align="right">88</td>
@@ -590,119 +920,119 @@ knitr::kable(airquality_level)</code></pre>
 <tr class="even">
 <td align="left">Shenzhen</td>
 <td align="right">2</td>
-<td align="right">2</td>
 <td align="right">67</td>
 <td align="right">17</td>
+<td align="right">2</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">88</td>
 </tr>
 <tr class="odd">
 <td align="left">Shijiazhuang</td>
-<td align="right">24</td>
 <td align="right">0</td>
 <td align="right">21</td>
 <td align="right">37</td>
+<td align="right">24</td>
 <td align="right">6</td>
 <td align="right">0</td>
 <td align="right">88</td>
 </tr>
 <tr class="even">
 <td align="left">Suzhou</td>
-<td align="right">12</td>
 <td align="right">0</td>
 <td align="right">33</td>
 <td align="right">43</td>
+<td align="right">12</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">88</td>
 </tr>
 <tr class="odd">
 <td align="left">Taiyuan</td>
-<td align="right">20</td>
 <td align="right">2</td>
 <td align="right">29</td>
 <td align="right">32</td>
+<td align="right">20</td>
 <td align="right">5</td>
 <td align="right">0</td>
 <td align="right">88</td>
 </tr>
 <tr class="even">
 <td align="left">Tianjin</td>
-<td align="right">21</td>
 <td align="right">9</td>
 <td align="right">29</td>
 <td align="right">27</td>
+<td align="right">21</td>
 <td align="right">2</td>
 <td align="right">0</td>
 <td align="right">88</td>
 </tr>
 <tr class="odd">
 <td align="left">Wuhan</td>
-<td align="right">12</td>
 <td align="right">1</td>
 <td align="right">20</td>
 <td align="right">55</td>
+<td align="right">12</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">88</td>
 </tr>
 <tr class="even">
 <td align="left">Wulumuqi</td>
-<td align="right">11</td>
 <td align="right">3</td>
 <td align="right">46</td>
 <td align="right">22</td>
+<td align="right">11</td>
 <td align="right">4</td>
 <td align="right">2</td>
 <td align="right">88</td>
 </tr>
 <tr class="odd">
 <td align="left">Xian</td>
-<td align="right">19</td>
 <td align="right">0</td>
 <td align="right">19</td>
 <td align="right">44</td>
+<td align="right">19</td>
 <td align="right">6</td>
 <td align="right">0</td>
 <td align="right">88</td>
 </tr>
 <tr class="even">
 <td align="left">Xining</td>
-<td align="right">2</td>
 <td align="right">0</td>
 <td align="right">28</td>
 <td align="right">58</td>
+<td align="right">2</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">88</td>
 </tr>
 <tr class="odd">
 <td align="left">Yinchuan</td>
-<td align="right">7</td>
 <td align="right">0</td>
 <td align="right">57</td>
 <td align="right">24</td>
+<td align="right">7</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">88</td>
 </tr>
 <tr class="even">
 <td align="left">Zhengzhou</td>
-<td align="right">19</td>
 <td align="right">2</td>
 <td align="right">18</td>
 <td align="right">47</td>
+<td align="right">19</td>
 <td align="right">2</td>
 <td align="right">0</td>
 <td align="right">88</td>
 </tr>
 <tr class="odd">
 <td align="left">Total</td>
-<td align="right">306</td>
 <td align="right">153</td>
 <td align="right">1045</td>
 <td align="right">1081</td>
+<td align="right">306</td>
 <td align="right">44</td>
 <td align="right">9</td>
 <td align="right">2638</td>
@@ -722,8 +1052,9 @@ knitr::kable(airquality_level)</code></pre>
 </div>
 <div id="two-sample-paired-t-testfigure-out-whether-the-true-mean-difference-between-the-average-number-of-aqi-pm25-for-each-30-cities-from-february-to-april-2020-and-the-average-number-between-2017-2019-is-equal-to-zero" class="section level1">
 <h1>Two-Sample Paired T-test:figure out whether the true mean difference between the average number of AQI (pm25) for each 30 cities from February to April 2020 and the average number between 2017-2019 is equal to zero</h1>
-<p>Null hypothesis (H0): The true mean difference between the average number of AQI (pm25) for each 30 cities from February to April 2020 and the average number between 2017-2019 is equal to zero. Alternative hypothesis (H1): The true mean difference between the average number of AQI (pm25) for each 30 cities from February to April 2020 and the average number between 2017-2019 is not equal to zero.</p>
-<pre class="r"><code>mean_2020=pm25_2020%&gt;%
+<p>Null hypothesis (H0): The true mean difference between the average number of AQI (pm25) for each 30 cities from February to April 2020 and the average number between 2017-2019 is equal to zero.</p>
+<p>Alternative hypothesis (H1): The true mean difference between the average number of AQI (pm25) for each 30 cities from February to April 2020 and the average number between 2017-2019 is not equal to zero.</p>
+<pre class="r"><code>mean_20=pm25_2020%&gt;%
   drop_na() %&gt;% 
   select(-date)%&gt;%
   group_by(city)%&gt;%
@@ -740,11 +1071,374 @@ mean_171819=pm25_171819%&gt;%
   select(mean) %&gt;%
   pull()
 
+<<<<<<< HEAD
+table1=pm25_2020%&gt;%
+  drop_na() %&gt;% 
+  select(-date)%&gt;%
+  group_by(city)%&gt;%
+  summarise(mean_2020=mean(pm25))
+
+table2=pm25_171819%&gt;%
+  drop_na() %&gt;% 
+  select(-date)%&gt;%
+  group_by(city)%&gt;%
+  summarise(mean_2017_2018_2019=mean(pm25))%&gt;%
+  select(-city) 
+
+table3=pm25_2020%&gt;%
+  drop_na() %&gt;% 
+  select(-date)%&gt;%
+  group_by(city)%&gt;%
+  summarise(standard_deviation_2020=sd(pm25))
+
+table4=pm25_171819%&gt;%
+  drop_na() %&gt;% 
+  select(-date)%&gt;%
+  group_by(city)%&gt;%
+  summarise(standard_deviation_2017_2018_2019=sd(pm25))%&gt;%
+  select(-city) </code></pre>
+</div>
+<div id="mean-table" class="section level1">
+<h1>Mean Table</h1>
+<pre class="r"><code>knitr::kable(bind_cols(table1,table2))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">city</th>
+<th align="right">mean_2020</th>
+<th align="right">mean_2017_2018_2019</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Beijing</td>
+<td align="right">101.08889</td>
+<td align="right">122.56180</td>
+</tr>
+<tr class="even">
+<td align="left">Changchun</td>
+<td align="right">129.68182</td>
+<td align="right">130.83146</td>
+</tr>
+<tr class="odd">
+<td align="left">Changsha</td>
+<td align="right">119.76136</td>
+<td align="right">131.89139</td>
+</tr>
+<tr class="even">
+<td align="left">Chengdu</td>
+<td align="right">120.07955</td>
+<td align="right">138.58052</td>
+</tr>
+<tr class="odd">
+<td align="left">Chongqing</td>
+<td align="right">118.37500</td>
+<td align="right">122.62547</td>
+</tr>
+<tr class="even">
+<td align="left">Fuzhou</td>
+<td align="right">85.51136</td>
+<td align="right">101.99625</td>
+</tr>
+<tr class="odd">
+<td align="left">Guangzhou</td>
+<td align="right">79.71591</td>
+<td align="right">104.67416</td>
+</tr>
+<tr class="even">
+<td align="left">Guiyang</td>
+<td align="right">104.68182</td>
+<td align="right">119.70037</td>
+</tr>
+<tr class="odd">
+<td align="left">Harbin</td>
+<td align="right">118.10227</td>
+<td align="right">128.25468</td>
+</tr>
+<tr class="even">
+<td align="left">Hefei</td>
+<td align="right">99.15909</td>
+<td align="right">133.51311</td>
+</tr>
+<tr class="odd">
+<td align="left">Jinan</td>
+<td align="right">121.12500</td>
+<td align="right">153.87640</td>
+</tr>
+<tr class="even">
+<td align="left">Kunming</td>
+<td align="right">93.87500</td>
+<td align="right">107.58801</td>
+</tr>
+<tr class="odd">
+<td align="left">Lanzhou</td>
+<td align="right">109.44318</td>
+<td align="right">127.83895</td>
+</tr>
+<tr class="even">
+<td align="left">Lhasa</td>
+<td align="right">47.64773</td>
+<td align="right">70.38202</td>
+</tr>
+<tr class="odd">
+<td align="left">Nanchang</td>
+<td align="right">117.04545</td>
+<td align="right">122.91011</td>
+</tr>
+<tr class="even">
+<td align="left">Nanjing</td>
+<td align="right">103.63529</td>
+<td align="right">131.98876</td>
+</tr>
+<tr class="odd">
+<td align="left">Nanning</td>
+<td align="right">89.17045</td>
+<td align="right">102.31461</td>
+</tr>
+<tr class="even">
+<td align="left">Shanghai</td>
+<td align="right">96.43182</td>
+<td align="right">121.94382</td>
+</tr>
+<tr class="odd">
+<td align="left">Shenyang</td>
+<td align="right">124.36364</td>
+<td align="right">131.01124</td>
+</tr>
+<tr class="even">
+<td align="left">Shenzhen</td>
+<td align="right">86.70455</td>
+<td align="right">108.02622</td>
+</tr>
+<tr class="odd">
+<td align="left">Shijiazhuang</td>
+<td align="right">132.56818</td>
+<td align="right">170.88015</td>
+</tr>
+<tr class="even">
+<td align="left">Suzhou</td>
+<td align="right">112.28409</td>
+<td align="right">138.64419</td>
+</tr>
+<tr class="odd">
+<td align="left">Taiyuan</td>
+<td align="right">123.22727</td>
+<td align="right">141.02622</td>
+</tr>
+<tr class="even">
+<td align="left">Tianjin</td>
+<td align="right">112.10227</td>
+<td align="right">131.56015</td>
+</tr>
+<tr class="odd">
+<td align="left">Wuhan</td>
+<td align="right">119.30682</td>
+<td align="right">148.14286</td>
+</tr>
+<tr class="even">
+<td align="left">Wulumuqi</td>
+<td align="right">111.55682</td>
+<td align="right">153.50562</td>
+</tr>
+<tr class="odd">
+<td align="left">Xian</td>
+<td align="right">130.88636</td>
+<td align="right">156.21348</td>
+</tr>
+<tr class="even">
+<td align="left">Xining</td>
+<td align="right">112.95455</td>
+<td align="right">125.71536</td>
+</tr>
+<tr class="odd">
+<td align="left">Yinchuan</td>
+<td align="right">95.00000</td>
+<td align="right">113.98876</td>
+</tr>
+<tr class="even">
+<td align="left">Zhengzhou</td>
+<td align="right">125.65909</td>
+<td align="right">153.83895</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="standard-deviation-table" class="section level1">
+<h1>Standard Deviation Table</h1>
+<pre class="r"><code>knitr::kable(bind_cols(table3,table4))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">city</th>
+<th align="right">standard_deviation_2020</th>
+<th align="right">standard_deviation_2017_2018_2019</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Beijing</td>
+<td align="right">53.622410</td>
+<td align="right">58.27449</td>
+</tr>
+<tr class="even">
+<td align="left">Changchun</td>
+<td align="right">71.154930</td>
+<td align="right">41.89880</td>
+</tr>
+<tr class="odd">
+<td align="left">Changsha</td>
+<td align="right">31.946433</td>
+<td align="right">35.77939</td>
+</tr>
+<tr class="even">
+<td align="left">Chengdu</td>
+<td align="right">31.925280</td>
+<td align="right">31.39782</td>
+</tr>
+<tr class="odd">
+<td align="left">Chongqing</td>
+<td align="right">27.455842</td>
+<td align="right">32.98602</td>
+</tr>
+<tr class="even">
+<td align="left">Fuzhou</td>
+<td align="right">26.220547</td>
+<td align="right">31.28411</td>
+</tr>
+<tr class="odd">
+<td align="left">Guangzhou</td>
+<td align="right">30.560266</td>
+<td align="right">32.54474</td>
+</tr>
+<tr class="even">
+<td align="left">Guiyang</td>
+<td align="right">25.447510</td>
+<td align="right">27.04869</td>
+</tr>
+<tr class="odd">
+<td align="left">Harbin</td>
+<td align="right">82.209578</td>
+<td align="right">51.92377</td>
+</tr>
+<tr class="even">
+<td align="left">Hefei</td>
+<td align="right">26.941779</td>
+<td align="right">29.62705</td>
+</tr>
+<tr class="odd">
+<td align="left">Jinan</td>
+<td align="right">33.247872</td>
+<td align="right">35.76158</td>
+</tr>
+<tr class="even">
+<td align="left">Kunming</td>
+<td align="right">25.200717</td>
+<td align="right">27.87814</td>
+</tr>
+<tr class="odd">
+<td align="left">Lanzhou</td>
+<td align="right">17.747823</td>
+<td align="right">25.46043</td>
+</tr>
+<tr class="even">
+<td align="left">Lhasa</td>
+<td align="right">9.629982</td>
+<td align="right">20.77276</td>
+</tr>
+<tr class="odd">
+<td align="left">Nanchang</td>
+<td align="right">27.839404</td>
+<td align="right">33.82973</td>
+</tr>
+<tr class="even">
+<td align="left">Nanjing</td>
+<td align="right">25.560780</td>
+<td align="right">29.50181</td>
+</tr>
+<tr class="odd">
+<td align="left">Nanning</td>
+<td align="right">33.432802</td>
+<td align="right">30.92044</td>
+</tr>
+<tr class="even">
+<td align="left">Shanghai</td>
+<td align="right">43.508170</td>
+<td align="right">38.68478</td>
+</tr>
+<tr class="odd">
+<td align="left">Shenyang</td>
+<td align="right">43.895430</td>
+<td align="right">41.74101</td>
+</tr>
+<tr class="even">
+<td align="left">Shenzhen</td>
+<td align="right">22.903676</td>
+<td align="right">26.22566</td>
+</tr>
+<tr class="odd">
+<td align="left">Shijiazhuang</td>
+<td align="right">45.105444</td>
+<td align="right">66.73903</td>
+</tr>
+<tr class="even">
+<td align="left">Suzhou</td>
+<td align="right">29.967396</td>
+<td align="right">33.18705</td>
+</tr>
+<tr class="odd">
+<td align="left">Taiyuan</td>
+<td align="right">45.217159</td>
+<td align="right">45.75691</td>
+</tr>
+<tr class="even">
+<td align="left">Tianjin</td>
+<td align="right">45.379888</td>
+<td align="right">55.96237</td>
+</tr>
+<tr class="odd">
+<td align="left">Wuhan</td>
+<td align="right">28.383806</td>
+<td align="right">30.04290</td>
+</tr>
+<tr class="even">
+<td align="left">Wulumuqi</td>
+<td align="right">55.372689</td>
+<td align="right">76.66299</td>
+</tr>
+<tr class="odd">
+<td align="left">Xian</td>
+<td align="right">37.331516</td>
+<td align="right">49.79993</td>
+</tr>
+<tr class="even">
+<td align="left">Xining</td>
+<td align="right">19.740215</td>
+<td align="right">29.23179</td>
+</tr>
+<tr class="odd">
+<td align="left">Yinchuan</td>
+<td align="right">30.217982</td>
+<td align="right">33.16596</td>
+</tr>
+<tr class="even">
+<td align="left">Zhengzhou</td>
+<td align="right">34.516325</td>
+<td align="right">46.23868</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>t.test(mean_20, mean_171819, paired = T)</code></pre>
+=======
 t.test(mean_2020, mean_171819, paired = T)</code></pre>
+<<<<<<< HEAD
+=======
+>>>>>>> f080d9ebea4abd61d50e52a00911fe1246d55a7b
+>>>>>>> 027cd3560b581ef39ab84d429444feb67288d0ea
+>>>>>>> f0b511cf1ec57ffdfe3f6218650b18eb2895aac2
 <pre><code>## 
 ##  Paired t-test
 ## 
-## data:  mean_2020 and mean_171819
+## data:  mean_20 and mean_171819
 ## t = -11.116, df = 29, p-value = 5.679e-12
 ## alternative hypothesis: true difference in means is not equal to 0
 ## 95 percent confidence interval:
@@ -790,6 +1484,11 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
 
 
 <!-- dynamically load mathjax for compatibility with self-contained -->

@@ -1,4 +1,5 @@
 ---
+<<<<<<< HEAD
 title: "The Impact of COVID-19 Lockdowns on Air Quality in Chinese Cities"
 output: 
   html_document:
@@ -6,3 +7,11 @@ output:
     toc_float: true
 ---
 
+=======
+title: "Holy cow!"
+---
+
+### I have a webpage!
+
+And I can put all kinds of stuff on it!
+>>>>>>> f0b511cf1ec57ffdfe3f6218650b18eb2895aac2
