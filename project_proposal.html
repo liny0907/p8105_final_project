@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 
+<<<<<<< HEAD
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
@@ -21,18 +22,299 @@ body {
 }
 </style>
 
+=======
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+<meta name="date" content="2021-11-11" />
+
+<title>P8105 Final Project</title>
+
+<script src="site_libs/header-attrs-2.10/header-attrs.js"></script>
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+>>>>>>> 31d942372fd608c8189d208d3f7241e9bac09eb9
 </head>
 
 <body>
 
+<<<<<<< HEAD
 <h1 id="p8105-final-project">P8105 Final Project</h1>
 <p>11/11/2021</p>
 <h3 id="the-group-members-names-and-unis">The group members (names and UNIs)</h3>
+=======
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Home</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="mailto:&lt;you@youremail.com&gt;">
+    <span class="fa fa-envelope fa-lg"></span>
+     
+  </a>
+</li>
+<li>
+  <a href="http://github.com/&lt;YOUR_GH_NAME&gt;/">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">P8105 Final Project</h1>
+<h4 class="date">11/11/2021</h4>
+
+</div>
+
+
+<div id="the-group-members-names-and-unis" class="section level3">
+<h3>The group members (names and UNIs)</h3>
+>>>>>>> 31d942372fd608c8189d208d3f7241e9bac09eb9
 <p>Zhuolun Huang, zh2494<br />
 Fei Sun, fs2757<br />
 Lin Yang, ly2565<br />
 Yihan Qiu, yq2321<br />
 Weiheng Zhang, wz2590</p>
+<<<<<<< HEAD
 <h3 id="the-tentative-project-title">The tentative project title</h3>
 <p>The Impact of COVID-19 Lockdowns on Air Quality in Chinese Cities</p>
 <h3 id="the-motivation-for-this-project">The motivation for this project</h3>
@@ -62,6 +344,59 @@ We will also build interactive graphs showing how the population and GDP of citi
 <li>It can be time-consuming to generate reader-friendly plots, especially plots containing multiple cities.</li>
 </ol>
 <h3 id="timeline">Timeline</h3>
+=======
+</div>
+<div id="the-tentative-project-title" class="section level3">
+<h3>The tentative project title</h3>
+<p>The Impact of COVID-19 Lockdowns on Air Quality in Chinese Cities</p>
+</div>
+<div id="the-motivation-for-this-project" class="section level3">
+<h3>The motivation for this project</h3>
+<p>In order to contain the COVID-19 outbreak, China entered lockdown in early February 2020, minimizing all industrial, transportation, and commercial activities. Although the lockdown caused tremendous loss to the economy, previous research has shown the air condition in the top four megacities of China improved significantly during the lockdown period, due to a dramatic decrease in automobile and industrial emissions. Our motivation is to find out whether “lockdown improves air quality” is a common phenomenon in Chinese cities including but not only limited to megacities. We are also interested in how the geographical location, population, and GDP of each city affect the degree of air quality improvement, and which pollutant’s daily air quality index(AQI) was affected the most. AQI is a variable describing the daily level of air pollution from pollutants such as PM2.5, PM10, NO2. Each pollutant has its own AQI value for each day.</p>
+</div>
+<div id="the-intended-final-products" class="section level3">
+<h3>The intended final products</h3>
+<p>We will present interactive graphs and thematic maps showing the degree of improvement of daily average AQI for multiple pollutants, among thirty representative Chinese cities during lockdown compared to air quality data in the same months of the year 2019.<br />
+We will also build interactive graphs showing how the population and GDP of cities in the same geographical district correlate to the degree of improvement of daily average AQI.</p>
+</div>
+<div id="the-anticipated-data-sources" class="section level3">
+<h3>The anticipated data sources</h3>
+<p><a href="https://aqicn.org/data-platform/register/">Air Quality Historical Data Platform</a><br />
+<a href="https://en.wikipedia.org/wiki/List_of_Chinese_prefecture-level_cities_by_GDP">List of Chinese prefecture-level cities by GDP</a><br />
+<a href="https://populationstat.com/china/">China Population</a></p>
+</div>
+<div id="the-planned-analyses-visualizations" class="section level3">
+<h3>The planned analyses / visualizations</h3>
+<p>We will make various plots to evaluate how lockdown policies affected air quality in most Chinese cities, and how population and GDP affected air quality improvements in these cities. We will also analyze which cities had the most and the least air quality improvements and figure out if there is an association between air quality improvements and geographical locations. Here’re our expected results:</p>
+<ul>
+<li>A bar graph of mean AQI difference for each air pollutant(PM2.5, PM10, SO2, O3, NO2, CO) between 2019 and 2020.<br />
+</li>
+<li>A boxplot of daily PM2.5 AQI from Feb. to Apr. (lockdown period) in the past year (2019, 2020) in 10 representative cities.<br />
+</li>
+<li>A bar graph of mean PM2.5 AQI from Feb to Apr in the past three years in 10 representative cities.<br />
+</li>
+<li>A line plot of trends in monthly average PM2.5 AQIs from 2019/02 - 2020/06 in 10 representative cities.<br />
+</li>
+<li>Scatterplots of PM2.5 AQI differences vs. GDP and PM2.5 AQI differences vs. population in all cities.<br />
+</li>
+<li>A map of China showing each city’s AQI difference between early 2020 and 2019.</li>
+</ul>
+</div>
+<div id="coding-challenges" class="section level3">
+<h3>Coding challenges</h3>
+<ol style="list-style-type: decimal">
+<li>Although we already have accurate data on air quality in each city, the data of every 30 cities are independent files, so it is tedious to combine the air pollution data of each city into one file. Comparing data from different cities could be complicated.<br />
+</li>
+<li>To evaluate the relationship between population/GDP and air quality improvements, we have to manually gather data from the web.<br />
+</li>
+<li>There are some errors and obscure information in the air quality data, so we need to review and investigate the data of each city carefully before we proceed.<br />
+</li>
+<li>It can be time-consuming to generate reader-friendly plots, especially plots containing multiple cities.</li>
+</ol>
+</div>
+<div id="timeline" class="section level3">
+<h3>Timeline</h3>
+>>>>>>> 31d942372fd608c8189d208d3f7241e9bac09eb9
 <table>
 <thead>
 <tr class="header">
@@ -123,19 +458,84 @@ We will also build interactive graphs showing how the population and GDP of citi
 </tr>
 </tbody>
 </table>
+<<<<<<< HEAD
 <h1 id="-head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</h1>
 <p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</p>
 <p>======= # The intended final products We will present interactive graphs and thematic maps showing the degree of improvement of daily average AQI for multiple pollutants, among thirty representative Chinese cities during lockdown compared to air quality data in the same months of the year 2019. We will also build interactive graphs showing how the population and GDP of cities in the same geographical district correlate to the degree of improvement of daily average AQI. &gt;&gt;&gt;&gt;&gt;&gt;&gt; 47a1a00b42b1bf0e4c7ac440b9b2fbf57dde368e</p>
 <h1 id="the-anticipated-data-sources-1">The anticipated data sources</h1>
 <p><a href="https://aqicn.org/data-platform/register/">Air Quality Historical Data Platform</a> <a href="https://en.wikipedia.org/wiki/List_of_Chinese_prefecture-level_cities_by_GDP">List of Chinese prefecture-level cities by GDP</a> <a href="https://populationstat.com/china/">China Population</a></p>
 <h1 id="coding-challenges-1">Coding challenges</h1>
+=======
+</div>
+<div id="the-intended-final-products-1" class="section level1">
+<h1>The intended final products</h1>
+<p>We will present interactive graphs and thematic maps showing the degree of improvement of daily average AQI for multiple pollutants, among thirty representative Chinese cities during lockdown compared to air quality data in the same months of the year 2019. We will also build interactive graphs showing how the population and GDP of cities in the same geographical district correlate to the degree of improvement of daily average AQI.</p>
+</div>
+<div id="the-anticipated-data-sources-1" class="section level1">
+<h1>The anticipated data sources</h1>
+<p><a href="https://aqicn.org/data-platform/register/">Air Quality Historical Data Platform</a> <a href="https://en.wikipedia.org/wiki/List_of_Chinese_prefecture-level_cities_by_GDP">List of Chinese prefecture-level cities by GDP</a> <a href="https://populationstat.com/china/">China Population</a></p>
+</div>
+<div id="coding-challenges-1" class="section level1">
+<h1>Coding challenges</h1>
+>>>>>>> 31d942372fd608c8189d208d3f7241e9bac09eb9
 <ol style="list-style-type: decimal">
 <li>Although we already have accurate data on air quality in each city, the data of every 30 cities are independent files, so it is tedious to combine the air pollution data of each city into one file. Comparing data from different cities could be complicated.</li>
 <li>To evaluate the relationship between population/GDP and air quality improvements, we have to manually gather data from the web.</li>
 <li>There are some errors and obscure information in the air quality data, so we need to review and investigate the data of each city carefully before we proceed.</li>
+<<<<<<< HEAD
 <li>It can be time-consuming to generate reader-friendly plots, especially plots containing multiple cities.<br />
 &gt;&gt;&gt;&gt;&gt;&gt;&gt; ab75b470012025eb2e55f249e8bd9b61a927aa67</li>
 </ol>
+=======
+<li>It can be time-consuming to generate reader-friendly plots, especially plots containing multiple cities.</li>
+</ol>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+>>>>>>> 31d942372fd608c8189d208d3f7241e9bac09eb9
 
 </body>
 </html>

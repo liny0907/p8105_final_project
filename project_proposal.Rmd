@@ -1,7 +1,6 @@
 ---
 title: "P8105 Final Project"
 date: "11/11/2021"
-output: github_document
 ---
 
 ### The group members (names and UNIs)
@@ -52,16 +51,11 @@ readxl::read_excel("data/project_timeline.xlsx") %>%
   knitr::kable()
 ```
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
 
-
-=======
 # The intended final products
 We will present interactive graphs and thematic maps showing the degree of improvement of daily average AQI for multiple pollutants, among thirty representative Chinese cities during lockdown compared to air quality data in the same months of the year 2019. 
 We will also build interactive graphs showing how the population and GDP of cities in the same geographical district correlate to the degree of improvement of daily average AQI.
->>>>>>> 47a1a00b42b1bf0e4c7ac440b9b2fbf57dde368e
+
  
 # The anticipated data sources
 [Air Quality Historical Data Platform](https://aqicn.org/data-platform/register/)
@@ -73,7 +67,7 @@ We will also build interactive graphs showing how the population and GDP of citi
 2. To evaluate the relationship between population/GDP and air quality improvements, we have to manually gather data from the web.
 3. There are some errors and obscure information in the air quality data, so we need to review and investigate the data of each city carefully before we proceed. 
 4. It can be time-consuming to generate reader-friendly plots, especially plots containing multiple cities.  
->>>>>>> ab75b470012025eb2e55f249e8bd9b61a927aa67
+
 
  
 
