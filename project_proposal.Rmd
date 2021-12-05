@@ -1,6 +1,11 @@
 ---
 title: "P8105 Final Project"
 date: "11/11/2021"
+output: 
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
 ---
 
 ### The group members (names and UNIs)

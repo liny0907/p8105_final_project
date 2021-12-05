@@ -356,6 +356,13 @@ city_period_meanno2 %>%
 
 ![](initial_analysis_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
+<<<<<<< HEAD
+``` r
+#write.csv(x = city_period_meanPM25,file = "data.csv")
+```
+
+=======
+>>>>>>> 960d6768c6e8b6c49a0d24adc0133abffbe3d081
 Now we will see how the distribution of daily NO2 AQI differ between
 time period 2019 Feb-Aprl and 2020 Feb-Aprl.
 
@@ -428,7 +435,11 @@ city_no2_Distribution %>%
 
     ## Warning: Removed 60 rows containing non-finite values (stat_summary).
 
+<<<<<<< HEAD
+![](initial_analysis_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+=======
 ![](initial_analysis_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+>>>>>>> 960d6768c6e8b6c49a0d24adc0133abffbe3d081
 
 Line chart of daily NO2 AQI changes for all 30 cities. Note that year
 2019 does not have the date “Feb 29”, but year 2020 does.
@@ -452,7 +463,11 @@ city_no2_Distribution %>%
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 ```
 
+<<<<<<< HEAD
+![](initial_analysis_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+=======
 ![](initial_analysis_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+>>>>>>> 960d6768c6e8b6c49a0d24adc0133abffbe3d081
 
 ``` r
 city_4year_meanno2 = 
@@ -532,4 +547,8 @@ city_4year_meanno2 %>%
 
     ## Warning: Removed 1 rows containing missing values (position_stack).
 
+<<<<<<< HEAD
+![](initial_analysis_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
+=======
 ![](initial_analysis_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+>>>>>>> 960d6768c6e8b6c49a0d24adc0133abffbe3d081
