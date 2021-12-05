@@ -3,7 +3,11 @@ Regression Analysis
 Lin Yang
 11/20/2021
 
-## Create a data frame for regression analysis
+# Regression Analysis
+
+## Mean PM2.5 AQI Difference vs GDP and Population
+
+### Create a data frame for regression analysis
 
 Load and clean air quality datasets for 100 cities.
 
@@ -104,7 +108,7 @@ represents one unique city. Below are key variables: `city`: city name
 (Feb-Apr) between 2019 and 2020 `gdp_trillion`: 2019 GDP in trillion
 `pop_million`: 2019 population in thousand
 
-## Box-Cox Transformation
+### Find Appropriate Transformation
 
 Since the boxcox function only works with positive values for the
 response variable y, we removed pm25\_diff less than 0 to check if a
@@ -124,6 +128,8 @@ MASS::boxcox(fit)
 The box-cox plot shows that log-likelihood has the maximum value around
 lambda = 0.5, so square root of pm25\_diff is the recommended
 transformation.
+
+### MLR
 
 ``` r
 trans_diff_gdp_pop_df =
@@ -154,53 +160,35 @@ of air quality improvement, in other words, we don’t have enough
 evidence to support that air quality improvement has a linear
 relationship with GDP and population.
 
-## Model Diagnostics
-
-``` r
-gdp_resid =
-  trans_diff_gdp_pop_df %>% 
-  add_residuals(trans_fit) %>% 
-  ggplot(aes(x = gdp_trillion, y = resid)) + geom_violin()
-
-pop_resid = 
-  trans_diff_gdp_pop_df %>% 
-  add_residuals(trans_fit) %>% 
-  ggplot(aes(x = pop_million, y = resid)) + geom_violin()
-
-gdp_resid + pop_resid
-```
-
-<img src="regression_analysis_files/figure-gfm/unnamed-chunk-7-1.png" width="90%" />
-
-``` r
-trans_diff_gdp_pop_df %>% 
-  add_residuals(trans_fit) %>% 
-  add_predictions(trans_fit) %>% 
-  ggplot(aes(x = pred, y = resid)) +
-  geom_point(alpha = 0.2) +
-  geom_smooth(color = "red", method = "lm", se = FALSE)
-```
-
-<img src="regression_analysis_files/figure-gfm/unnamed-chunk-7-2.png" width="90%" />
+### Model Diagnostics
 
 ``` r
 par(mfrow = c(2,2))
 plot(trans_fit)
 ```
 
-<img src="regression_analysis_files/figure-gfm/unnamed-chunk-8-1.png" width="90%" />
+<img src="regression_analysis_files/figure-gfm/unnamed-chunk-7-1.png" width="90%" />
+In residuals vs fitted plot, residuals appear to be evenly distributed
+around 0, indicating that residuals have constant variance. In normal QQ
+plot, a straight line is not seen, so our model violates the assumption
+that residuals are normally distributed. The scale-location plot shows
+that except for \#11, residuals equally spread around a roughly
+horizontal line, confirming that residuals have constant variance.
+Finally, all the four plot show that there is an influential outlier
+labelled \#11.
 
-## Cross Validation
+### Cross Validation
 
 Fit three models for `sqrt_pm25_diff` vs. `gdp_trillion` and
 `pop_million`.
 
 ``` r
-linear_mod = lm(sqrt_pm25_diff ~ gdp_trillion + pop_million, data = trans_diff_gdp_pop_df)
+nointer_linear_mod = lm(sqrt_pm25_diff ~ gdp_trillion + pop_million, data = trans_diff_gdp_pop_df)
+inter_linear_mod = lm(sqrt_pm25_diff ~ gdp_trillion * pop_million, data = trans_diff_gdp_pop_df)
 smooth_mod = gam(sqrt_pm25_diff ~ s(gdp_trillion, pop_million), data = trans_diff_gdp_pop_df)
-wiggly_mod = gam(sqrt_pm25_diff ~ s(gdp_trillion, pop_million, k = 30), sp = 10e-6, data = trans_diff_gdp_pop_df)
+
 trans_diff_gdp_pop_df %>% 
-  gather_predictions(linear_mod, smooth_mod, wiggly_mod) %>% 
+  gather_predictions(nointer_linear_mod, inter_linear_mod, smooth_mod) %>% 
   mutate(model = fct_inorder(model)) %>% 
   ggplot(aes(x = gdp_trillion + pop_million, y = sqrt_pm25_diff)) + 
   geom_point(alpha = .5) +
@@ -212,7 +200,7 @@ trans_diff_gdp_pop_df %>%
     title = "Sqrt(Mean PM2.5 AQI Difference) vs GDP and Population")
 ```
 
-<img src="regression_analysis_files/figure-gfm/unnamed-chunk-9-1.png" width="90%" />
+<img src="regression_analysis_files/figure-gfm/unnamed-chunk-8-1.png" width="90%" />
 
 Cross validation for `mean_diff` vs. `gdp_trillion` and `pop_million`.
 
@@ -223,13 +211,13 @@ cv_df =
     train = map(train, as_tibble),
     test = map(test, as_tibble)) %>% 
   mutate(
-    linear_mod  = map(train, ~lm(sqrt_pm25_diff ~ gdp_trillion + pop_million, data = .x)),
-    smooth_mod  = map(train, ~mgcv::gam(sqrt_pm25_diff ~ s(gdp_trillion, pop_million), data = .x)),
-    wiggly_mod  = map(train, ~gam(sqrt_pm25_diff ~ s(gdp_trillion, pop_million, k = 30), sp = 10e-6, data = .x))) %>% 
+    nointer_linear_mod  = map(train, ~lm(sqrt_pm25_diff ~ gdp_trillion + pop_million, data = .x)),
+    inter_linear_mod = map(train, ~lm(sqrt_pm25_diff ~ gdp_trillion * pop_million, data = .x)),
+    smooth_mod  = map(train, ~gam(sqrt_pm25_diff ~ s(gdp_trillion, pop_million), data = .x))) %>% 
   mutate(
-    rmse_linear = map2_dbl(linear_mod, test, ~rmse(model = .x, data = .y)),
-    rmse_smooth = map2_dbl(smooth_mod, test, ~rmse(model = .x, data = .y)),
-    rmse_wiggly = map2_dbl(wiggly_mod, test, ~rmse(model = .x, data = .y))) 
+    rmse_nointer_linear = map2_dbl(nointer_linear_mod, test, ~rmse(model = .x, data = .y)),
+    rmse_inter_linear = map2_dbl(inter_linear_mod, test, ~rmse(model = .x, data = .y)),
+    rmse_smooth = map2_dbl(smooth_mod, test, ~rmse(model = .x, data = .y))) 
 
 
 cv_df %>%
@@ -252,17 +240,18 @@ cv_df %>%
     axis.title.y = element_text(size = 10))
 ```
 
-<img src="regression_analysis_files/figure-gfm/unnamed-chunk-10-1.png" width="90%" />
+<img src="regression_analysis_files/figure-gfm/unnamed-chunk-9-1.png" width="90%" />
 
-We then did cross validation for three different kinds of models of mean
-PM2.5 AQI difference vs. gdp\_trillion and pop\_million. The
-scatterplots indicated that none of the three models fitted well. The
-distribution of RMSE values for each model suggested that linear and
-smooth models worked slightly better than wiggly model. But the RMSE
-values of all the three models were significantly large, confirming them
-were all bad fits.
+We then did cross validation for three different models of mean PM2.5
+AQI difference vs. gdp\_trillion and pop\_million. The distribution of
+RMSE values for each model suggested that the smooth model worked
+slightly better than two linear models. There was some improvement in
+predictive accuracy gained by allowing non-linearity, but it was not
+sufficient to justify this model.
 
-## Create a data frame containing weather data for regression analysis
+## Daily PM2.5 AQI vs Daily Average Temperature
+
+### Create a data frame containing weather data for regression analysis
 
 Load weather data for 10 representative cities.
 
@@ -325,14 +314,14 @@ pm25_tavg_df =
   filter(pm25 != "NA")
 ```
 
-## Find appropriate transformation
+### Find appropriate transformation
 
 ``` r
 fit_tavg = lm(pm25 ~tavg, data = pm25_tavg_df)
 MASS::boxcox(fit_tavg)
 ```
 
-<img src="regression_analysis_files/figure-gfm/unnamed-chunk-13-1.png" width="90%" />
+<img src="regression_analysis_files/figure-gfm/unnamed-chunk-12-1.png" width="90%" />
 
 ``` r
 log_pm25_tavg_df =
@@ -352,30 +341,22 @@ log_fit %>%
 
 Linear Regression Results
 
-Model diagnostics
-
-``` r
-log_pm25_tavg_df %>% 
-  add_residuals(log_fit) %>% 
-  add_predictions(log_fit) %>% 
-  ggplot(aes(x = pred, y = resid)) +
-  geom_point(alpha = 0.2) +
-  geom_smooth(method = "lm", color = "red", se = FALSE)
-```
-
-<img src="regression_analysis_files/figure-gfm/unnamed-chunk-14-1.png" width="90%" />
-
-Residuals appear to be evenly distributed around 0, which is an
-indication of constant variance.
+\#\#\#Model diagnostics
 
 ``` r
 par(mfrow = c(2,2))
 plot(log_fit)
 ```
 
-<img src="regression_analysis_files/figure-gfm/unnamed-chunk-15-1.png" width="90%" />
+<img src="regression_analysis_files/figure-gfm/unnamed-chunk-13-1.png" width="90%" />
+Residuals seem to be evenly distributed around 0, which is an indication
+of constant variance. There are some potential outliers, such as \#766
+and 163. The normal QQ plot shows a roughly straight line, meaning
+residuals are normally distributed. Therefore, our model fitting for
+daily pm2.5 AQI difference dependent on daily average temperature
+doesn’t violate assumptions on residuals.
 
-## Cross validation
+### Cross validation
 
 Fit three models
 
@@ -393,7 +374,7 @@ log_pm25_tavg_df %>%
   facet_grid(~model)
 ```
 
-<img src="regression_analysis_files/figure-gfm/unnamed-chunk-16-1.png" width="90%" />
+<img src="regression_analysis_files/figure-gfm/unnamed-chunk-14-1.png" width="90%" />
 
 ``` r
 cv_tavg_df = 
@@ -426,4 +407,4 @@ cv_tavg_df %>%
     title = "Distribution of RMSE across Models (Log(pm2.5 AQI) vs Tavg)")
 ```
 
-<img src="regression_analysis_files/figure-gfm/unnamed-chunk-17-1.png" width="90%" />
+<img src="regression_analysis_files/figure-gfm/unnamed-chunk-15-1.png" width="90%" />
