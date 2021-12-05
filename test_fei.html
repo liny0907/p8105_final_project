@@ -31,6 +31,7 @@
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
@@ -218,6 +219,9 @@ $(document).ready(function () {
 </style>
 
 <!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
 
 
 
@@ -268,6 +272,14 @@ $(document).ready(function () {
 </div><!--/.navbar -->
 
 <div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
 
 
 
@@ -698,7 +710,8 @@ knitr::kable(airquality_level)</code></pre>
 </div>
 <div id="two-sample-paired-t-testfigure-out-whether-the-true-mean-difference-between-the-average-number-of-aqi-pm25-for-each-30-cities-from-february-to-april-2020-and-the-average-number-between-2017-2019-is-equal-to-zero" class="section level1">
 <h1>Two-Sample Paired T-test:figure out whether the true mean difference between the average number of AQI (pm25) for each 30 cities from February to April 2020 and the average number between 2017-2019 is equal to zero</h1>
-<p>Null hypothesis (H0): The true mean difference between the average number of AQI (pm25) for each 30 cities from February to April 2020 and the average number between 2017-2019 is equal to zero. Alternative hypothesis (H1): The true mean difference between the average number of AQI (pm25) for each 30 cities from February to April 2020 and the average number between 2017-2019 is not equal to zero.</p>
+<p>Null hypothesis (H0): The true mean difference between the average number of AQI (pm25) for each 30 cities from February to April 2020 and the average number between 2017-2019 is equal to zero.</p>
+<p>Alternative hypothesis (H1): The true mean difference between the average number of AQI (pm25) for each 30 cities from February to April 2020 and the average number between 2017-2019 is not equal to zero.</p>
 <pre class="r"><code>mean_20=pm25_2020%&gt;%
   drop_na() %&gt;% 
   select(-date)%&gt;%
@@ -740,9 +753,11 @@ table4=pm25_171819%&gt;%
   select(-date)%&gt;%
   group_by(city)%&gt;%
   summarise(standard_deviation_2017_2018_2019=sd(pm25))%&gt;%
-  select(-city) 
-
-knitr::kable(bind_cols(table1,table2))</code></pre>
+  select(-city) </code></pre>
+</div>
+<div id="mean-table" class="section level1">
+<h1>Mean Table</h1>
+<pre class="r"><code>knitr::kable(bind_cols(table1,table2))</code></pre>
 <table>
 <thead>
 <tr class="header">
@@ -904,6 +919,9 @@ knitr::kable(bind_cols(table1,table2))</code></pre>
 </tr>
 </tbody>
 </table>
+</div>
+<div id="standard-deviation-table" class="section level1">
+<h1>Standard Deviation Table</h1>
 <pre class="r"><code>knitr::kable(bind_cols(table3,table4))</code></pre>
 <table>
 <thead>
@@ -1116,6 +1134,11 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
 
 
 <!-- dynamically load mathjax for compatibility with self-contained -->

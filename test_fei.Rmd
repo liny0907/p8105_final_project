@@ -2,7 +2,8 @@
 title: "test"
 author: "FEI SUN"
 date: "2021/11/19" 
-html_document:
+output: 
+  html_document:
     code_folding: hide
 editor_options: 
   chunk_output_type: console
@@ -128,6 +129,7 @@ For a Chi-square test, the p-value(0.0004998) that is less than 0.05 significanc
 
 
 Null hypothesis (H0): The true mean difference between the average number of AQI (pm25) for each 30 cities from February to April 2020 and the average number between 2017-2019 is equal to zero.
+
 Alternative hypothesis (H1):  The true mean difference between the average number of AQI (pm25) for each 30 cities from February to April 2020 and the average number between 2017-2019 is not equal to zero.
 
 ```{r}
@@ -173,10 +175,19 @@ table4=pm25_171819%>%
   group_by(city)%>%
   summarise(standard_deviation_2017_2018_2019=sd(pm25))%>%
   select(-city) 
+```
 
+# Mean Table
+```{r}
 knitr::kable(bind_cols(table1,table2))
-knitr::kable(bind_cols(table3,table4))
+```
 
+# Standard Deviation Table
+```{r}
+knitr::kable(bind_cols(table3,table4))
+```
+
+```{r}
 t.test(mean_20, mean_171819, paired = T)
 qt(0.05, 29)
 ```
