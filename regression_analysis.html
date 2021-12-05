@@ -31,7 +31,11 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
@@ -219,7 +223,73 @@ $(document).ready(function () {
 </style>
 
 <!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
 
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
 
 
 
@@ -229,6 +299,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -251,6 +331,30 @@ $(document).ready(function () {
         <li>
   <a href="project_proposal.html">About</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Data Analysis
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="test_fei.html">Hypothesis Test</a>
+    </li>
+    <li>
+      <a href="regression_analysis.html">Regression Analysis</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="report.html">Report</a>
+</li>
+<li>
+  <a href="initial_analysis.html">Data Exploration</a>
+</li>
+<li>
+  <a href="Map_of_China.html">Map</a>
+</li>
 <li>
   <a href="mailto:&lt;ly2565@cumc.columbia.edu&gt;">
     <span class="fa fa-envelope fa-lg"></span>
@@ -269,6 +373,14 @@ $(document).ready(function () {
 </div><!--/.navbar -->
 
 <div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
 
 
 
@@ -369,7 +481,7 @@ diff_gdp_pop_df</code></pre>
   
 fit = lm(pm25_diff ~gdp_trillion + pop_million, data = pos_diff_gdp_pop_df)
 MASS::boxcox(fit)</code></pre>
-<p><img src="regression_analysis_files/figure-html/unnamed-chunk-5-1.png" width="90%" /></p>
+<p><img src="regression_analysis_files/figure-html/unnamed-chunk-5-1.png" width="2100" /></p>
 <p>The box-cox plot shows that log-likelihood has the maximum value around lambda = 0.5, so square root of pm25_diff is the recommended transformation.</p>
 </div>
 <div id="mlr" class="section level3">
@@ -424,7 +536,7 @@ trans_fit %&gt;%
 <h3>Model Diagnostics</h3>
 <pre class="r"><code>par(mfrow = c(2,2))
 plot(trans_fit)</code></pre>
-<p><img src="regression_analysis_files/figure-html/unnamed-chunk-7-1.png" width="90%" /> In residuals vs fitted plot, residuals appear to be evenly distributed around 0, indicating that residuals have constant variance. In normal QQ plot, a straight line is not seen, so our model violates the assumption that residuals are normally distributed. The scale-location plot shows that except for #11, residuals equally spread around a roughly horizontal line, confirming that residuals have constant variance. Finally, all the four plot show that there is an influential outlier labelled #11.</p>
+<p><img src="regression_analysis_files/figure-html/unnamed-chunk-7-1.png" width="1800" /> In residuals vs fitted plot, residuals appear to be evenly distributed around 0, indicating that residuals have constant variance. In normal QQ plot, a straight line is not seen, so our model violates the assumption that residuals are normally distributed. The scale-location plot shows that except for #11, residuals equally spread around a roughly horizontal line, confirming that residuals have constant variance. Finally, all the four plot show that there is an influential outlier labelled #11.</p>
 </div>
 <div id="cross-validation" class="section level3">
 <h3>Cross Validation</h3>
@@ -444,7 +556,7 @@ trans_diff_gdp_pop_df %&gt;%
     x = &quot;GDP in Billion + Population in Million&quot;,
     y = &quot;Sqrt(Mean PM2.5 AQI Difference)&quot;,
     title = &quot;Sqrt(Mean PM2.5 AQI Difference) vs GDP and Population&quot;)</code></pre>
-<p><img src="regression_analysis_files/figure-html/unnamed-chunk-8-1.png" width="90%" /></p>
+<p><img src="regression_analysis_files/figure-html/unnamed-chunk-8-1.png" width="2100" /></p>
 <p>Cross validation for <code>mean_diff</code> vs. <code>gdp_trillion</code> and <code>pop_million</code>.</p>
 <pre class="r"><code>cv_df = 
   crossv_mc(trans_diff_gdp_pop_df, 100) %&gt;% 
@@ -479,7 +591,7 @@ cv_df %&gt;%
     title = element_text(size = 6, face = &quot;bold&quot;),
     axis.title.x = element_text(size = 10),
     axis.title.y = element_text(size = 10))</code></pre>
-<p><img src="regression_analysis_files/figure-html/unnamed-chunk-9-1.png" width="90%" /></p>
+<p><img src="regression_analysis_files/figure-html/unnamed-chunk-9-1.png" width="2100" /></p>
 <p>We then did cross validation for three different models of mean PM2.5 AQI difference vs. gdp_trillion and pop_million. The distribution of RMSE values for each model suggested that the smooth model worked slightly better than two linear models. There was some improvement in predictive accuracy gained by allowing non-linearity, but it was not sufficient to justify this model.</p>
 </div>
 </div>
@@ -544,7 +656,7 @@ pm25_tavg_df =
 <h3>Find appropriate transformation</h3>
 <pre class="r"><code>fit_tavg = lm(pm25 ~tavg, data = pm25_tavg_df)
 MASS::boxcox(fit_tavg)</code></pre>
-<p><img src="regression_analysis_files/figure-html/unnamed-chunk-12-1.png" width="90%" /></p>
+<p><img src="regression_analysis_files/figure-html/unnamed-chunk-12-1.png" width="2100" /></p>
 <pre class="r"><code>log_pm25_tavg_df =
   pm25_tavg_df %&gt;% 
   mutate(lnpm25 = log(pm25))
@@ -584,7 +696,7 @@ log_fit %&gt;%
 <p>###Model diagnostics</p>
 <pre class="r"><code>par(mfrow = c(2,2))
 plot(log_fit)</code></pre>
-<p><img src="regression_analysis_files/figure-html/unnamed-chunk-13-1.png" width="90%" /> Residuals seem to be evenly distributed around 0, which is an indication of constant variance. There are some potential outliers, such as #766 and 163. The normal QQ plot shows a roughly straight line, meaning residuals are normally distributed. Therefore, our model fitting for daily pm2.5 AQI difference dependent on daily average temperature doesn’t violate assumptions on residuals.</p>
+<p><img src="regression_analysis_files/figure-html/unnamed-chunk-13-1.png" width="1800" /> Residuals seem to be evenly distributed around 0, which is an indication of constant variance. There are some potential outliers, such as #766 and 163. The normal QQ plot shows a roughly straight line, meaning residuals are normally distributed. Therefore, our model fitting for daily pm2.5 AQI difference dependent on daily average temperature doesn’t violate assumptions on residuals.</p>
 </div>
 <div id="cross-validation-1" class="section level3">
 <h3>Cross validation</h3>
@@ -600,7 +712,7 @@ log_pm25_tavg_df %&gt;%
   geom_point(alpha = .5) +
   geom_line(aes(y = pred), color = &quot;red&quot;) + 
   facet_grid(~model)</code></pre>
-<p><img src="regression_analysis_files/figure-html/unnamed-chunk-14-1.png" width="90%" /></p>
+<p><img src="regression_analysis_files/figure-html/unnamed-chunk-14-1.png" width="2100" /></p>
 <pre class="r"><code>cv_tavg_df = 
   crossv_mc(log_pm25_tavg_df, 100) %&gt;% 
   mutate(
@@ -629,13 +741,15 @@ cv_tavg_df %&gt;%
     x = &quot;Model&quot;,
     y = &quot;RMSE&quot;,
     title = &quot;Distribution of RMSE across Models (Log(pm2.5 AQI) vs Tavg)&quot;)</code></pre>
-<p><img src="regression_analysis_files/figure-html/unnamed-chunk-15-1.png" width="90%" /></p>
+<p><img src="regression_analysis_files/figure-html/unnamed-chunk-15-1.png" width="2100" /></p>
 </div>
 </div>
 </div>
 
 
 
+</div>
+</div>
 
 </div>
 
@@ -667,7 +781,41 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
 
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

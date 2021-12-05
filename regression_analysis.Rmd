@@ -2,7 +2,11 @@
 title: "Regression Analysis"
 author: "Lin Yang"
 date: "11/20/2021"
-output: html_document
+output: 
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
 ---
 
 ```{r, include = FALSE}
@@ -12,11 +16,11 @@ library(modelr)
 library(mgcv)
 library(patchwork)
 
-knitr::opts_chunk$set(
-  fig.width = 6,
-  fig.asp = .6,
-  out.width = "90%"
-)
+#knitr::opts_chunk$set(
+#  fig.width = 6,
+#  fig.asp = .6,
+#  out.width = "90%"
+#)
 
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
 
@@ -127,7 +131,7 @@ After fitting a linear model for sqrt(mean pm2.5 AQI difference) dependent on gd
 ### Model Diagnostics
 
 
-```{r, dpi = 300}
+```{r, dpi = 300, fig.height = 6, fig.width = 6}
 par(mfrow = c(2,2))
 plot(trans_fit)
 ```
@@ -260,7 +264,7 @@ log_fit %>%
 
 ###Model diagnostics
 
-```{r, dpi = 300}
+```{r, dpi = 300, fig.height = 6, fig.width = 6}
 par(mfrow = c(2,2))
 plot(log_fit)
 ```
