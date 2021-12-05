@@ -2,7 +2,7 @@
 title: "Regression Analysis"
 author: "Lin Yang"
 date: "11/20/2021"
-output: github_document
+output: html_document
 ---
 
 ```{r, include = FALSE}
