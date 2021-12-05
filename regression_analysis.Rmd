@@ -2,23 +2,11 @@
 title: "Regression Analysis"
 author: "Lin Yang"
 date: "11/20/2021"
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-output: html_document
-
 output: 
   html_document:
     code_folding: hide
     toc: true
     toc_float: true
-<<<<<<< HEAD
-=======
-=======
-output: github_document
->>>>>>> f0b511cf1ec57ffdfe3f6218650b18eb2895aac2
->>>>>>> 4a484cce9de994b0c706b861618dccfbe37f8108
->>>>>>> b7de3e7e67a26ad06baa1bb2c6730263409f2d07
 ---
 
 ```{r, include = FALSE}

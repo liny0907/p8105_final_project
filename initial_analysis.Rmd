@@ -1,21 +1,10 @@
 ---
-<<<<<<< HEAD
 title: "Data Exploration"
 output: 
   html_document:
     code_folding: hide
     toc: true
     toc_float: true
-=======
-title: "barGraph + boxPlot + line Charts"
-author: "Weiheng Zhang"
-date: "2021/11/19"
-output: 
-  html_document:
-    code_folding: hide
-editor_options: 
-  chunk_output_type: console
->>>>>>> b7de3e7e67a26ad06baa1bb2c6730263409f2d07
 ---
 
 

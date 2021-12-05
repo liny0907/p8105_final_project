@@ -1,28 +1,11 @@
 ---
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> 4a484cce9de994b0c706b861618dccfbe37f8108
->>>>>>> b7de3e7e67a26ad06baa1bb2c6730263409f2d07
 title: "The Impact of COVID-19 Lockdowns on Air Quality in Chinese Cities"
 output: 
   html_document:
     toc: true
     toc_float: true
-<<<<<<< HEAD
-    theme: cerulean
----
-=======
 ---
 
 
 
-<<<<<<< HEAD
 
-=======
-And I can put all kinds of stuff on it!
->>>>>>> f0b511cf1ec57ffdfe3f6218650b18eb2895aac2
->>>>>>> 4a484cce9de994b0c706b861618dccfbe37f8108
->>>>>>> b7de3e7e67a26ad06baa1bb2c6730263409f2d07
