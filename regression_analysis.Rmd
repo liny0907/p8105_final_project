@@ -10,6 +10,7 @@ library(tidyverse)
 library(ggridges)
 library(modelr)
 library(mgcv)
+library(patchwork)
 
 knitr::opts_chunk$set(
   fig.width = 6,
@@ -27,11 +28,16 @@ options(
 scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 ```
-## Create a data frame for regression analysis
+# Regression Analysis
+
+## Mean PM2.5 AQI Difference vs GDP and Population
+
+### Create a data frame for regression analysis
 
 Load and clean air quality datasets for 100 cities.
 ```{r, message = FALSE}
-city_100_df = tibble(
+city_100_df = 
+  tibble(
   file = list.files("100_cities_data")) %>% 
   mutate(
     city = str_remove(file, "-air-quality.csv"),
@@ -45,37 +51,26 @@ city_100_df = tibble(
     date = as.Date(date, format = "%Y/%m/%d"))
 ```
 
-Select pm2.5 AQI during the lockdown period (Feb-Apr) for both 2019 and 2020.
-```{r}
+Select pm2.5 AQI during the lockdown period (Feb-Apr) and calculated mean pm2.5 AQI for both 2019 and 2020. Combine two data sets to get mean AQI differences between 2019 and 2020 for 100 cities.
+```{r, message = FALSE}
 pm25_2020 = 
   city_100_df %>% 
   filter(date > "2020-01-31" & date < "2020-05-01") %>% 
-  rename(pm25_2020 = pm25) %>% 
-  mutate(date = format(date, format = "%m-%d")) %>% 
-  select(city, date, pm25_2020)
+  group_by(city) %>%
+  summarize(mean_pm25_2020 = mean(pm25, na.rm = T))
   
 pm25_2019 = 
   city_100_df %>% 
   filter(date > "2019-01-31" & date < "2019-05-01") %>% 
-  rename(pm25_2019 = pm25) %>% 
-  mutate(date = format(date, format = "%m-%d")) %>% 
-  select(city, date, pm25_2019)
+  group_by(city) %>%
+  summarize(mean_pm25_2019 = mean(pm25, na.rm = T))
 
-```
-
-Calculate daily pm2.5 AQI differences between 2019 and 2020 for each city.
-
-```{r}
 pm25_diff = 
-  left_join(pm25_2020, pm25_2019, by = c("city", "date")) %>% 
-  drop_na() %>% 
-  mutate(pm25_diff = pm25_2019 - pm25_2020) %>% 
-  group_by(city) %>% 
-  summarize(mean_diff = mean(pm25_diff, na.rm = T))
+  left_join(pm25_2020, pm25_2019) %>% 
+  mutate(pm25_diff = mean_pm25_2019 - mean_pm25_2020)
 
 pm25_diff
 ```
-
 
 Load the gdp and population dataset and join it to `pm25_diff`.
 
@@ -83,165 +78,125 @@ Load the gdp and population dataset and join it to `pm25_diff`.
 gdp_pop_df = 
   read_csv("data/gpd_and_popluation.csv") %>% 
   janitor::clean_names() %>% 
-  mutate(pop_ln = log(population_thousand, base = exp(1)),
-         gdp_ln = log(gdp_billion, base = exp(1))) %>% 
-  select(city, gdp_ln, pop_ln)
+  mutate(
+    gdp_trillion = gdp_billion / 1000,
+    pop_million = population_thousand / 1000) %>% 
+  select(city, gdp_trillion, pop_million)
 
-diff_gdp_pop_df = left_join(pm25_diff, gdp_pop_df) 
+diff_gdp_pop_df = 
+  left_join(pm25_diff, gdp_pop_df) %>% 
+  select(-mean_pm25_2020, -mean_pm25_2019)
 diff_gdp_pop_df
 ```
-We learned that air quality improvement in a city may correlates to the city's GDP and population, so we created a data frame containing mean pm2.5 AQI differences between 2019 and 2020, GDP and population in 2019 for 100 representative cities. The resulting data frame of `diff_gdp_pop_df` contains `r nrow(diff_gdp_pop_df)` observations of `r ncol(diff_gdp_pop_df)` variables. Each row represents one unique city. Below are key variables:
+We learned that air quality improvements in a city may correlate to the city's GDP and population, so we created a data frame containing mean pm2.5 AQI differences between 2019 and 2020, GDP and population in 2019 for 100 representative cities. The resulting data frame of `diff_gdp_pop_df` contains `r nrow(diff_gdp_pop_df)` observations of `r ncol(diff_gdp_pop_df)` variables. Each row represents one unique city. Below are key variables:
 `city`: city name
-`mean_diff` mean pm2.5 AQI difference during the lockdown period (Feb-Apr) between 2019 and 2020. 
-`gdp_ln`: log of 2019 GDP in billions
-`pop_ln`: log of 2019 population in thousands
+`pm25_diff` difference of mean pm2.5 AQI during the lockdown period (Feb-Apr) between 2019 and 2020
+`gdp_trillion`: 2019 GDP in trillion
+`pop_million`: 2019 population in thousand
 
-<<<<<<< HEAD
 
-Fit linear models
-=======
-## Fit linear models
->>>>>>> 058d1fddf38c7a51458c77bf32e49c47e1f518d8
+### Find Appropriate Transformation
+
+Since the boxcox function only works with positive values for the response variable y, we removed pm25_diff less than 0 to check if a transformation is appropriate here. 
+```{r, dpi = 300}
+pos_diff_gdp_pop_df =
+  diff_gdp_pop_df %>% 
+  filter(pm25_diff > 0)
+  
+fit = lm(pm25_diff ~gdp_trillion + pop_million, data = pos_diff_gdp_pop_df)
+MASS::boxcox(fit)
+```
+
+The box-cox plot shows that log-likelihood has the maximum value around lambda = 0.5, so square root of pm25_diff is the recommended transformation. 
+
+### MLR
 ```{r}
-fit = lm(mean_diff ~gdp_ln + pop_ln, data = diff_gdp_pop_df)
-summary(fit)
+trans_diff_gdp_pop_df =
+  pos_diff_gdp_pop_df %>% 
+  mutate(sqrt_pm25_diff = sqrt(pm25_diff))
 
-fit %>% 
+trans_fit = lm(sqrt_pm25_diff ~gdp_trillion + pop_million, data = trans_diff_gdp_pop_df)
+
+trans_fit %>% 
   broom::tidy() %>% 
-  select(term, estimate, p.value) %>% 
-  knitr::kable(digit = 3)
-```
-After fitting a linear model for mean pm2.5 AQI difference dependent on gdp_ln and pop_ln, gdp_ln variable has a slope of -0.894 and pop_ln variable has a slope of 2.903. However, p values of the two linear models are both very large. Therefore, we don't have enough evidence to support that air quality improvement has a linear relation with GDP and population. 
-
-## Model Diagnostics
-
-```{r, warning = FALSE, dpi = 300}
-diff_gdp_pop_df %>% 
-  modelr::add_residuals(fit) %>% 
-  ggplot(aes(x = gdp_ln, y = resid)) + geom_violin()
-
-diff_gdp_pop_df %>% 
-  modelr::add_residuals(fit) %>% 
-  ggplot(aes(x = pop_ln, y = resid)) + geom_violin()
+  knitr::kable(caption = "Linear Regression Results")
 ```
 
-## Cross Validation
+After fitting a linear model for sqrt(mean pm2.5 AQI difference) dependent on gdp_trillion and pop_million, gdp_trillion variable has a slope of 0.0436 and pop_million variable has a slope of -0.0103 with p values of 0.909 and 0.846 which are extremely large. Therefore, GDP and population in a city don't have significant effects on predictions of air quality improvement, in other words, we don't have enough evidence to support that air quality improvement has a linear relationship with GDP and population. 
 
-Fit three models for `mean_diff` vs. `gdp_ln`.
-```{r, warning = FALSE, dpi = 300}
-linear_mod_gdp = lm(mean_diff ~ gdp_ln, data = diff_gdp_pop_df)
-smooth_mod_gdp = gam(mean_diff ~ s(gdp_ln), data = diff_gdp_pop_df)
-wiggly_mod_gdp = gam(mean_diff ~ s(gdp_ln, k = 30), sp = 10e-6, data = diff_gdp_pop_df)
-diff_gdp_pop_df %>% 
-  gather_predictions(linear_mod_gdp, smooth_mod_gdp, wiggly_mod_gdp) %>% 
-  mutate(model = fct_inorder(model)) %>% 
-  ggplot(aes(x = gdp_ln, y = mean_diff)) + 
-  geom_point(alpha = .5) +
-  geom_line(aes(y = pred), color = "red") + 
-  facet_grid(~model) +
-  labs(
-    x = "log(GDP in Billion)",
-    y = "Mean Daily PM2.5 AQI Difference")
-```
-
-<<<<<<< HEAD
-Scatterplots of PM2.5 AQI differences vs. GDP and PM2.5 AQI differences vs. population in all cities. 
-
-```{r}
-df %>% 
-  ggplot() +
-  geom_point(aes(x = mean_diff, y = gdp_ln, color = city)) +
-  theme(legend.position =  "none") +
-  labs(title = "PM2.5 AQI differences vs GDP", x = "PM2.5 AQI differences", y = "GDP")
-```
+### Model Diagnostics
 
 
-```{r}
-df %>% 
-  ggplot() +
-  geom_point(aes(x = mean_diff, y = pop_million, color = city)) +
-  theme(legend.position =  "none") +
-  labs(title = "PM2.5 AQI differences vs popoluation", x = "PM2.5 AQI differences", y = "Popluation")
-```
-
-=======
-Fit three models for `mean_diff` vs. `pop_ln`.
-```{r, warning = FALSE, dpi = 300}
-linear_mod_pop = lm(mean_diff ~ pop_ln, data = diff_gdp_pop_df)
-smooth_mod_pop = gam(mean_diff ~ s(pop_ln), data = diff_gdp_pop_df)
-wiggly_mod_pop = gam(mean_diff ~ s(pop_ln, k = 30), sp = 10e-6, data = diff_gdp_pop_df)
-diff_gdp_pop_df %>% 
-  gather_predictions(linear_mod_pop, smooth_mod_pop, wiggly_mod_pop) %>% 
-  mutate(model = fct_inorder(model)) %>% 
-  ggplot(aes(x = pop_ln, y = mean_diff)) + 
-  geom_point(alpha = .5) +
-  geom_line(aes(y = pred), color = "red") + 
-  facet_grid(~model) +
-  labs(
-    x = "log(Population in Thousand)",
-    y = "Mean Daily PM2.5 AQI Difference")
-```
-
-Cross validation for `mean_diff` vs. `gdp_ln`.
 ```{r, dpi = 300}
-cv_df_gdp = 
-  crossv_mc(diff_gdp_pop_df, 100) %>% 
+par(mfrow = c(2,2))
+plot(trans_fit)
+```
+In residuals vs fitted plot, residuals appear to be evenly distributed around 0, indicating that residuals have constant variance. In normal QQ plot, a straight line is not seen, so our model violates the assumption that residuals are normally distributed. The scale-location plot shows that except for #11, residuals equally spread around a roughly horizontal line, confirming that residuals have constant variance. Finally, all the four plot show that there is an influential outlier labelled #11. 
+
+
+### Cross Validation
+
+Fit three models for `sqrt_pm25_diff` vs. `gdp_trillion` and `pop_million`.
+```{r, warning = FALSE, dpi = 300}
+nointer_linear_mod = lm(sqrt_pm25_diff ~ gdp_trillion + pop_million, data = trans_diff_gdp_pop_df)
+inter_linear_mod = lm(sqrt_pm25_diff ~ gdp_trillion * pop_million, data = trans_diff_gdp_pop_df)
+smooth_mod = gam(sqrt_pm25_diff ~ s(gdp_trillion, pop_million), data = trans_diff_gdp_pop_df)
+
+trans_diff_gdp_pop_df %>% 
+  gather_predictions(nointer_linear_mod, inter_linear_mod, smooth_mod) %>% 
+  mutate(model = fct_inorder(model)) %>% 
+  ggplot(aes(x = gdp_trillion + pop_million, y = sqrt_pm25_diff)) + 
+  geom_point(alpha = .5) +
+  geom_line(aes(y = pred), color = "red") + 
+  facet_grid(~model) +
+  labs(
+    x = "GDP in Billion + Population in Million",
+    y = "Sqrt(Mean PM2.5 AQI Difference)",
+    title = "Sqrt(Mean PM2.5 AQI Difference) vs GDP and Population")
+```
+
+Cross validation for `mean_diff` vs. `gdp_trillion` and `pop_million`.
+```{r, dpi = 300}
+cv_df = 
+  crossv_mc(trans_diff_gdp_pop_df, 100) %>% 
   mutate(
     train = map(train, as_tibble),
     test = map(test, as_tibble)) %>% 
   mutate(
-    linear_mod  = map(train, ~lm(mean_diff ~ gdp_ln, data = .x)),
-    smooth_mod  = map(train, ~mgcv::gam(mean_diff ~ s(gdp_ln), data = .x)),
-    wiggly_mod  = map(train, ~gam(mean_diff ~ s(gdp_ln, k = 30), sp = 10e-6, data = .x))) %>% 
+    nointer_linear_mod  = map(train, ~lm(sqrt_pm25_diff ~ gdp_trillion + pop_million, data = .x)),
+    inter_linear_mod = map(train, ~lm(sqrt_pm25_diff ~ gdp_trillion * pop_million, data = .x)),
+    smooth_mod  = map(train, ~gam(sqrt_pm25_diff ~ s(gdp_trillion, pop_million), data = .x))) %>% 
   mutate(
-    rmse_linear = map2_dbl(linear_mod, test, ~rmse(model = .x, data = .y)),
-    rmse_smooth = map2_dbl(smooth_mod, test, ~rmse(model = .x, data = .y)),
-    rmse_wiggly = map2_dbl(wiggly_mod, test, ~rmse(model = .x, data = .y))) %>% 
+    rmse_nointer_linear = map2_dbl(nointer_linear_mod, test, ~rmse(model = .x, data = .y)),
+    rmse_inter_linear = map2_dbl(inter_linear_mod, test, ~rmse(model = .x, data = .y)),
+    rmse_smooth = map2_dbl(smooth_mod, test, ~rmse(model = .x, data = .y))) 
+
+
+cv_df %>%
   select(starts_with("rmse")) %>%
   pivot_longer(
     everything(),
     names_to = "model", 
     values_to = "rmse",
-    names_prefix = "rmse_") 
-
-cv_df_gdp %>% 
+    names_prefix = "rmse_") %>% 
   mutate(model = fct_inorder(model)) %>% 
   ggplot(aes(x = model, y = rmse)) + 
-  geom_violin(aes(fill = model), alpha = 0.5) +
-  labs(title = "RMSE vs. Model")
+  geom_boxplot() +
+  labs(
+    x = "Model",
+    y = "RMSE",
+    title = "Distribution of RMSE across Models (Log(Mean PM2.5 AQI Difference) vs GDP +Population)") +
+  theme(
+    title = element_text(size = 6, face = "bold"),
+    axis.title.x = element_text(size = 10),
+    axis.title.y = element_text(size = 10))
 ```
 
-Cross validation for `mean_diff` vs. `pop_ln`.
-```{r, dpi = 300}
-cv_df_pop = 
-  crossv_mc(diff_gdp_pop_df, 100) %>% 
-  mutate(
-    train = map(train, as_tibble),
-    test = map(test, as_tibble)) %>% 
-  mutate(
-    linear_mod  = map(train, ~lm(mean_diff ~ pop_ln, data = .x)),
-    smooth_mod  = map(train, ~mgcv::gam(mean_diff ~ s(pop_ln), data = .x)),
-    wiggly_mod  = map(train, ~gam(mean_diff ~ s(pop_ln, k = 30), sp = 10e-6, data = .x))) %>% 
-  mutate(
-    rmse_linear = map2_dbl(linear_mod, test, ~rmse(model = .x, data = .y)),
-    rmse_smooth = map2_dbl(smooth_mod, test, ~rmse(model = .x, data = .y)),
-    rmse_wiggly = map2_dbl(wiggly_mod, test, ~rmse(model = .x, data = .y))) %>% 
-  select(starts_with("rmse")) %>%
-  pivot_longer(
-    everything(),
-    names_to = "model", 
-    values_to = "rmse",
-    names_prefix = "rmse_")
+We then did cross validation for three different models of mean PM2.5 AQI difference vs. gdp_trillion and pop_million. The distribution of RMSE values for each model suggested that the smooth model worked slightly better than two linear models. There was some improvement in predictive accuracy gained by allowing non-linearity, but it was not sufficient to justify this model.
 
-cv_df_pop %>% 
-  mutate(model = fct_inorder(model)) %>% 
-  ggplot(aes(x = model, y = rmse)) + 
-  geom_violin(aes(fill = model), alpha = 0.5) +
-  labs(title = "RMSE vs. Model")
-```
-We then did cross validation for three different kinds of models of mean PM2.5 difference vs. gdp_ln and pop_ln. The scatterplots indicated that none of the three models were good fits. For both gdp_ln and pop_ln, the distribution of RMSE values for each model suggested that linear and smooth models worked better than wiggly model. But the RMSE values of all the three models were significantly large, confirming all of them were bad fits. 
+## Daily PM2.5 AQI vs Daily Average Temperature
 
-## Create a data frame containing weather data for regression analysis
+### Create a data frame containing weather data for regression analysis
 
 Load weather data for 10 representative cities.
 ```{r, message = FALSE}
@@ -258,7 +213,7 @@ weather_df =
       CHM00058362 = "Shanghai",
       CHM00050953 = "Harbin",
       CHM00054342 = "Shenyang",
-      CHM00055591 = "Lasa",
+      CHM00055591 = "Lhasa",
       CHM00056294 = "Chengdu",
       CHM00056778 = "Kunming",
       CHM00059287 = "Guangzhou",
@@ -274,35 +229,95 @@ weather_df
 ```
 
 Join `weather_df` to the AQI dataset of 10 cities.
-```{r}
+```{r, message = FALSE}
 city_10_df =
   city_100_df %>% 
   filter(date > "2020-01-31" & date < "2020-05-01") %>% 
-  filter(city %in% c("Beijing", "Shanghai", "Harbin", "Shenyang", "Lasa", "Chengdu", "Kunming", "Guangzhou", "Xian", "Wuhan"))
+  filter(city %in% c("Beijing", "Shanghai", "Harbin", "Shenyang", "Lhasa", "Chengdu", "Kunming", "Guangzhou", "Xian", "Wuhan"))
 
 pm25_tavg_df = 
   left_join(city_10_df, weather_df, by = c("city", "date")) %>% 
   arrange(date) %>% 
   select(city, date, pm25, tavg) %>% 
-  drop_na() 
+  filter(pm25 != "NA")
+```
 
-pm25_tavg_df
+### Find appropriate transformation
 
-pm25_tavg_df %>% 
-  ggplot(aes(x = tavg, y = pm25)) +
-  geom_point() +
+```{r, dpi = 300}
+fit_tavg = lm(pm25 ~tavg, data = pm25_tavg_df)
+MASS::boxcox(fit_tavg)
+
+log_pm25_tavg_df =
+  pm25_tavg_df %>% 
+  mutate(lnpm25 = log(pm25))
+
+log_fit = lm(lnpm25 ~tavg, data = log_pm25_tavg_df)
+log_fit %>%
+  broom::tidy() %>% 
+  knitr::kable(caption = "Linear Regression Results")
+```
+
+###Model diagnostics
+
+```{r, dpi = 300}
+par(mfrow = c(2,2))
+plot(log_fit)
+```
+Residuals seem to be evenly distributed around 0, which is an indication of constant variance. There are some potential outliers, such as #766 and 163. The normal QQ plot shows a roughly straight line, meaning residuals are normally distributed. Therefore, our model fitting for daily pm2.5 AQI difference dependent on daily average temperature doesn't violate assumptions on residuals. 
+
+
+
+### Cross validation
+
+Fit three models
+```{r, dpi = 300}
+linear_mod_tavg = lm(lnpm25 ~ tavg, data = log_pm25_tavg_df)
+smooth_mod_tavg = gam(lnpm25 ~ s(tavg), data = log_pm25_tavg_df)
+wiggly_mod_tavg = gam(lnpm25 ~ s(tavg, k = 30), sp = 10e-6, data = log_pm25_tavg_df)
+
+log_pm25_tavg_df %>% 
+  gather_predictions(linear_mod_tavg, smooth_mod_tavg, wiggly_mod_tavg) %>% 
+  mutate(model = fct_inorder(model)) %>% 
+  ggplot(aes(x = tavg, y = lnpm25)) + 
+  geom_point(alpha = .5) +
+  geom_line(aes(y = pred), color = "red") + 
+  facet_grid(~model)
+```
+
+
+```{r, dpi = 300}
+cv_tavg_df = 
+  crossv_mc(log_pm25_tavg_df, 100) %>% 
+  mutate(
+    train = map(train, as_tibble),
+    test = map(test, as_tibble)) %>% 
+  mutate(
+    linear_mod  = map(train, ~lm(lnpm25 ~ tavg, data = .x)),
+    smooth_mod  = map(train, ~mgcv::gam(lnpm25 ~ s(tavg), data = .x)),
+    wiggly_mod  = map(train, ~gam(lnpm25 ~ s(tavg, k = 30), sp = 10e-6, data = .x))) %>% 
+  mutate(
+    rmse_linear = map2_dbl(linear_mod, test, ~rmse(model = .x, data = .y)),
+    rmse_smooth = map2_dbl(smooth_mod, test, ~rmse(model = .x, data = .y)),
+    rmse_wiggly = map2_dbl(wiggly_mod, test, ~rmse(model = .x, data = .y)))
+
+cv_tavg_df %>% 
+  select(starts_with("rmse")) %>% 
+  pivot_longer(
+    everything(),
+    names_to = "model", 
+    values_to = "rmse",
+    names_prefix = "rmse_") %>% 
+  mutate(model = fct_inorder(model)) %>% 
+  ggplot(aes(x = model, y = rmse)) + 
+  geom_boxplot() +
   labs(
-    x = "Daily Average Temperature",
-    y = "Daily PM 2.5 AQI",
-    title = "Daily PM 2.5 AQI VS. Daily Average Temperature Feb-Apr in 2020"
-  )
+    x = "Model",
+    y = "RMSE",
+    title = "Distribution of RMSE across Models (Log(pm2.5 AQI) vs Tavg)")
 ```
 
-Fit a linear model.
-```{r}
-fit2 = lm(pm25 ~tavg, data = pm25_tavg_df)
-summary(fit2)
-```
->>>>>>> 058d1fddf38c7a51458c77bf32e49c47e1f518d8
+
+
 
 
