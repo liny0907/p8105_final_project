@@ -1,5 +1,5 @@
 ---
-title: "barGraph + boxPlot + line Charts + Map of China"
+title: "barGraph + boxPlot + line Charts"
 author: "Weiheng Zhang"
 date: "2021/11/19"
 output: github_document
@@ -11,6 +11,7 @@ library(tidyverse)
 library(lubridate)
 library(dplyr)
 library(p8105.datasets)
+library(leaflet)
 
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
 
@@ -25,14 +26,16 @@ scale_fill_discrete = scale_fill_viridis_d
 
 
 ```{r}
-city_files = list.files("data")[-1]
-city_files = city_files[-19] #remove "project_timeline.xlsx"
+city_files = list.files("30_cities_data")
+onehundrd_city_files = list.files("100_cities_data")
 ```
 
 Time period we are interested in
 ```{r}
+period_18 = interval(ymd("2018-02-01"), ymd("2018-04-30"))
 period_19 = interval(ymd("2019-02-01"), ymd("2019-04-30"))
 period_20 = interval(ymd("2020-02-01"), ymd("2020-04-30"))
+period_21 = interval(ymd("2021-02-01"), ymd("2021-04-30"))
 ```
 
 
@@ -51,7 +54,7 @@ city_period_meanPM25 =
 for (city_file in city_files) {
   #print(city_file)
   
-  path = str_c("data/", city_file)
+  path = str_c("30_cities_data/", city_file)
   city = strsplit(city_file, split = '-')[[1]][1]
   
   cityAir = read_csv(path) %>% 
@@ -82,6 +85,10 @@ for (city_file in city_files) {
 city_period_meanPM25 = 
   city_period_meanPM25 %>% 
   mutate(
+    city = paste(
+      toupper(substring(city, 1, 1)), 
+      substring(city, 2), 
+      sep = ""),
     city = fct_reorder(city, mean_diff, .desc = T))
 
 ```
@@ -104,6 +111,10 @@ city_period_meanPM25 %>%
 
 ```
 
+```{r}
+#write.csv(x = city_period_meanPM25,file = "data.csv")
+```
+
 
 
 Now we will see how the distribution of daily PM25 AQI differ between time period 2019 Feb-Aprl and 2020 Feb-Aprl.
@@ -114,7 +125,7 @@ city_PM25_Distribution = tibble()
 
 for (city_file in city_files) {
 
-  path = str_c("data/", city_file)
+  path = str_c("30_cities_data/", city_file)
   city = strsplit(city_file, split = '-')[[1]][1]
   
   cityAir = read_csv(path) %>% 
@@ -154,8 +165,15 @@ for (city_file in city_files) {
 
 
 ```{r fig.width = 6, fig.height = 10, dpi=300}
+city_PM25_Distribution = 
+  city_PM25_Distribution %>% 
+  mutate(period = factor(period, levels = c("2020Feb-Aprl", "2019Feb-Aprl")),
+         city = paste(
+           toupper(substring(city, 1, 1)), 
+           substring(city, 2), 
+           sep = ""))
+
 city_PM25_Distribution %>% 
-  mutate(period = factor(period, levels = c("2020Feb-Aprl", "2019Feb-Aprl"))) %>% 
   group_by(city, period) %>% 
   ggplot(aes(y = city, x = pm25, fill = period)) + 
   geom_boxplot() + 
@@ -182,7 +200,7 @@ city_PM25_Distribution %>%
   ggplot(aes(x = day, y = pm25, color = period)) + 
   geom_line(aes(group = period), size = 0.8) + 
   #geom_point() +
-  scale_color_hue(direction = 1) +
+  scale_color_hue(direction = -1) +
   ylim(0, 400) +
   labs(
     title = "Daily PM25 AQI Starting From Feb 1 to Aprl 30",
@@ -200,8 +218,82 @@ city_PM25_Distribution %>%
 ```
 
 
+```{r}
+city_4year_meanPM25 = 
+  tibble(city = character(),
+         mean_18 = numeric(),
+         mean_19 = numeric(),
+         mean_20 = numeric(),
+         mean_21 = numeric())
+```
+
+A bar graph of mean PM2.5 AQI from Feb to Apr in the past four years in 30 representative cities.
+
+```{r message = FALSE}
+for (city_file in city_files) {
+  #print(city_file)
+  
+  path = str_c("30_cities_data/", city_file)
+  city = strsplit(city_file, split = '-')[[1]][1]
+  
+  cityAir = read_csv(path) %>% 
+    mutate(date = as.Date(date, "%Y/%m/%d")) %>%
+    arrange(date)
+  
+  cityAir_18 = cityAir %>% 
+    filter(date %within% period_18)
+  
+  cityAir_19 = cityAir %>% 
+    filter(date %within% period_19) 
+  
+  cityAir_20 = cityAir %>% 
+    filter(date %within% period_20)
+  
+  cityAir_21 = cityAir %>% 
+    filter(date %within% period_21)
+  
+  mean_18 = mean(cityAir_18$pm25, na.rm = T)
+  mean_19 = mean(cityAir_19$pm25, na.rm = T)
+  mean_20 = mean(cityAir_20$pm25, na.rm = T)
+  mean_21 = mean(cityAir_21$pm25, na.rm = T)
+  
+  city_4year_meanPM25 = 
+    city_4year_meanPM25 %>%
+    add_row(city = city,
+            mean_18 = mean_18,
+            mean_19 = mean_19, 
+            mean_20 = mean_20, 
+            mean_21 = mean_21)
+}
+```
+
+```{r}
+city_4year_meanPM25 = 
+  city_4year_meanPM25 %>% 
+  mutate(city = factor(city)) %>% 
+  pivot_longer(
+    mean_18:mean_21,
+    values_to = "mean",
+    names_to = "years"
+  )
+```
 
 
+```{r dpi=300}
+city_4year_meanPM25 %>% 
+  ggplot() +
+  geom_bar(
+    aes(y = years, x = mean, fill = years), 
+  stat = "identity") +
+  facet_wrap(~city, nrow = 5) +
+  #scale_x_continuous(breaks = scales::pretty_breaks(n = 20)) +
+  theme(legend.position = "none") +
+  labs(
+    title = "A bar graph of mean PM2.5 AQI from Feb to Apr in the past four years",
+    x = "PM25 AQI Mean",
+    y = "City")
+
+```
 
 
 

@@ -1,0 +1,117 @@
+---
+title: "Map_of_China"
+author: "Weiheng Zhang"
+date: "2021/11/26"
+output: html_document
+---
+
+```{r message = FALSE}
+library(tidyverse)
+library(lubridate)
+library(dplyr)
+library(p8105.datasets)
+library(leaflet)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_color_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
+
+
+### 100 Cities' 2020 Minus 2019 Feb-Aprl daily average PM25 AQI, on the map of China.
+
+Time period we are interested in
+```{r}
+period_19 = interval(ymd("2019-02-01"), ymd("2019-04-30"))
+period_20 = interval(ymd("2020-02-01"), ymd("2020-04-30"))
+```
+
+Compute the 19&20 mean daily AQI change of PM25 during Feb-Aprl for 100 cities.
+
+```{r}
+all_cities_files = list.files("100_cities_data")
+```
+
+The daily mean PM2.5 AQI from Feb to Aprl of year 2019 and year 2020 in each city.
+```{r}
+all_city_period_meanPM25 = 
+  tibble(city = character(),
+         mean_19 = numeric(),
+         mean_20 = numeric(),
+         mean_diff = numeric())
+```
+
+```{r message=FALSE}
+for (city_file in all_cities_files) {
+  #print(city_file)
+  
+  path = str_c("100_cities_data/", city_file)
+  city = strsplit(city_file, split = '-')[[1]][1]
+  
+  cityAir = read_csv(path) %>% 
+    mutate(date = as.Date(date, "%Y/%m/%d")) %>%
+    arrange(date)
+  
+  cityAir_19 = cityAir %>% 
+    filter(date %within% period_19) 
+  
+  cityAir_20 = cityAir %>% 
+    filter(date %within% period_20)
+  
+  mean_19 = mean(cityAir_19$pm25, na.rm = T)
+  mean_20 = mean(cityAir_20$pm25, na.rm = T)
+  mean_diff = mean_20 - mean_19
+  
+  all_city_period_meanPM25 = 
+    all_city_period_meanPM25 %>% 
+    add_row(city = city, 
+            mean_19 = mean_19, 
+            mean_20 = mean_20, 
+            mean_diff = mean_diff)
+}
+
+```
+
+
+```{r message=FALSE}
+all_city_period_meanPM25 = 
+  all_city_period_meanPM25 %>% 
+  mutate(
+    city = paste(
+      toupper(substring(city, 1, 1)), 
+      substring(city, 2), 
+      sep = ""),
+    city = fct_reorder(city, mean_diff, .desc = T))
+```
+
+
+```{r message=FALSE}
+cities_locations = read_csv("data/100_cities_location.csv")
+all_city_period_meanPM25 = merge(all_city_period_meanPM25, cities_locations)
+```
+
+Draw the map.
+```{r message=FALSE}
+pal <- colorNumeric(palette = "RdBu", domain = c(-45, 45), reverse = TRUE)
+
+all_city_period_meanPM25 %>% 
+  mutate(
+    click_label = 
+      str_c("<b>", city, 
+            "</b><br>19 Daily AQI: ", round(mean_19, digits = 2), 
+            "<br>20 Daily AQI: ", round(mean_20, digits = 2),
+            "<br>20 Minus 19: ", round(mean_diff, digits = 2))) %>% 
+  leaflet(width = "100%") %>% 
+  addProviderTiles(providers$Esri.NatGeoWorldMap) %>% 
+  addCircleMarkers(~long, ~lat, radius = 3, opacity = 1, color = ~pal(mean_diff), popup = ~click_label)
+```
+
+
+
