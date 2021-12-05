@@ -1,5 +1,5 @@
 ---
-title: "Map_of_China"
+title: "Map"
 output: 
   html_document:
     code_folding: hide
@@ -27,25 +27,25 @@ scale_fill_discrete = scale_fill_viridis_d
 
 
 
-# Maps of air pollutans in cities 
+# Maps of air pollutants in 100 cities 
 
 ### Time period
 
-2019-02-01 to 2019-04-3
+2019-02-01 to 2019-04-30
+           vs
+2020-02-01 to 2020-04-30
 
 ```{r message = FALSE, include = FALSE}
 period_19 = interval(ymd("2019-02-01"), ymd("2019-04-30"))
 period_20 = interval(ymd("2020-02-01"), ymd("2020-04-30"))
 ```
 
-### Data processing 
-Compute the 19&20 mean daily AQI change of PM25 during Feb-Aprl for 100 cities.
 
 ```{r message = FALSE, include = FALSE}
 all_cities_files = list.files("100_cities_data")
 ```
 
-The daily mean PM2.5 AQI from Feb to Aprl of year 2019 and year 2020 in each city.
+
 ```{r message = FALSE, include = FALSE}
 all_city_period_meanPM25 = 
   tibble(city = character(),
@@ -118,9 +118,11 @@ all_city_period_meanPM25 %>%
   addCircleMarkers(~long, ~lat, radius = 3, opacity = 1, color = ~pal(mean_diff), popup = ~click_label)
 ```
 
+(Note: red indicates deterioration in air quality in 2020 compared to 2019, white indicates no improvement, and blue indicates improvement of air quality in 2020 compared to 2019)
 
+The map of China included in our analysis exhibits the distribution of magnitude of air quality improvement during the lockdown period across 100 cities. Each dot represents a city we selected, and the color indicates its degree of air quality improvement. 
 
-
+We can see that most cities with significant air quality improvement tend to cluster in the North China and Yangtze River Delta region. This might be partially explained by the economic structure. Industrial output value accounts for a relatively large proportion of GDP in these two areas. Normally, there are a lot of industrial activities going on there. However, during the lockdown period, nearly all of them were partially or completely suspended. As industry does have an unignorable negative impact on air quality, it’s not difficult to see why notable air quality improvement could be observed in these two regions.
 
 
 
