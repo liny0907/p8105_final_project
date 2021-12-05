@@ -95,17 +95,7 @@ We learned that air quality improvements in a city may correlate to the city's G
 `pop_million`: 2019 population in thousand
 
 
-<<<<<<< HEAD
-Fit linear models
-=======
-## Fit linear models
-
-```{r}
-fit = lm(mean_diff ~gdp_ln + pop_ln, data = diff_gdp_pop_df)
-summary(fit)
-=======
 ### Find Appropriate Transformation
->>>>>>> 31d942372fd608c8189d208d3f7241e9bac09eb9
 
 Since the boxcox function only works with positive values for the response variable y, we removed pm25_diff less than 0 to check if a transformation is appropriate here. 
 ```{r, dpi = 300}
@@ -274,8 +264,6 @@ log_fit %>%
 par(mfrow = c(2,2))
 plot(log_fit)
 ```
-<<<<<<< HEAD
-=======
 Residuals seem to be evenly distributed around 0, which is an indication of constant variance. There are some potential outliers, such as #766 and 163. The normal QQ plot shows a roughly straight line, meaning residuals are normally distributed. Therefore, our model fitting for daily pm2.5 AQI difference dependent on daily average temperature doesn't violate assumptions on residuals. 
 
 
@@ -330,7 +318,6 @@ cv_tavg_df %>%
 ```
 
 
->>>>>>> 31d942372fd608c8189d208d3f7241e9bac09eb9
 
 
 
