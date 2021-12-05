@@ -109,7 +109,7 @@ city_level=
   summarise(n=n())%>%
   pivot_wider(names_from = "level", values_from = "n")
 
-city_level[is.na(city_level)]= 0
+city_level[is.na(city_level)]= 0 
 
 ```
 
