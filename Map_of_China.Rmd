@@ -13,6 +13,8 @@ library(lubridate)
 library(dplyr)
 library(p8105.datasets)
 library(leaflet)
+library(crosstalk)
+library(leaflet.extras)
 
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
 
@@ -47,11 +49,15 @@ all_cities_files = list.files("100_cities_data")
 
 
 ```{r message = FALSE, include = FALSE}
-all_city_period_meanPM25 = 
+all_city_period_diff = 
   tibble(city = character(),
-         mean_19 = numeric(),
-         mean_20 = numeric(),
-         mean_diff = numeric())
+         pm25 = numeric(),
+         pm10 = numeric(),
+         o3 = numeric(),
+         no2 = numeric(),
+         so2 = numeric(),
+         co = numeric(),
+         )
 ```
 
 ```{r message = FALSE, include = FALSE}
@@ -71,52 +77,101 @@ for (city_file in all_cities_files) {
   cityAir_20 = cityAir %>% 
     filter(date %within% period_20)
   
-  mean_19 = mean(cityAir_19$pm25, na.rm = T)
-  mean_20 = mean(cityAir_20$pm25, na.rm = T)
-  mean_diff = mean_20 - mean_19
   
-  all_city_period_meanPM25 = 
-    all_city_period_meanPM25 %>% 
+  pm25_19 = mean(cityAir_19$pm25, na.rm = T)
+  pm25_20 = mean(cityAir_20$pm25, na.rm = T)
+  pm25d = pm25_20 - pm25_19
+  
+  pm10_19 = mean(cityAir_19$pm10, na.rm = T)
+  pm10_20 = mean(cityAir_20$pm10, na.rm = T)
+  pm10d = pm10_20 - pm10_19
+  
+  o3_19 = mean(cityAir_19$o3, na.rm = T)
+  o3_20 = mean(cityAir_20$o3, na.rm = T)
+  o3d = o3_20 - o3_19
+  
+  no2_19 = mean(cityAir_19$no2, na.rm = T)
+  no2_20 = mean(cityAir_20$no2, na.rm = T)
+  no2d = no2_20 - no2_19
+  
+  so2_19 = mean(cityAir_19$so2, na.rm = T)
+  so2_20 = mean(cityAir_20$so2, na.rm = T)
+  so2d = so2_20 - so2_19
+  
+  co_19 = mean(cityAir_19$co, na.rm = T)
+  co_20 = mean(cityAir_20$co, na.rm = T)
+  cod = co_20 - co_19
+  
+  all_city_period_diff = 
+    all_city_period_diff %>% 
     add_row(city = city, 
-            mean_19 = mean_19, 
-            mean_20 = mean_20, 
-            mean_diff = mean_diff)
+            pm25 = pm25d,
+            pm10 = pm10d,
+            o3 = o3d,
+            no2 = no2d,
+            so2 = so2d,
+            co = cod)
 }
 
 ```
 
 
 ```{r message = FALSE, include = FALSE}
-all_city_period_meanPM25 = 
-  all_city_period_meanPM25 %>% 
+all_city_period_diff = 
+  all_city_period_diff %>% 
   mutate(
     city = paste(
       toupper(substring(city, 1, 1)), 
       substring(city, 2), 
       sep = ""),
-    city = fct_reorder(city, mean_diff, .desc = T))
+    city = fct_reorder(city, pm25, .desc = T))
 ```
 
 
 ```{r message = FALSE, include = FALSE}
 cities_locations = read_csv("data/100_cities_location.csv")
-all_city_period_meanPM25 = merge(all_city_period_meanPM25, cities_locations)
+all_city_period_diff = merge(all_city_period_diff, cities_locations)
 ```
 
-```{r message=FALSE}
-pal <- colorNumeric(palette = "RdBu", domain = c(-45, 45), reverse = TRUE)
-
-all_city_period_meanPM25 %>% 
+```{r message=FALSE, include = FALSE}
+long_all_city_period_diff =
+  all_city_period_diff %>% 
   mutate(
     click_label = 
-      str_c("<b>", city, 
-            "</b><br>19 Daily AQI: ", round(mean_19, digits = 2), 
-            "<br>20 Daily AQI: ", round(mean_20, digits = 2),
-            "<br>20 Minus 19: ", round(mean_diff, digits = 2))) %>% 
+      str_c("<b>", paste(city, "2020 Minus 2019 Feb~Aprl Daily AQI"), 
+            "</b><br>pm25 diff: ", round(pm25, digits = 2), 
+            "<br>pm10 diff: ", round(pm10, digits = 2),
+            "<br>o3 diff: ", round(o3, digits = 2),
+            "<br>no2 diff: ", round(no2, digits = 2),
+            "<br>so2 diff: ", round(so2, digits = 2),
+            "<br>co diff: ", round(co, digits = 2)
+            )) %>%
+  pivot_longer(c(pm10, o3, no2, so2, co, pm25), names_to = "type", values_to = "diff") %>% 
+  mutate(type = factor(type, levels = c("pm25", "pm10", "o3", "no2", "so2", "co")))
+```
+
+
+```{r message=FALSE, include=FALSE}
+pal <- colorNumeric(palette = "RdBu", domain = c(-45, 45), reverse = TRUE)
+
+allCity_sd = SharedData$new(long_all_city_period_diff)
+
+allcity_map = allCity_sd %>% 
   leaflet(width = "100%") %>% 
   addProviderTiles(providers$Esri.NatGeoWorldMap) %>% 
-  addCircleMarkers(~long, ~lat, radius = 3, opacity = 1, color = ~pal(mean_diff), popup = ~click_label)
+  addCircleMarkers(~long, ~lat, radius = 3, opacity = 1, color = ~pal(diff), popup = ~click_label)
 ```
+
+
+```{r echo=FALSE}
+bscols(allcity_map)
+
+bscols(
+  filter_select("Pollute Type", "Pollute Type", allCity_sd, ~type, multiple = F)
+)
+```
+
+
 
 (Note: red indicates deterioration in air quality in 2020 compared to 2019, white indicates no improvement, and blue indicates improvement of air quality in 2020 compared to 2019)
 
