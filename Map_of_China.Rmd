@@ -167,7 +167,7 @@ allcity_map = allCity_sd %>%
 bscols(allcity_map)
 
 bscols(
-  filter_select("Pollute Type", "Pollute Type", allCity_sd, ~type, multiple = F)
+  filter_select("Pollutant Type", "Pollutant Type", allCity_sd, ~type, multiple = F)
 )
 ```
 
