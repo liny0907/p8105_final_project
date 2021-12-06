@@ -1,8 +1,7 @@
 ---
-title: "Map"
+title: "Maps of Air Pollutants in 100 Cities "
 output: 
   html_document:
-    code_folding: hide
     toc: true
     toc_float: true
 ---
@@ -27,11 +26,6 @@ scale_colour_discrete = scale_color_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 ```
 
-
-
-# Maps of air pollutants in 100 cities 
-
-### Time period
 
 2019-02-01 to 2019-04-30
            vs
@@ -159,7 +153,8 @@ allCity_sd = SharedData$new(long_all_city_period_diff)
 allcity_map = allCity_sd %>% 
   leaflet(width = "100%") %>% 
   addProviderTiles(providers$Esri.NatGeoWorldMap) %>% 
-  addCircleMarkers(~long, ~lat, radius = 3, opacity = 1, color = ~pal(diff), popup = ~click_label)
+  addCircleMarkers(~long, ~lat, radius = 3, opacity = 1, color = ~pal(diff), popup = ~click_label) %>% 
+  addLegend("bottomleft", pal = pal, values = ~diff)
 ```
 
 
@@ -173,7 +168,7 @@ bscols(
 Use the above drop-down selection to view different pollutants.  
   
 
-(Note: red indicates deterioration in air quality in 2020 compared to 2019, white indicates no improvement, and blue indicates improvement of air quality in 2020 compared to 2019)
+(Note: negative values indicate improvement of air quality in 2020 compared to 2019 and positive values indicate deterioration of air quality in 2020 compared to 2019.)
 
 The map of China included in our analysis exhibits the distribution of magnitude of air quality improvement during the lockdown period across 100 cities. Each dot represents a city we selected, and the color indicates its degree of air quality improvement. 
 
