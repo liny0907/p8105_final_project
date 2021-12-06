@@ -2,7 +2,7 @@
 title: "Data Exploration"
 output: 
   html_document:
-    code_folding: hide
+    code_folding: show
     toc: true
     toc_float: true
 ---
@@ -28,10 +28,7 @@ scale_fill_discrete = scale_fill_viridis_d
 ```
 
 
-```{r}
-city_files = list.files("30_cities_data")
-onehundrd_city_files = list.files("100_cities_data")
-```
+
 
 Time period we are interested in
 ```{r}
@@ -42,17 +39,31 @@ period_21 = interval(ymd("2021-02-01"), ymd("2021-04-30"))
 ```
 
 
-The daily mean PM2.5 AQI from Feb to Aprl of year 2019 and year 2020 in each city.
+
+
+
 ```{r}
-city_period_meanPM25 = 
+#Get the filenames of the air quality data.
+city_files = list.files("30_cities_data")
+onehundrd_city_files = list.files("100_cities_data")
+```
+
+```{r}
+city_period_diff = 
   tibble(city = character(),
-         mean_19 = numeric(),
-         mean_20 = numeric(),
-         mean_diff = numeric())
+         pm25 = numeric(),
+         pm10 = numeric(),
+         o3 = numeric(),
+         no2 = numeric(),
+         so2 = numeric(),
+         co = numeric(),
+         )
 ```
 
 
+## Daily Mean AQI difference Analysis
 
+Compute the daily mean pollutant AQI from Feb to Aprl of year 2019 and year 2020 in each city.
 ```{r message=FALSE}
 for (city_file in city_files) {
   #print(city_file)
@@ -70,56 +81,116 @@ for (city_file in city_files) {
   cityAir_20 = cityAir %>% 
     filter(date %within% period_20)
   
-  mean_19 = mean(cityAir_19$pm25, na.rm = T)
-  mean_20 = mean(cityAir_20$pm25, na.rm = T)
-  mean_diff = mean_20 - mean_19
   
-  city_period_meanPM25 = 
-    city_period_meanPM25 %>% 
+  pm25_19 = mean(cityAir_19$pm25, na.rm = T)
+  pm25_20 = mean(cityAir_20$pm25, na.rm = T)
+  pm25d = pm25_20 - pm25_19
+  
+  pm10_19 = mean(cityAir_19$pm10, na.rm = T)
+  pm10_20 = mean(cityAir_20$pm10, na.rm = T)
+  pm10d = pm10_20 - pm10_19
+  
+  o3_19 = mean(cityAir_19$o3, na.rm = T)
+  o3_20 = mean(cityAir_20$o3, na.rm = T)
+  o3d = o3_20 - o3_19
+  
+  no2_19 = mean(cityAir_19$no2, na.rm = T)
+  no2_20 = mean(cityAir_20$no2, na.rm = T)
+  no2d = no2_20 - no2_19
+  
+  so2_19 = mean(cityAir_19$so2, na.rm = T)
+  so2_20 = mean(cityAir_20$so2, na.rm = T)
+  so2d = so2_20 - so2_19
+  
+  co_19 = mean(cityAir_19$co, na.rm = T)
+  co_20 = mean(cityAir_20$co, na.rm = T)
+  cod = co_20 - co_19
+  
+  city_period_diff = 
+    city_period_diff %>% 
     add_row(city = city, 
-            mean_19 = mean_19, 
-            mean_20 = mean_20, 
-            mean_diff = mean_diff)
+            pm25 = pm25d,
+            pm10 = pm10d,
+            o3 = o3d,
+            no2 = no2d,
+            so2 = so2d,
+            co = cod)
 }
 
 ```
 
 ```{r}
-city_period_meanPM25 = 
-  city_period_meanPM25 %>% 
+city_period_diff = 
+  city_period_diff %>% 
   mutate(
     city = paste(
       toupper(substring(city, 1, 1)), 
       substring(city, 2), 
       sep = ""),
-    city = fct_reorder(city, mean_diff, .desc = T))
+    
+    
+    city = fct_reorder(city, pm25, .desc = T),
+    )
+
+```
+
+## Interative bar graph of AQI Difference
+Showing each pollutant's Feb~Aprl Daily Mean PM25 AQI Difference, 2020 minus 2019
+
+```{r out.width='100%'}
+city_period_diff %>% 
+  plot_ly(x = ~pm25, y = ~city, type = "bar", opacity = 1) %>% 
+  layout(title = "Feb~Aprl Daily Mean PM25 AQI Difference, 2020 minus 2019",
+         barmode = 'overlay',
+         xaxis = list(title = "Mean AQI Difference"),
+         yaxis = list(autotick = F, title = "Cities"),
+         updatemenus = list(
+           list(
+            y = 1.1,
+            buttons = list(
+              list(method = "update",
+                   args = list(list(x = list(~pm25)), 
+                               list(title = "Feb~Aprl Daily Mean PM25 AQI Difference, 2020 minus 2019")
+                               ),
+                   label = "pm25"),
+              list(method = "update",
+                   args = list(list(x = list(~pm10)), 
+                               list(title = "Feb~Aprl Daily Mean PM10 AQI Difference, 2020 minus 2019")
+                               ),
+                   label = "pm10"),
+              list(method = "update",
+                   args = list(list(x = list(~o3)), 
+                               list(title = "Feb~Aprl Daily Mean O3 AQI Difference, 2020 minus 2019")
+                               ),
+                   label = "o3"),
+              list(method = "update",
+                   args = list(list(x = list(~no2)), 
+                               list(title = "Feb~Aprl Daily Mean NO2 AQI Difference, 2020 minus 2019")
+                               ),
+                   label = "no2"),
+              list(method = "update",
+                   args = list(list(x = list(~so2)), 
+                               list(title = "Feb~Aprl Daily Mean SO2 AQI Difference, 2020 minus 2019")
+                               ),
+                   label = "so2"),
+              list(method = "update",
+                   args = list(list(x = list(~co)), 
+                               list(title = "Feb~Aprl Daily Mean CO AQI Difference, 2020 minus 2019")
+                               ),
+                   label = "co")
+            )
+  )))
 
 ```
 
 
+## Distribution Analysis
 
-```{r dpi=300}
-city_period_meanPM25 %>% 
-  arrange(mean_diff) %>% 
-  ggplot() +
-  geom_bar(
-    aes(x = mean_diff, y = city, fill = city), 
-  stat = "identity") +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 20)) +
-  theme(legend.position = "none") +
-  labs(
-    title = "Feb-Aprl Daily mean PM2.5 AQI Difference, 2020 minus 2019",
-    x = "PM25 AQI Difference",
-    y = "City")
-
-```
-
-
-Now we will see how the distribution of daily PM25 AQI differ between time period 2019 Feb-Aprl and 2020 Feb-Aprl.
+Now we will see how the distribution of daily PM25 AQI differ between time period 2019 Feb-Aprl and 2020 Feb~Aprl.
 
 
 ```{r warning=FALSE, message=FALSE}
-city_PM25_Distribution = tibble()
+city_AQI_Distribution = tibble()
 
 for (city_file in city_files) {
 
@@ -154,8 +225,8 @@ for (city_file in city_files) {
            city = city) %>% 
     relocate(city, period, day)
   
-  city_PM25_Distribution = rbind(city_PM25_Distribution, city_19)
-  city_PM25_Distribution = rbind(city_PM25_Distribution, city_20)
+  city_AQI_Distribution = rbind(city_AQI_Distribution, city_19)
+  city_AQI_Distribution = rbind(city_AQI_Distribution, city_20)
 }
 
 ```
@@ -163,8 +234,8 @@ for (city_file in city_files) {
 
 
 ```{r}
-city_PM25_Distribution = 
-  city_PM25_Distribution %>% 
+city_AQI_Distribution = 
+  city_AQI_Distribution %>% 
   mutate(period = factor(period, levels = c("2020Feb-Aprl", "2019Feb-Aprl")),
          city = paste(
            toupper(substring(city, 1, 1)), 
@@ -172,32 +243,75 @@ city_PM25_Distribution =
            sep = ""))
 ```
 
-```{r fig.width = 6, fig.height = 10, dpi=300}
-city_PM25_Distribution %>% 
-  group_by(city, period) %>% 
-  ggplot(aes(y = city, x = pm25, fill = period)) + 
-  geom_boxplot() + 
-  scale_fill_hue(direction = -1) +
-  stat_summary(
-    fun = mean, 
-    geom = "point", 
-    shape = 15,
-    position = position_dodge(width = 0.75)) +
-  labs(
-    title = "Daily PM25 AQI Distribution, 2019 and 2020 Feb-Aprl",
-    xlab = "Daily PM25 AQI")
+
+
+## Interactive Side-by-side Boxplots
+showing each pollutant's Daily PM25 AQI Distribution, 2019 and 2020 Feb-Aprl, in each city.
+
+```{r out.width='100%', warning = FALSE}
+#This way is stupid but it works! I tried other methods but they just don't work as expected!!!
+city_AQI_Distribution %>% 
+  plot_ly(
+    y = ~city, x = ~pm25, color = ~period, type = "box", 
+    colors = c(rgb(0.2, 0.6, 0.8, 0.6), rgb(0.8, 0.2, 0.2, 0.6))) %>% 
+  add_trace(
+    x = ~pm10, visible = F) %>% 
+  add_trace(
+    x = ~o3, visible = F) %>% 
+  add_trace(
+    x = ~no2, visible = F) %>% 
+  add_trace(
+    x = ~so2, visible = F) %>% 
+  add_trace(
+    x = ~co, visible = F) %>% 
+  
+  layout(title = "Daily PM25 AQI Distribution, 2019 and 2020 Feb-Aprl",
+         xaxis = list(title = "Daily AQI"),
+         yaxis = list(autotick = F, title = "Cities"),
+         boxmode = "group",
+         updatemenus = list(
+            list(
+              y = 1.1,
+              buttons = list(
+                list(label = "PM25",
+                     method = "update",
+                     args = list(list(visible = c(T,T, F,F, F,F, F,F, F,F, F,F)),
+                                 list(title = "Daily PM25 AQI Distribution, 2019 and 2020 Feb-Aprl"))),
+                list(label = "PM10",
+                     method = "update",
+                     args = list(list(visible = c(F,F, T,T, F,F, F,F, F,F, F,F)),
+                                 list(title = "Daily PM10 AQI Distribution, 2019 and 2020 Feb-Aprl"))),
+                list(label = "O3",
+                     method = "update",
+                     args = list(list(visible = c(F,F, F,F, T,T, F,F, F,F, F,F)),
+                                 list(title = "Daily O3 AQI Distribution, 2019 and 2020 Feb-Aprl"))),
+                list(label = "no2",
+                     method = "update",
+                     args = list(list(visible = c(F,F, F,F, F,F, T,T, F,F, F,F)),
+                                 list(title = "Daily NO2 AQI Distribution, 2019 and 2020 Feb-Aprl"))),
+                list(label = "so2",
+                     method = "update",
+                     args = list(list(visible = c(F,F, F,F, F,F, F,F, T,T, F,F)),
+                                 list(title = "Daily SO2 AQI Distribution, 2019 and 2020 Feb-Aprl"))),
+                list(label = "co",
+                     method = "update",
+                     args = list(list(visible = c(F,F, F,F, F,F, F,F, F,F, T,T)),
+                                 list(title = "Daily CO AQI Distribution, 2019 and 2020 Feb-Aprl")))
+                ))
+            ))
+  
 ```
 
 
 
-Line chart of daily pm25 AQI changes for all 30 cities.
+## Line chart of daily pm25 AQI changes for all 30 cities.
 Note that year 2019 does not have the date "Feb 29", but year 2020 does.
 
 
 ```{r, fig.width = 8, fig.height = 20, dpi=300}
 
 
-city_PM25_Distribution %>% 
+city_AQI_Distribution %>% 
   ggplot(aes(x = day, y = pm25, color = period)) + 
   geom_line(aes(group = period), size = 0.8) + 
   #geom_point() +
@@ -219,6 +333,38 @@ city_PM25_Distribution %>%
 ```
 
 
+
+## Line chart of daily NO2 AQI changes for all 30 cities.
+Note that year 2019 does not have the date "Feb 29", but year 2020 does.
+
+
+```{r, fig.width = 8, fig.height = 20, dpi=300}
+
+
+city_AQI_Distribution %>% 
+  ggplot(aes(x = day, y = no2, color = period)) + 
+  geom_line(aes(group = period), size = 0.8) + 
+  #geom_point() +
+  scale_color_hue(direction = -1) +
+  ylim(0, 60) +
+  labs(
+    title = "Daily NO2 AQI Starting From Feb 1 to Aprl 30",
+    x = "Day",
+    y = "Daily NO2 AQI",
+    color = "year period") +
+  facet_wrap(~city, nrow = 10) +
+  scale_x_discrete(breaks = c("02-01", "02-11", "02-21", 
+                              "03-01", "03-11", "03-21", 
+                              "04-01", "04-11", "04-21")) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+
+
+```
+
+
+
+
 ```{r}
 city_4year_meanPM25 = 
   tibble(city = character(),
@@ -228,8 +374,8 @@ city_4year_meanPM25 =
          mean_21 = numeric())
 ```
 
+## Past Four Years' Feb~Aprl Mean PM2.5 AQI
 A bar graph of mean PM2.5 AQI from Feb to Apr in the past four years in 30 representative cities.
-
 ```{r message = FALSE}
 for (city_file in city_files) {
   #print(city_file)
@@ -296,181 +442,8 @@ city_4year_meanPM25 %>%
 
 ```
 
-# The difference AQI mean for "NO2"
-
-The daily mean NO2 AQI from Feb to Aprl of year 2019 and year 2020 in each city.
-```{r}
-city_period_meanno2 = 
-  tibble(city = character(),
-         mean_19 = numeric(),
-         mean_20 = numeric(),
-         mean_diff = numeric())
-```
 
 
-
-```{r message=FALSE}
-for (city_file in city_files) {
-  #print(city_file)
-  
-  path = str_c("30_cities_data/", city_file)
-  city = strsplit(city_file, split = '-')[[1]][1]
-  
-  cityAir = read_csv(path) %>% 
-    mutate(date = as.Date(date, "%Y/%m/%d")) %>%
-    arrange(date)
-  
-  cityAir_19 = cityAir %>% 
-    filter(date %within% period_19) 
-  
-  cityAir_20 = cityAir %>% 
-    filter(date %within% period_20)
-  
-  mean_19 = mean(cityAir_19$no2, na.rm = T)
-  mean_20 = mean(cityAir_20$no2, na.rm = T)
-  mean_diff = mean_20 - mean_19
-  
-  city_period_meanno2 = 
-    city_period_meanno2 %>% 
-    add_row(city = city, 
-            mean_19 = mean_19, 
-            mean_20 = mean_20, 
-            mean_diff = mean_diff)
-}
-
-```
-
-```{r}
-city_period_meanno2 = 
-  city_period_meanno2 %>% 
-  mutate(
-    city = paste(
-      toupper(substring(city, 1, 1)), 
-      substring(city, 2), 
-      sep = ""),
-    city = fct_reorder(city, mean_diff, .desc = T))
-
-```
-
-
-
-```{r dpi=300}
-city_period_meanno2 %>% 
-  arrange(mean_diff) %>% 
-  ggplot() +
-  geom_bar(
-    aes(x = mean_diff, y = city, fill = city), 
-  stat = "identity") +
-  scale_x_continuous(breaks = scales::pretty_breaks(n = 20)) +
-  theme(legend.position = "none") +
-  labs(
-    title = "Feb-Aprl Daily mean NO2 AQI Difference, 2020 minus 2019",
-    x = "NO2 AQI Difference",
-    y = "City")
-
-```
-
-
-
-Now we will see how the distribution of daily NO2 AQI differ between time period 2019 Feb-Aprl and 2020 Feb-Aprl.
-
-
-```{r warning=FALSE, message=FALSE}
-city_no2_Distribution = tibble()
-
-for (city_file in city_files) {
-
-  path = str_c("30_cities_data/", city_file)
-  city = strsplit(city_file, split = '-')[[1]][1]
-  
-  cityAir = read_csv(path) %>% 
-    mutate(date = as.Date(date, "%Y/%m/%d")) %>%
-    arrange(date)
-  
-  city_19 = cityAir %>% 
-    filter(date %within% period_19) %>% 
-    mutate(period = "2019Feb-Aprl",
-           day = format(date,"%m-%d"),
-           city = city) %>% 
-    relocate(city, period, day)
-  
-  #add a fake date "2019-02-29" with all AQI values as NA
-  city_19 = 
-    city_19 %>% 
-    add_row(city = city, 
-            period = "2019Feb-Aprl", 
-            day = "02-29") %>% 
-    mutate(day = as.factor(day))
-  
-  
-  city_20 = cityAir %>% 
-    filter(date %within% period_20) %>% 
-    mutate(period = "2020Feb-Aprl",
-           day = format(date,"%m-%d"),
-           day = as.factor(day),
-           city = city) %>% 
-    relocate(city, period, day)
-  
-  city_no2_Distribution = rbind(city_no2_Distribution, city_19)
-  city_no2_Distribution = rbind(city_no2_Distribution, city_20)
-}
-
-```
-
-
-
-```{r fig.width = 6, fig.height = 10, dpi=300}
-city_no2_Distribution = 
-  city_no2_Distribution %>% 
-  mutate(period = factor(period, levels = c("2020Feb-Aprl", "2019Feb-Aprl")),
-         city = paste(
-           toupper(substring(city, 1, 1)), 
-           substring(city, 2), 
-           sep = ""))
-
-city_no2_Distribution %>% 
-  group_by(city, period) %>% 
-  ggplot(aes(y = city, x = no2, fill = period)) + 
-  geom_boxplot() + 
-  scale_fill_hue(direction = -1) +
-  stat_summary(
-    fun = mean, 
-    geom = "point", 
-    shape = 15,
-    position = position_dodge(width = 0.75)) +
-  labs(
-    title = "Daily NO2 AQI Distribution, 2019 and 2020 Feb-Aprl",
-    xlab = "Daily NO2 AQI")
-```
-
-
-Line chart of daily NO2 AQI changes for all 30 cities.
-Note that year 2019 does not have the date "Feb 29", but year 2020 does.
-
-
-```{r, fig.width = 8, fig.height = 20, dpi=300}
-
-
-city_no2_Distribution %>% 
-  ggplot(aes(x = day, y = no2, color = period)) + 
-  geom_line(aes(group = period), size = 0.8) + 
-  #geom_point() +
-  scale_color_hue(direction = -1) +
-  ylim(0, 60) +
-  labs(
-    title = "Daily NO2 AQI Starting From Feb 1 to Aprl 30",
-    x = "Day",
-    y = "Daily NO2 AQI",
-    color = "year period") +
-  facet_wrap(~city, nrow = 10) +
-  scale_x_discrete(breaks = c("02-01", "02-11", "02-21", 
-                              "03-01", "03-11", "03-21", 
-                              "04-01", "04-11", "04-21")) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
-
-
-
-```
 
 
 ```{r}
@@ -482,6 +455,7 @@ city_4year_meanno2 =
          mean_21 = numeric())
 ```
 
+## Past Four Years' Feb~Aprl Mean NO2 AQI
 A bar graph of mean NO2 AQI from Feb to Apr in the past four years in 30 representative cities.
 
 ```{r message = FALSE}
