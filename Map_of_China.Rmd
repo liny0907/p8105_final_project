@@ -170,8 +170,8 @@ bscols(
   filter_select("Pollutant Type", "Pollutant Type", allCity_sd, ~type, multiple = F)
 )
 ```
-
-
+Use the above drop-down selection to view different pollutants.  
+  
 
 (Note: red indicates deterioration in air quality in 2020 compared to 2019, white indicates no improvement, and blue indicates improvement of air quality in 2020 compared to 2019)
 
