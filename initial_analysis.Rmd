@@ -2,7 +2,7 @@
 title: "Data Exploration"
 output: 
   html_document:
-    code_folding: show
+    code_folding: hide
     toc: true
     toc_float: true
 ---
@@ -28,11 +28,9 @@ scale_fill_discrete = scale_fill_viridis_d
 ```
 
 ## Time period
-The time that we are interested in are from 
-"2018-02-01" to "2018-04-30"  
-"2019-02-01" to "2019-04-30"  
-"2020-02-01" to "2020-04-30"  
-"2021-02-01" to "2021-04-30"  
+We are majorly interested in the time period "2019-02-01" ~ "2019-04-30" and "2020-02-01" ~ "2020-04-30", where the second period is when China entered mass lockdown to control the spread of COVID-19. We used multiple strategies to visualize that, how the air quality index of different pollutants during the lockdown changed comparing to the same period in 2019, in major Chinese cities.  
+Besides the above time periods, we also extracted air quality data of each city from 2018 and 2021 to get a more comprehensive view of change in air quality in Chinese cities. 
+
 ```{r}
 period_18 = interval(ymd("2018-02-01"), ymd("2018-04-30"))
 period_19 = interval(ymd("2019-02-01"), ymd("2019-04-30"))
@@ -41,12 +39,14 @@ period_21 = interval(ymd("2021-02-01"), ymd("2021-04-30"))
 ```
 
 ## Air quality data
-Get the filenames of the air quality data, and tidy the data and create a `city_period_diff` to see the difference for Air pollutant.  
+Get the filenames of the air quality data.
 ```{r}
 city_files = list.files("30_cities_data")
 onehundrd_city_files = list.files("100_cities_data")
 ```
 
+
+`city_period_diff` will hold each city's mean daily AQI difference of each pollutant, between 2019 Feb~Aprl and 2020 Feb~Aprl. 
 ```{r}
 city_period_diff = 
   tibble(city = character(),
@@ -134,7 +134,6 @@ city_period_diff =
 ```
 
 ## Interative bar graph of AQI Difference
-Showing each pollutant's Feb~Aprl Daily Mean PM25 AQI Difference, 2020 minus 2019
 
 ```{r out.width='100%'}
 city_period_diff %>% 
@@ -182,7 +181,7 @@ city_period_diff %>%
 
 ```
 
-This plot shows each pollutant's Daily AQI Distribution, 2019 and 2020 Feb-Aprl, in each city.The bar on the left top are selective bar that can be used to choose PM2.5, PM10, O3, NO2, SO2 and CO. Each shows the 30 cities Daily AQI distribution for each pollutant. For PM2.5,PM10, CO and NO2, the mean AQI difference is obviously showed and most of cities have improvements. But for SO2 and O3, the improvements are showed in half cities. 
+This interactive plot shows each pollutant's Daily AQI difference, the value from 2020 Feb-Aprl minus the value from 2019 Feb~Aprl, in each city. A negative AQI change here indicates improvements in air quality. The users can click on the dropdown selection button on the top left to choose the pollutant type: PM2.5, PM10, O3, NO2, SO2 and CO. For PM2.5,PM10, CO and NO2, the mean AQI for most cities droped during the lockdown, showing general improvements in air quality. While for SO2 and O3, there are more cities with increased AQI during lockdown, with the O3 level increased for most of the cities in China..
 
 
 ## Distribution Analysis
@@ -243,7 +242,6 @@ city_AQI_Distribution =
 ```
 
 ## Interactive Side-by-side Boxplots
-showing each pollutant's Daily PM25 AQI Distribution, 2019 and 2020 Feb-Aprl, in each city.
 
 ```{r out.width='100%', warning = FALSE}
 #This way is stupid but it works! I tried other methods but they just don't work as expected!!!
@@ -299,10 +297,10 @@ city_AQI_Distribution %>%
   
 ```
 
-This plot shows each pollutant's Daily AQI Distribution, 2019 and 2020 Feb-Aprl, in each city.The bar on the left top are selective bar that can be used to choose PM2.5, PM10, O3, NO2, SO2 and CO. Each shows the 30 cities 2019 and 2020 Feb-Apr period AQI distribution for each pollutant. Each city has two box plot for them. The blue one shows the 2020 Feb-Apr. The red one shows the 2021 Feb-Apr. Besides, the median, min, max, q1, q3 and outliers are showed in the box plot for each city. 
+This interactive plot shows each pollutant's Daily AQI Distribution, 2019 and 2020 Feb-Aprl, in each city. The users can click on the dropdown selection button on the top left to choose the pollutant type: PM2.5, PM10, O3, NO2, SO2 and CO. Each city has two boxes. The blue one represents the 2020 Feb-Aprl period, and the red one represents the 2021 Feb-Aprl period. Besides, the median, min, max, q1, q3 and outliers are showed in the box plot for each city. 
 
 
-## Line chart of daily pm25 AQI changes for all 30 cities.
+## Line charts of daily pm2.5 AQI for 30 major cities.
 (Note that year 2019 does not have the date "Feb 29", but year 2020 does.)
 
 ```{r, fig.width = 8, fig.height = 20, dpi=300}
@@ -328,12 +326,11 @@ city_AQI_Distribution %>%
 
 
 ```
-This line plot shows daily PM2.5 AQI data starting from Feb1 to Apr 30. The blue line are data for 2020 and red line are data for 2019. From the graphs, we can see some data are missing for 2019. The date "Feb 29" are missing in year 2019. But that is showing in year 2020. 
+These line charts show the daily PM2.5 AQI starting from Feb1 to Apr 30. For each city, the blue line represents data from 2020, and red line represents data from 2019. Note that year 2019 does not have the date "Feb 29", but year 2020 does. Thus in the graphs, the red lines of year 2019 does not have data for Feb 29, but the blue lines of year 2020 do.  
+We can see that although there are fluctuations, generally the daily PM2.5 AQI during the lockdown is lower than the same period in year 2019, for each city.
 
 
-## Line chart of daily NO2 AQI changes for all 30 cities.
-Note that year 2019 does not have the date "Feb 29", but year 2020 does.
-
+## Line charts of daily NO2 AQI changes for all 30 cities.
 
 ```{r, fig.width = 8, fig.height = 20, dpi=300}
 
@@ -358,7 +355,8 @@ city_AQI_Distribution %>%
 
 
 ```
-This line plot shows daily NO2 AQI data starting from Feb1 to Apr 30. The blue line are data for 2020 and red line are data for 2019. From the graphs, we can see some data are missing for 2019. The date "Feb 29" are missing in year 2019. But that is showing in year 2020. 
+These line charts show the daily NO2 AQI starting from Feb1 to Apr 30. For each city, the blue line represents data from 2020, and red line represents data from 2019. 
+Although there are fluctuations, generally the daily NO2 AQI during the lockdown is lower than the same period in year 2019, for each city.
 
 
 ## Past Four Years' Feb~Aprl Mean PM2.5 AQI
@@ -422,7 +420,7 @@ city_4year_meanPM25 =
 ```
 
 
-```{r dpi=300, message= FALSE}
+```{r dpi=300, message = FALSE, warning = FALSE}
 city_4year_meanPM25 %>% 
   ggplot() +
   geom_bar(
@@ -503,7 +501,7 @@ city_4year_meanno2 =
 ```
 
 
-```{r dpi=300, message= FALSE}
+```{r dpi=300, message = FALSE, warning = FALSE}
 city_4year_meanno2 %>% 
   ggplot() +
   geom_bar(

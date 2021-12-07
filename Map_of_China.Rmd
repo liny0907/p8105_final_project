@@ -27,9 +27,7 @@ scale_fill_discrete = scale_fill_viridis_d
 ```
 
 
-2019-02-01 to 2019-04-30
-           vs
-2020-02-01 to 2020-04-30
+The difference of daily mean AQI between 2020-02-01 ~ 2020-04-30 and 2019-02-01 ~ 2019-04-30.
 
 ```{r message = FALSE, include = FALSE}
 period_19 = interval(ymd("2019-02-01"), ymd("2019-04-30"))
