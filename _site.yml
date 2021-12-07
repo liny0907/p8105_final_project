@@ -3,20 +3,20 @@ output_dir: "."
 navbar:
   title: "Home"
   right:
-    - text: "About"
-      href: project_proposal.html
+    - text: "Data Exploration"
+      href: initial_analysis.html
     - text: 'Data Analysis'
       menu:
         - text: 'Hypothesis Test'
           href: test_fei.html
         - text: 'Regression Analysis'
           href: regression_analysis.html
+    - text: "Map"
+      href: Map_of_China.html          
     - text: "Report"
       href: report.html
-    - text: "Data Exploration"
-      href: initial_analysis.html
-    - text: "Map"
-      href: Map_of_China.html
+    - text: "About"
+      href: project_proposal.html
     - icon: fa-envelope fa-lg
       href: mailto:<ly2565@cumc.columbia.edu>
     - icon: fa-github fa-lg

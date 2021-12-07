@@ -7,7 +7,10 @@ output:
     toc_float: true
 ---
 
-```{r, include = FALSE}
+## AQI Difference vs GDP and Population
+
+### Data frame for regression analysis
+```{r, message = FALSE}
 library(tidyverse)
 library(ggridges)
 library(modelr)
@@ -23,13 +26,7 @@ options(
 
 scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
-```
 
-
-## Mean PM2.5 AQI Difference vs GDP and Population
-
-### Data frame for regression analysis
-```{r, message = FALSE, include = FALSE}
 city_100_df = 
   tibble(
   file = list.files("100_cities_data")) %>% 
@@ -60,8 +57,6 @@ pm25_diff =
   left_join(pm25_2020, pm25_2019) %>% 
   mutate(pm25_diff = mean_pm25_2019 - mean_pm25_2020)
 
-pm25_diff
-
 gdp_pop_df = 
   read_csv("data/gpd_and_popluation.csv") %>% 
   janitor::clean_names() %>% 
@@ -73,14 +68,15 @@ gdp_pop_df =
 diff_gdp_pop_df = 
   left_join(pm25_diff, gdp_pop_df) %>% 
   select(-mean_pm25_2020, -mean_pm25_2019)
-diff_gdp_pop_df
 ```
 
-We learned that air quality improvements in a city may correlate to the city's GDP and population, so we created a data frame containing mean pm2.5 AQI differences between 2019 and 2020, GDP and population in 2019 for 100 representative cities. The resulting data frame of `diff_gdp_pop_df` contains `r nrow(diff_gdp_pop_df)` observations of `r ncol(diff_gdp_pop_df)` variables. Each row represents one unique city. Below are key variables:
-`city`: city name
-`pm25_diff` difference of mean pm2.5 AQI during the lockdown period (Feb-Apr) between 2019 and 2020
-`gdp_trillion`: 2019 GDP in trillion
-`pop_million`: 2019 population in thousand
+We learn that air quality improvement in a city may correlate to the city's GDP and population, so we create a data frame containing mean pm2.5 AQI differences between 2019 and 2020, GDP and population in 2019 for 100 representative cities. 
+
+The resulting data frame of `diff_gdp_pop_df` contains `r nrow(diff_gdp_pop_df)` observations of `r ncol(diff_gdp_pop_df)` variables. Each row represents one unique city. Below are key variables:\
+`city`: city name\
+`pm25_diff`: difference of mean pm2.5 AQI during the lockdown period (Feb-Apr) between 2019 and 2020\
+`gdp_trillion`: 2019 GDP in trillion\
+`pop_million`: 2019 population in thousand\
 
 
 ### Find Appropriate Transformation
@@ -176,20 +172,20 @@ cv_df %>%
     y = "RMSE",
     title = "Distribution of RMSE across Models (Log(Mean PM2.5 AQI Difference) vs GDP +Population)") +
   theme(
-    title = element_text(size = 6, face = "bold"),
+    title = element_text(size = 8, face = "bold"),
     axis.title.x = element_text(size = 10),
     axis.title.y = element_text(size = 10))
 ```
 
-We then did cross validation for three different models of mean PM2.5 AQI difference vs. gdp_trillion and pop_million. The distribution of RMSE values for each model suggested that the smooth model worked slightly better than two linear models. There was some improvement in predictive accuracy gained by allowing non-linearity, but it was not sufficient to justify this model.
+We then did cross validation for three different models of mean PM2.5 AQI difference vs. gdp_trillion and pop_million. The distribution of RMSE values for each model suggests that the smooth model works slightly better than two linear models. There is some improvement in predictive accuracy gained by allowing non-linearity, but it is not sufficient to justify this model.
 
-## Daily PM2.5 AQI vs Daily Average Temperature
 
+
+## Daily AQI vs Daily Average Temperature
 
 ### Data frame for regression analysis
 
-Load weather data for 10 representative cities.
-```{r, message = FALSE, include = FALSE}
+```{r, message = FALSE}
 weather_df = 
   rnoaa::meteo_pull_monitors(
     c("CHM00054511", "CHM00058362", "CHM00050953", "CHM00054342", "CHM00055591", "CHM00056294", "CHM00056778", "CHM00059287", "CHM00057036", "CHM00057494"),
@@ -215,8 +211,6 @@ weather_df =
   rename(city = name) %>% 
   relocate(city)
 
-weather_df
-
 city_10_df =
   city_100_df %>% 
   filter(date > "2020-01-31" & date < "2020-05-01") %>% 
@@ -228,14 +222,24 @@ pm25_tavg_df =
   select(city, date, pm25, tavg) %>% 
   filter(pm25 != "NA")
 ```
-
+We also hypothesize that daily PM2.5 AQI may correlate to daily average temperature. We collect 02/2020 - 04/2020 temperature data for 10 representative cities in all the regions(East, South, West, North) to avoid bias caused by locations if possible. The resulting data frame has `r nrow(pm25_tavg_df)` observations of `r ncol(pm25_tavg_df)` variables. Below are the variables:\
+`city`: city name\
+`date`: the date on which PM2.5 AQI and average temperature were collected\
+`pm25`: PM2.5 AQI on that day\
+`tavg`: average temperature on that day
 
 ### Find appropriate transformation
 
 ```{r, dpi = 300}
 fit_tavg = lm(pm25 ~tavg, data = pm25_tavg_df)
 MASS::boxcox(fit_tavg)
+```
 
+The box-cox plot shows that log-likelihood has the maximum value around lambda = 0, so natural logarithm of pm25_diff is the recommended transformation. 
+
+### MLR
+
+```{r}
 log_pm25_tavg_df =
   pm25_tavg_df %>% 
   mutate(lnpm25 = log(pm25))
@@ -246,7 +250,9 @@ log_fit %>%
   knitr::kable(caption = "Linear Regression Results")
 ```
 
-### Model diagnostics
+Based on this table, tavg variable has a slope of 0.0028 with p value of 0.139 which is larger than 0.05. Therefore, daily average temperature in a city may not have significant effects on predictions of air quality improvement. However, the p value of this model is much less than that of the model mean PM2.5 AQI difference vs GDP and population, meaning the linear model daily PM2.5 AQI vs daily average temperature is more significant.
+
+### Model diagnostics 
 
 ```{r, dpi = 300, fig.height = 6, fig.width = 6}
 par(mfrow = c(2,2))
@@ -256,11 +262,9 @@ plot(log_fit)
 Residuals seem to be evenly distributed around 0, which is an indication of constant variance. There are some potential outliers, such as #766 and 163. The normal QQ plot shows a roughly straight line, meaning residuals are normally distributed. Therefore, our model fitting for daily pm2.5 AQI difference dependent on daily average temperature doesn't violate assumptions on residuals. 
 
 
-
 ### Cross validation
 
 Fit three models for `lnpm25` vs. `tavg`.
-
 ```{r, dpi = 300}
 linear_mod_tavg = lm(lnpm25 ~ tavg, data = log_pm25_tavg_df)
 smooth_mod_tavg = gam(lnpm25 ~ s(tavg), data = log_pm25_tavg_df)
@@ -272,7 +276,12 @@ log_pm25_tavg_df %>%
   ggplot(aes(x = tavg, y = lnpm25)) + 
   geom_point(alpha = .5) +
   geom_line(aes(y = pred), color = "red") + 
-  facet_grid(~model)
+  facet_grid(~model) +
+  labs(
+    x = "Daily Average Temperature",
+    y = "Log(Daily PM2.5 AQI)",
+    title = "Models of Log(Daily PM2.5 AQI) vs Daily Average Temperature"
+  )
 ```
 
 Cross validation for `lnpm25` vs. `tavg`.
@@ -306,9 +315,10 @@ cv_tavg_df %>%
     y = "RMSE",
     title = "Distribution of RMSE across Models (Log(pm2.5 AQI) vs Tavg)")
 ```
+The distribution of RMSE values for each model fitting daily PM2.5 AQI vs daily average temperature suggests that the smooth model works better than linear and wiggly models. 
 
+## Regression Conclusions
 
-
-
+We don't have enough evidence to support that during the lockdown period, air quality improvement in a city has a significant linear relationship with GDP and population. The daily PM2.5 AQI isn't significantly correlated to daily average temperature either. The two non-significant linear models may be due to small sample size, so a larger sample size may be helpful for getting significant models.  
 
 
