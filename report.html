@@ -431,11 +431,848 @@ div.tocify {
 </div>
 <div id="hypothesis-test-and-analysis" class="section level2">
 <h2>Hypothesis Test and Analysis</h2>
-<div id="t-test" class="section level3">
-<h3>t-test</h3>
-</div>
 <div id="chi-squared-test" class="section level3">
-<h3>chi-squared test</h3>
+<h3>Chi-Squared Test</h3>
+<pre class="r"><code>knitr::opts_chunk$set(echo = TRUE)
+
+library(magrittr)
+library(dplyr)
+library(pivottabler)
+library(tidyverse)
+library(ggridges)
+library(modelr)
+library(mgcv)
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = &quot;90%&quot;
+)
+theme_set(theme_minimal() + theme(legend.position = &quot;bottom&quot;))
+options(
+  ggplot2.continuous.colour = &quot;viridis&quot;,
+  ggplot2.continuous.fill = &quot;viridis&quot;
+)
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+city_30_df_pm25 = tibble(
+  file = list.files(&quot;30_cities_data&quot;)) %&gt;% 
+  mutate(
+    city = str_remove(file, &quot;-air-quality.csv&quot;),
+    path = str_c(&quot;30_cities_data/&quot;, file),
+    data = map(path, read_csv)
+  ) %&gt;% 
+  unnest(data) %&gt;% 
+  select(-file, -path) %&gt;% 
+  mutate(
+    city = str_to_title(city),
+    date = as.Date(date, format = &quot;%Y/%m/%d&quot;)) %&gt;% 
+  select(city,date,pm25)
+
+pm25_2020 = 
+  city_30_df_pm25 %&gt;% 
+  filter(date &gt; &quot;2020-01-31&quot; &amp; date &lt; &quot;2020-05-01&quot;) %&gt;% 
+  mutate(date = format(date, format = &quot;%y-%m-%d&quot;)) %&gt;% 
+  select(city, date, pm25)
+
+
+pm25_2019 = 
+  city_30_df_pm25 %&gt;% 
+  filter(date &gt; &quot;2019-01-31&quot; &amp; date &lt; &quot;2019-05-01&quot;) %&gt;% 
+  mutate(date = format(date, format = &quot;%y-%m-%d&quot;)) %&gt;% 
+  select(city, date, pm25)
+
+pm25_2018 = 
+  city_30_df_pm25 %&gt;% 
+  filter(date &gt; &quot;2018-01-31&quot; &amp; date &lt; &quot;2018-05-01&quot;) %&gt;% 
+  mutate(date = format(date, format = &quot;%y-%m-%d&quot;)) %&gt;% 
+  select(city, date, pm25)
+
+pm25_2017 = 
+  city_30_df_pm25 %&gt;% 
+  filter(date &gt; &quot;2017-01-31&quot; &amp; date &lt; &quot;2017-05-01&quot;) %&gt;% 
+  mutate(date = format(date, format = &quot;%y-%m-%d&quot;)) %&gt;% 
+  select(city, date, pm25)
+
+pm25_171819 = rbind(pm25_2017,pm25_2018,pm25_2019)
+
+pm25_1920 = rbind(pm25_2020,pm25_2019)</code></pre>
+<p>Are cities and air quality level dependent at 5% level of significance? In other words, given the data collected above, is there a relationship between the cities and the level of air quality that they have obtained?</p>
+<p>Null hypothesis (H0): the air quality level and the different cities variables of the contingency table are independent in 2020 between February to April.</p>
+<p>Alternative hypothesis (H1): the air quality level and the different cities variables of the contingency table are dependent in 2020 between February to April.</p>
+<pre class="r"><code>city_PM25 = pm25_2020 %&gt;%
+  drop_na() %&gt;%
+  select(city,pm25) %&gt;%
+  mutate(level = as.character(pm25)) %&gt;%
+  mutate(
+    level = case_when(
+      pm25 &lt;= 50 ~ &#39;Good&#39;,
+      pm25 &lt;= 100 ~ &#39;Moderate&#39;,
+      pm25 &lt;= 150 ~ &#39;Unhealthy for Sensitive People&#39;,
+      pm25 &lt;= 200 ~ &#39; Unhealthy&#39;,
+      pm25 &lt;= 300 ~ &#39;Very Unhealthy&#39;,
+      pm25 &lt;= 500 ~ &#39;Hazardous&#39;)) %&gt;%
+  arrange(city,level,pm25)
+
+city_level =
+  city_PM25 %&gt;%
+  group_by(city,level) %&gt;%
+  summarise(n = n()) %&gt;%
+  pivot_wider(names_from = &quot;level&quot;, values_from = &quot;n&quot;)
+
+city_level[is.na(city_level)] = 0 </code></pre>
+<div id="air-quality-level-table" class="section level4">
+<h4>Air Quality Level Table</h4>
+<pre class="r"><code>airquality_level = read.csv(&quot;test (Fei)/city_air_quality_level.csv&quot;, row.names = 1 )
+knitr::kable(airquality_level)</code></pre>
+<table>
+<colgroup>
+<col width="13%" />
+<col width="5%" />
+<col width="9%" />
+<col width="31%" />
+<col width="10%" />
+<col width="15%" />
+<col width="10%" />
+<col width="6%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">Good</th>
+<th align="right">Moderate</th>
+<th align="right">Unhealthy.for.Sensitive.People</th>
+<th align="right">Unhealthy</th>
+<th align="right">Very.Unhealthy</th>
+<th align="right">Hazardous</th>
+<th align="right">Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Beijing</td>
+<td align="right">19</td>
+<td align="right">31</td>
+<td align="right">23</td>
+<td align="right">14</td>
+<td align="right">3</td>
+<td align="right">0</td>
+<td align="right">90</td>
+</tr>
+<tr class="even">
+<td align="left">Changchun</td>
+<td align="right">2</td>
+<td align="right">29</td>
+<td align="right">37</td>
+<td align="right">8</td>
+<td align="right">7</td>
+<td align="right">5</td>
+<td align="right">88</td>
+</tr>
+<tr class="odd">
+<td align="left">Changsha</td>
+<td align="right">2</td>
+<td align="right">17</td>
+<td align="right">54</td>
+<td align="right">15</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">88</td>
+</tr>
+<tr class="even">
+<td align="left">Chengdu</td>
+<td align="right">1</td>
+<td align="right">22</td>
+<td align="right">47</td>
+<td align="right">18</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">88</td>
+</tr>
+<tr class="odd">
+<td align="left">Chongqing</td>
+<td align="right">0</td>
+<td align="right">20</td>
+<td align="right">53</td>
+<td align="right">15</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">88</td>
+</tr>
+<tr class="even">
+<td align="left">Fuzhou</td>
+<td align="right">9</td>
+<td align="right">56</td>
+<td align="right">23</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">88</td>
+</tr>
+<tr class="odd">
+<td align="left">Guangzhou</td>
+<td align="right">17</td>
+<td align="right">52</td>
+<td align="right">16</td>
+<td align="right">3</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">88</td>
+</tr>
+<tr class="even">
+<td align="left">Guiyang</td>
+<td align="right">0</td>
+<td align="right">42</td>
+<td align="right">43</td>
+<td align="right">3</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">88</td>
+</tr>
+<tr class="odd">
+<td align="left">Harbin</td>
+<td align="right">7</td>
+<td align="right">36</td>
+<td align="right">25</td>
+<td align="right">12</td>
+<td align="right">6</td>
+<td align="right">1</td>
+<td align="right">87</td>
+</tr>
+<tr class="even">
+<td align="left">Hefei</td>
+<td align="right">3</td>
+<td align="right">45</td>
+<td align="right">36</td>
+<td align="right">4</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">88</td>
+</tr>
+<tr class="odd">
+<td align="left">Jinan</td>
+<td align="right">1</td>
+<td align="right">21</td>
+<td align="right">47</td>
+<td align="right">19</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">88</td>
+</tr>
+<tr class="even">
+<td align="left">Kunming</td>
+<td align="right">1</td>
+<td align="right">50</td>
+<td align="right">36</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">88</td>
+</tr>
+<tr class="odd">
+<td align="left">Lanzhou</td>
+<td align="right">0</td>
+<td align="right">26</td>
+<td align="right">62</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">88</td>
+</tr>
+<tr class="even">
+<td align="left">Lhasa</td>
+<td align="right">56</td>
+<td align="right">32</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">88</td>
+</tr>
+<tr class="odd">
+<td align="left">Nanchang</td>
+<td align="right">0</td>
+<td align="right">28</td>
+<td align="right">50</td>
+<td align="right">10</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">88</td>
+</tr>
+<tr class="even">
+<td align="left">Nanjing</td>
+<td align="right">0</td>
+<td align="right">42</td>
+<td align="right">39</td>
+<td align="right">4</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">85</td>
+</tr>
+<tr class="odd">
+<td align="left">Nanning</td>
+<td align="right">10</td>
+<td align="right">52</td>
+<td align="right">22</td>
+<td align="right">4</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">88</td>
+</tr>
+<tr class="even">
+<td align="left">Shanghai</td>
+<td align="right">5</td>
+<td align="right">49</td>
+<td align="right">29</td>
+<td align="right">3</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">88</td>
+</tr>
+<tr class="odd">
+<td align="left">Shenyang</td>
+<td align="right">1</td>
+<td align="right">28</td>
+<td align="right">33</td>
+<td align="right">24</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">88</td>
+</tr>
+<tr class="even">
+<td align="left">Shenzhen</td>
+<td align="right">2</td>
+<td align="right">67</td>
+<td align="right">17</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">88</td>
+</tr>
+<tr class="odd">
+<td align="left">Shijiazhuang</td>
+<td align="right">0</td>
+<td align="right">21</td>
+<td align="right">37</td>
+<td align="right">24</td>
+<td align="right">6</td>
+<td align="right">0</td>
+<td align="right">88</td>
+</tr>
+<tr class="even">
+<td align="left">Suzhou</td>
+<td align="right">0</td>
+<td align="right">33</td>
+<td align="right">43</td>
+<td align="right">12</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">88</td>
+</tr>
+<tr class="odd">
+<td align="left">Taiyuan</td>
+<td align="right">2</td>
+<td align="right">29</td>
+<td align="right">32</td>
+<td align="right">20</td>
+<td align="right">5</td>
+<td align="right">0</td>
+<td align="right">88</td>
+</tr>
+<tr class="even">
+<td align="left">Tianjin</td>
+<td align="right">9</td>
+<td align="right">29</td>
+<td align="right">27</td>
+<td align="right">21</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">88</td>
+</tr>
+<tr class="odd">
+<td align="left">Wuhan</td>
+<td align="right">1</td>
+<td align="right">20</td>
+<td align="right">55</td>
+<td align="right">12</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">88</td>
+</tr>
+<tr class="even">
+<td align="left">Wulumuqi</td>
+<td align="right">3</td>
+<td align="right">46</td>
+<td align="right">22</td>
+<td align="right">11</td>
+<td align="right">4</td>
+<td align="right">2</td>
+<td align="right">88</td>
+</tr>
+<tr class="odd">
+<td align="left">Xian</td>
+<td align="right">0</td>
+<td align="right">19</td>
+<td align="right">44</td>
+<td align="right">19</td>
+<td align="right">6</td>
+<td align="right">0</td>
+<td align="right">88</td>
+</tr>
+<tr class="even">
+<td align="left">Xining</td>
+<td align="right">0</td>
+<td align="right">28</td>
+<td align="right">58</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">88</td>
+</tr>
+<tr class="odd">
+<td align="left">Yinchuan</td>
+<td align="right">0</td>
+<td align="right">57</td>
+<td align="right">24</td>
+<td align="right">7</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">88</td>
+</tr>
+<tr class="even">
+<td align="left">Zhengzhou</td>
+<td align="right">2</td>
+<td align="right">18</td>
+<td align="right">47</td>
+<td align="right">19</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">88</td>
+</tr>
+<tr class="odd">
+<td align="left">Total</td>
+<td align="right">153</td>
+<td align="right">1045</td>
+<td align="right">1081</td>
+<td align="right">306</td>
+<td align="right">44</td>
+<td align="right">9</td>
+<td align="right">2638</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>chisq.test(airquality_level, simulate.p.value = TRUE)</code></pre>
+<pre><code>## 
+##  Pearson&#39;s Chi-squared test with simulated p-value (based on 2000
+##  replicates)
+## 
+## data:  airquality_level
+## X-squared = 1363.2, df = NA, p-value = 0.0004998</code></pre>
+<pre class="r"><code>qchisq(0.05, 174, lower.tail = TRUE) </code></pre>
+<pre><code>## [1] 144.494</code></pre>
+</div>
+<div id="chi-squared-test-result" class="section level4">
+<h4>Chi-Squared Test Result</h4>
+<p>For a Chi-square test, the p-value(0.0004998) that is less than 0.05 significance level. We can reject the null hypothesis (H0) and indicates there is no evidence to conclude that the air quality level and the different cities variables of the contingency table are independent and there is a relationship between them.</p>
+</div>
+</div>
+<div id="two-sample-paired-t-test" class="section level3">
+<h3>Two-Sample Paired T-test</h3>
+<p>Null hypothesis (H0): The true mean difference between the average number of AQI (pm25) for each 30 cities from February to April 2020 and the average number between 2017-2019 is equal to zero.</p>
+<p>Alternative hypothesis (H1): The true mean difference between the average number of AQI (pm25) for each 30 cities from February to April 2020 and the average number between 2017-2019 is not equal to zero.</p>
+<pre class="r"><code>mean_20 = pm25_2020 %&gt;%
+  drop_na() %&gt;% 
+  select(-date) %&gt;%
+  group_by(city) %&gt;%
+  summarise(mean = mean(pm25)) %&gt;%
+  select(mean) %&gt;%
+  pull()
+
+
+mean_171819 = pm25_171819 %&gt;%
+  drop_na() %&gt;% 
+  select(-date) %&gt;%
+  group_by(city) %&gt;%
+  summarise(mean = mean(pm25)) %&gt;%
+  select(mean) %&gt;%
+  pull()
+
+table1 = pm25_2020 %&gt;%
+  drop_na() %&gt;% 
+  select(-date) %&gt;%
+  group_by(city) %&gt;%
+  summarise(mean_2020 = mean(pm25))
+
+table2 = pm25_171819 %&gt;%
+  drop_na() %&gt;% 
+  select(-date) %&gt;%
+  group_by(city) %&gt;%
+  summarise(mean_2017_2018_2019 = mean(pm25)) %&gt;%
+  select(-city) 
+
+table3 = pm25_2020 %&gt;%
+  drop_na() %&gt;% 
+  select(-date) %&gt;%
+  group_by(city) %&gt;%
+  summarise(standard_deviation_2020 = sd(pm25))
+
+table4 = pm25_171819 %&gt;%
+  drop_na() %&gt;% 
+  select(-date) %&gt;%
+  group_by(city) %&gt;%
+  summarise(standard_deviation_2017_2018_2019 = sd(pm25)) %&gt;%
+  select(-city) </code></pre>
+<div id="t-test-table" class="section level4">
+<h4>T Test Table</h4>
+<div id="mean-table" class="section level5">
+<h5>Mean Table</h5>
+<pre class="r"><code>knitr::kable(bind_cols(table1,table2))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">city</th>
+<th align="right">mean_2020</th>
+<th align="right">mean_2017_2018_2019</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Beijing</td>
+<td align="right">101.08889</td>
+<td align="right">122.56180</td>
+</tr>
+<tr class="even">
+<td align="left">Changchun</td>
+<td align="right">129.68182</td>
+<td align="right">130.83146</td>
+</tr>
+<tr class="odd">
+<td align="left">Changsha</td>
+<td align="right">119.76136</td>
+<td align="right">131.89139</td>
+</tr>
+<tr class="even">
+<td align="left">Chengdu</td>
+<td align="right">120.07955</td>
+<td align="right">138.58052</td>
+</tr>
+<tr class="odd">
+<td align="left">Chongqing</td>
+<td align="right">118.37500</td>
+<td align="right">122.62547</td>
+</tr>
+<tr class="even">
+<td align="left">Fuzhou</td>
+<td align="right">85.51136</td>
+<td align="right">101.99625</td>
+</tr>
+<tr class="odd">
+<td align="left">Guangzhou</td>
+<td align="right">79.71591</td>
+<td align="right">104.67416</td>
+</tr>
+<tr class="even">
+<td align="left">Guiyang</td>
+<td align="right">104.68182</td>
+<td align="right">119.70037</td>
+</tr>
+<tr class="odd">
+<td align="left">Harbin</td>
+<td align="right">118.10227</td>
+<td align="right">128.25468</td>
+</tr>
+<tr class="even">
+<td align="left">Hefei</td>
+<td align="right">99.15909</td>
+<td align="right">133.51311</td>
+</tr>
+<tr class="odd">
+<td align="left">Jinan</td>
+<td align="right">121.12500</td>
+<td align="right">153.87640</td>
+</tr>
+<tr class="even">
+<td align="left">Kunming</td>
+<td align="right">93.87500</td>
+<td align="right">107.58801</td>
+</tr>
+<tr class="odd">
+<td align="left">Lanzhou</td>
+<td align="right">109.44318</td>
+<td align="right">127.83895</td>
+</tr>
+<tr class="even">
+<td align="left">Lhasa</td>
+<td align="right">47.64773</td>
+<td align="right">70.38202</td>
+</tr>
+<tr class="odd">
+<td align="left">Nanchang</td>
+<td align="right">117.04545</td>
+<td align="right">122.91011</td>
+</tr>
+<tr class="even">
+<td align="left">Nanjing</td>
+<td align="right">103.63529</td>
+<td align="right">131.98876</td>
+</tr>
+<tr class="odd">
+<td align="left">Nanning</td>
+<td align="right">89.17045</td>
+<td align="right">102.31461</td>
+</tr>
+<tr class="even">
+<td align="left">Shanghai</td>
+<td align="right">96.43182</td>
+<td align="right">121.94382</td>
+</tr>
+<tr class="odd">
+<td align="left">Shenyang</td>
+<td align="right">124.36364</td>
+<td align="right">131.01124</td>
+</tr>
+<tr class="even">
+<td align="left">Shenzhen</td>
+<td align="right">86.70455</td>
+<td align="right">108.02622</td>
+</tr>
+<tr class="odd">
+<td align="left">Shijiazhuang</td>
+<td align="right">132.56818</td>
+<td align="right">170.88015</td>
+</tr>
+<tr class="even">
+<td align="left">Suzhou</td>
+<td align="right">112.28409</td>
+<td align="right">138.64419</td>
+</tr>
+<tr class="odd">
+<td align="left">Taiyuan</td>
+<td align="right">123.22727</td>
+<td align="right">141.02622</td>
+</tr>
+<tr class="even">
+<td align="left">Tianjin</td>
+<td align="right">112.10227</td>
+<td align="right">131.56015</td>
+</tr>
+<tr class="odd">
+<td align="left">Wuhan</td>
+<td align="right">119.30682</td>
+<td align="right">148.14286</td>
+</tr>
+<tr class="even">
+<td align="left">Wulumuqi</td>
+<td align="right">111.55682</td>
+<td align="right">153.50562</td>
+</tr>
+<tr class="odd">
+<td align="left">Xian</td>
+<td align="right">130.88636</td>
+<td align="right">156.21348</td>
+</tr>
+<tr class="even">
+<td align="left">Xining</td>
+<td align="right">112.95455</td>
+<td align="right">125.71536</td>
+</tr>
+<tr class="odd">
+<td align="left">Yinchuan</td>
+<td align="right">95.00000</td>
+<td align="right">113.98876</td>
+</tr>
+<tr class="even">
+<td align="left">Zhengzhou</td>
+<td align="right">125.65909</td>
+<td align="right">153.83895</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="standard-deviation-table" class="section level5">
+<h5>Standard Deviation Table</h5>
+<pre class="r"><code>knitr::kable(bind_cols(table3,table4))</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">city</th>
+<th align="right">standard_deviation_2020</th>
+<th align="right">standard_deviation_2017_2018_2019</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Beijing</td>
+<td align="right">53.622410</td>
+<td align="right">58.27449</td>
+</tr>
+<tr class="even">
+<td align="left">Changchun</td>
+<td align="right">71.154930</td>
+<td align="right">41.89880</td>
+</tr>
+<tr class="odd">
+<td align="left">Changsha</td>
+<td align="right">31.946433</td>
+<td align="right">35.77939</td>
+</tr>
+<tr class="even">
+<td align="left">Chengdu</td>
+<td align="right">31.925280</td>
+<td align="right">31.39782</td>
+</tr>
+<tr class="odd">
+<td align="left">Chongqing</td>
+<td align="right">27.455842</td>
+<td align="right">32.98602</td>
+</tr>
+<tr class="even">
+<td align="left">Fuzhou</td>
+<td align="right">26.220547</td>
+<td align="right">31.28411</td>
+</tr>
+<tr class="odd">
+<td align="left">Guangzhou</td>
+<td align="right">30.560266</td>
+<td align="right">32.54474</td>
+</tr>
+<tr class="even">
+<td align="left">Guiyang</td>
+<td align="right">25.447510</td>
+<td align="right">27.04869</td>
+</tr>
+<tr class="odd">
+<td align="left">Harbin</td>
+<td align="right">82.209578</td>
+<td align="right">51.92377</td>
+</tr>
+<tr class="even">
+<td align="left">Hefei</td>
+<td align="right">26.941779</td>
+<td align="right">29.62705</td>
+</tr>
+<tr class="odd">
+<td align="left">Jinan</td>
+<td align="right">33.247872</td>
+<td align="right">35.76158</td>
+</tr>
+<tr class="even">
+<td align="left">Kunming</td>
+<td align="right">25.200717</td>
+<td align="right">27.87814</td>
+</tr>
+<tr class="odd">
+<td align="left">Lanzhou</td>
+<td align="right">17.747823</td>
+<td align="right">25.46043</td>
+</tr>
+<tr class="even">
+<td align="left">Lhasa</td>
+<td align="right">9.629982</td>
+<td align="right">20.77276</td>
+</tr>
+<tr class="odd">
+<td align="left">Nanchang</td>
+<td align="right">27.839404</td>
+<td align="right">33.82973</td>
+</tr>
+<tr class="even">
+<td align="left">Nanjing</td>
+<td align="right">25.560780</td>
+<td align="right">29.50181</td>
+</tr>
+<tr class="odd">
+<td align="left">Nanning</td>
+<td align="right">33.432802</td>
+<td align="right">30.92044</td>
+</tr>
+<tr class="even">
+<td align="left">Shanghai</td>
+<td align="right">43.508170</td>
+<td align="right">38.68478</td>
+</tr>
+<tr class="odd">
+<td align="left">Shenyang</td>
+<td align="right">43.895430</td>
+<td align="right">41.74101</td>
+</tr>
+<tr class="even">
+<td align="left">Shenzhen</td>
+<td align="right">22.903676</td>
+<td align="right">26.22566</td>
+</tr>
+<tr class="odd">
+<td align="left">Shijiazhuang</td>
+<td align="right">45.105444</td>
+<td align="right">66.73903</td>
+</tr>
+<tr class="even">
+<td align="left">Suzhou</td>
+<td align="right">29.967396</td>
+<td align="right">33.18705</td>
+</tr>
+<tr class="odd">
+<td align="left">Taiyuan</td>
+<td align="right">45.217159</td>
+<td align="right">45.75691</td>
+</tr>
+<tr class="even">
+<td align="left">Tianjin</td>
+<td align="right">45.379888</td>
+<td align="right">55.96237</td>
+</tr>
+<tr class="odd">
+<td align="left">Wuhan</td>
+<td align="right">28.383806</td>
+<td align="right">30.04290</td>
+</tr>
+<tr class="even">
+<td align="left">Wulumuqi</td>
+<td align="right">55.372689</td>
+<td align="right">76.66299</td>
+</tr>
+<tr class="odd">
+<td align="left">Xian</td>
+<td align="right">37.331516</td>
+<td align="right">49.79993</td>
+</tr>
+<tr class="even">
+<td align="left">Xining</td>
+<td align="right">19.740215</td>
+<td align="right">29.23179</td>
+</tr>
+<tr class="odd">
+<td align="left">Yinchuan</td>
+<td align="right">30.217982</td>
+<td align="right">33.16596</td>
+</tr>
+<tr class="even">
+<td align="left">Zhengzhou</td>
+<td align="right">34.516325</td>
+<td align="right">46.23868</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>t.test(mean_20, mean_171819, paired = T)</code></pre>
+<pre><code>## 
+##  Paired t-test
+## 
+## data:  mean_20 and mean_171819
+## t = -11.116, df = 29, p-value = 5.679e-12
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  -23.87243 -16.45294
+## sample estimates:
+## mean of the differences 
+##               -20.16268</code></pre>
+<pre class="r"><code>qt(0.05, 29)</code></pre>
+<pre><code>## [1] -1.699127</code></pre>
+</div>
+</div>
+<div id="t-test-result" class="section level4">
+<h4>T Test Result</h4>
+<p>For a Two-Sample Paired T-test, the p-value(5.679e-12) that is less than 0.05 significance level. We can reject the null hypothesis (H0) and indicates there is no evidence to conclude that the true mean difference between the average number of AQI (pm25) for each 30 cities from February to April 2020 and the average number between 2017-2019 is equal to zero and there are different mean for each 30 cities between 2020 and 2017-2019.</p>
+</div>
 </div>
 </div>
 <div id="regression-analysis" class="section level2">
@@ -518,7 +1355,7 @@ diff_gdp_pop_df =
   
 fit = lm(pm25_diff ~gdp_trillion + pop_million, data = pos_diff_gdp_pop_df)
 MASS::boxcox(fit)</code></pre>
-<p><img src="report_files/figure-html/unnamed-chunk-2-1.png" width="2100" /></p>
+<p><img src="report_files/figure-html/unnamed-chunk-9-1.png" width="90%" /></p>
 <p>The box-cox plot shows that log-likelihood has the maximum value around lambda = 0.5, so square root of pm25_diff is the recommended transformation.</p>
 </div>
 <div id="mlr" class="section level4">
@@ -573,7 +1410,7 @@ trans_fit %&gt;%
 <h4>Model Diagnostics</h4>
 <pre class="r"><code>par(mfrow = c(2,2))
 plot(trans_fit)</code></pre>
-<p><img src="report_files/figure-html/unnamed-chunk-4-1.png" width="1800" /> In residuals vs fitted plot, residuals appear to be evenly distributed around 0, indicating that residuals have constant variance. In normal QQ plot, a straight line is not seen, so our model violates the assumption that residuals are normally distributed. The scale-location plot shows that except for #11, residuals equally spread around a roughly horizontal line, confirming that residuals have constant variance. Finally, all the four plot show that there is an influential outlier labelled #11.</p>
+<p><img src="report_files/figure-html/unnamed-chunk-11-1.png" width="90%" /> In residuals vs fitted plot, residuals appear to be evenly distributed around 0, indicating that residuals have constant variance. In normal QQ plot, a straight line is not seen, so our model violates the assumption that residuals are normally distributed. The scale-location plot shows that except for #11, residuals equally spread around a roughly horizontal line, confirming that residuals have constant variance. Finally, all the four plot show that there is an influential outlier labelled #11.</p>
 </div>
 <div id="cross-validation" class="section level4">
 <h4>Cross Validation</h4>
@@ -593,7 +1430,7 @@ trans_diff_gdp_pop_df %&gt;%
     x = &quot;GDP in Billion + Population in Million&quot;,
     y = &quot;Sqrt(Mean PM2.5 AQI Difference)&quot;,
     title = &quot;Sqrt(Mean PM2.5 AQI Difference) vs GDP and Population&quot;)</code></pre>
-<p><img src="report_files/figure-html/unnamed-chunk-5-1.png" width="2100" /></p>
+<p><img src="report_files/figure-html/unnamed-chunk-12-1.png" width="90%" /></p>
 <p>Cross validation for <code>sqrt_pm25_diff</code> vs. <code>gdp_trillion</code> and <code>pop_million</code>.</p>
 <pre class="r"><code>cv_df = 
   crossv_mc(trans_diff_gdp_pop_df, 100) %&gt;% 
@@ -628,7 +1465,7 @@ cv_df %&gt;%
     title = element_text(size = 8, face = &quot;bold&quot;),
     axis.title.x = element_text(size = 10),
     axis.title.y = element_text(size = 10))</code></pre>
-<p><img src="report_files/figure-html/unnamed-chunk-6-1.png" width="2100" /></p>
+<p><img src="report_files/figure-html/unnamed-chunk-13-1.png" width="90%" /></p>
 <p>We then did cross validation for three different models of mean PM2.5 AQI difference vs. gdp_trillion and pop_million. The distribution of RMSE values for each model suggests that the smooth model works slightly better than two linear models. There is some improvement in predictive accuracy gained by allowing non-linearity, but it is not sufficient to justify this model.</p>
 </div>
 </div>
@@ -681,7 +1518,7 @@ pm25_tavg_df =
 <h4>Find appropriate transformation</h4>
 <pre class="r"><code>fit_tavg = lm(pm25 ~tavg, data = pm25_tavg_df)
 MASS::boxcox(fit_tavg)</code></pre>
-<p><img src="report_files/figure-html/unnamed-chunk-8-1.png" width="2100" /></p>
+<p><img src="report_files/figure-html/unnamed-chunk-15-1.png" width="90%" /></p>
 <p>The box-cox plot shows that log-likelihood has the maximum value around lambda = 0, so natural logarithm of pm25_diff is the recommended transformation.</p>
 </div>
 <div id="mlr-1" class="section level4">
@@ -728,7 +1565,7 @@ log_fit %&gt;%
 <h4>Model diagnostics</h4>
 <pre class="r"><code>par(mfrow = c(2,2))
 plot(log_fit)</code></pre>
-<p><img src="report_files/figure-html/unnamed-chunk-10-1.png" width="1800" /></p>
+<p><img src="report_files/figure-html/unnamed-chunk-17-1.png" width="90%" /></p>
 <p>Residuals seem to be evenly distributed around 0, which is an indication of constant variance. There are some potential outliers, such as #766 and 163. The normal QQ plot shows a roughly straight line, meaning residuals are normally distributed. Therefore, our model fitting for daily pm2.5 AQI difference dependent on daily average temperature doesn’t violate assumptions on residuals.</p>
 </div>
 <div id="cross-validation-1" class="section level4">
@@ -750,7 +1587,7 @@ log_pm25_tavg_df %&gt;%
     y = &quot;Log(Daily PM2.5 AQI)&quot;,
     title = &quot;Models of Log(Daily PM2.5 AQI) vs Daily Average Temperature&quot;
   )</code></pre>
-<p><img src="report_files/figure-html/unnamed-chunk-11-1.png" width="2100" /></p>
+<p><img src="report_files/figure-html/unnamed-chunk-18-1.png" width="90%" /></p>
 <p>Cross validation for <code>lnpm25</code> vs. <code>tavg</code>.</p>
 <pre class="r"><code>cv_tavg_df = 
   crossv_mc(log_pm25_tavg_df, 100) %&gt;% 
@@ -780,7 +1617,7 @@ cv_tavg_df %&gt;%
     x = &quot;Model&quot;,
     y = &quot;RMSE&quot;,
     title = &quot;Distribution of RMSE across Models (Log(pm2.5 AQI) vs Tavg)&quot;)</code></pre>
-<p><img src="report_files/figure-html/unnamed-chunk-12-1.png" width="2100" /> The distribution of RMSE values for each model fitting daily PM2.5 AQI vs daily average temperature suggests that the smooth model works better than linear and wiggly models.</p>
+<p><img src="report_files/figure-html/unnamed-chunk-19-1.png" width="90%" /> The distribution of RMSE values for each model fitting daily PM2.5 AQI vs daily average temperature suggests that the smooth model works better than linear and wiggly models.</p>
 </div>
 </div>
 <div id="regression-conclusions" class="section level3">

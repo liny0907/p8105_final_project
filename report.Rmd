@@ -48,8 +48,179 @@ The air condition in a given area is usually denoted by the Air Quality Index (A
 ## Exploratory Analysis
 
 ## Hypothesis Test and Analysis
-### t-test
-### chi-squared test
+### Chi-Squared Test
+```{r, message = FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(magrittr)
+library(dplyr)
+library(pivottabler)
+library(tidyverse)
+library(ggridges)
+library(modelr)
+library(mgcv)
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+city_30_df_pm25 = tibble(
+  file = list.files("30_cities_data")) %>% 
+  mutate(
+    city = str_remove(file, "-air-quality.csv"),
+    path = str_c("30_cities_data/", file),
+    data = map(path, read_csv)
+  ) %>% 
+  unnest(data) %>% 
+  select(-file, -path) %>% 
+  mutate(
+    city = str_to_title(city),
+    date = as.Date(date, format = "%Y/%m/%d")) %>% 
+  select(city,date,pm25)
+
+pm25_2020 = 
+  city_30_df_pm25 %>% 
+  filter(date > "2020-01-31" & date < "2020-05-01") %>% 
+  mutate(date = format(date, format = "%y-%m-%d")) %>% 
+  select(city, date, pm25)
+
+
+pm25_2019 = 
+  city_30_df_pm25 %>% 
+  filter(date > "2019-01-31" & date < "2019-05-01") %>% 
+  mutate(date = format(date, format = "%y-%m-%d")) %>% 
+  select(city, date, pm25)
+
+pm25_2018 = 
+  city_30_df_pm25 %>% 
+  filter(date > "2018-01-31" & date < "2018-05-01") %>% 
+  mutate(date = format(date, format = "%y-%m-%d")) %>% 
+  select(city, date, pm25)
+
+pm25_2017 = 
+  city_30_df_pm25 %>% 
+  filter(date > "2017-01-31" & date < "2017-05-01") %>% 
+  mutate(date = format(date, format = "%y-%m-%d")) %>% 
+  select(city, date, pm25)
+
+pm25_171819 = rbind(pm25_2017,pm25_2018,pm25_2019)
+
+pm25_1920 = rbind(pm25_2020,pm25_2019)
+```
+
+Are cities and air quality level dependent at 5% level of significance? In other words, given the data collected above, is there a relationship between the cities and the level of air quality that they have obtained?
+
+Null hypothesis (H0): the air quality level and the different cities variables of the contingency table are independent in 2020 between February to April.
+
+Alternative hypothesis (H1): the air quality level and the different cities variables of the contingency table are dependent in 2020 between February to April.
+```{r, message = FALSE}
+city_PM25 = pm25_2020 %>%
+  drop_na() %>%
+  select(city,pm25) %>%
+  mutate(level = as.character(pm25)) %>%
+  mutate(
+    level = case_when(
+      pm25 <= 50 ~ 'Good',
+      pm25 <= 100 ~ 'Moderate',
+      pm25 <= 150 ~ 'Unhealthy for Sensitive People',
+      pm25 <= 200 ~ ' Unhealthy',
+      pm25 <= 300 ~ 'Very Unhealthy',
+      pm25 <= 500 ~ 'Hazardous')) %>%
+  arrange(city,level,pm25)
+
+city_level =
+  city_PM25 %>%
+  group_by(city,level) %>%
+  summarise(n = n()) %>%
+  pivot_wider(names_from = "level", values_from = "n")
+
+city_level[is.na(city_level)] = 0 
+
+```
+#### Air Quality Level Table
+```{r}
+airquality_level = read.csv("test (Fei)/city_air_quality_level.csv", row.names = 1 )
+knitr::kable(airquality_level)
+
+chisq.test(airquality_level, simulate.p.value = TRUE)
+qchisq(0.05, 174, lower.tail = TRUE) 
+```
+#### Chi-Squared Test Result
+For a Chi-square test, the p-value(0.0004998) that is less than 0.05 significance level. We can reject the null hypothesis (H0) and indicates there is no evidence to conclude that the air quality level and the different cities variables of the contingency table are independent and there is a relationship between them. 
+
+### Two-Sample Paired T-test
+
+Null hypothesis (H0): The true mean difference between the average number of AQI (pm25) for each 30 cities from February to April 2020 and the average number between 2017-2019 is equal to zero.
+
+Alternative hypothesis (H1):  The true mean difference between the average number of AQI (pm25) for each 30 cities from February to April 2020 and the average number between 2017-2019 is not equal to zero.
+```{r}
+mean_20 = pm25_2020 %>%
+  drop_na() %>% 
+  select(-date) %>%
+  group_by(city) %>%
+  summarise(mean = mean(pm25)) %>%
+  select(mean) %>%
+  pull()
+
+
+mean_171819 = pm25_171819 %>%
+  drop_na() %>% 
+  select(-date) %>%
+  group_by(city) %>%
+  summarise(mean = mean(pm25)) %>%
+  select(mean) %>%
+  pull()
+
+table1 = pm25_2020 %>%
+  drop_na() %>% 
+  select(-date) %>%
+  group_by(city) %>%
+  summarise(mean_2020 = mean(pm25))
+
+table2 = pm25_171819 %>%
+  drop_na() %>% 
+  select(-date) %>%
+  group_by(city) %>%
+  summarise(mean_2017_2018_2019 = mean(pm25)) %>%
+  select(-city) 
+
+table3 = pm25_2020 %>%
+  drop_na() %>% 
+  select(-date) %>%
+  group_by(city) %>%
+  summarise(standard_deviation_2020 = sd(pm25))
+
+table4 = pm25_171819 %>%
+  drop_na() %>% 
+  select(-date) %>%
+  group_by(city) %>%
+  summarise(standard_deviation_2017_2018_2019 = sd(pm25)) %>%
+  select(-city) 
+```
+#### T Test Table
+##### Mean Table
+```{r}
+knitr::kable(bind_cols(table1,table2))
+```
+##### Standard Deviation Table
+```{r}
+knitr::kable(bind_cols(table3,table4))
+```
+```{r}
+t.test(mean_20, mean_171819, paired = T)
+qt(0.05, 29)
+```
+
+#### T Test Result
+For a Two-Sample Paired T-test, the p-value(5.679e-12) that is less than 0.05 significance level. We can reject the null hypothesis (H0) and indicates there is no evidence to conclude that the true mean difference between the average number of AQI (pm25) for each 30 cities from February to April 2020 and the average number between 2017-2019 is equal to zero and there are different mean for each 30 cities between 2020 and 2017-2019.
 
 ## Regression Analysis
 

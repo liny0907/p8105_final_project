@@ -387,7 +387,29 @@ div.tocify {
 </div>
 
 
-<pre class="r"><code>city_30_df_pm25 = tibble(
+<pre class="r"><code>knitr::opts_chunk$set(echo = TRUE)
+
+library(magrittr)
+library(dplyr)
+library(pivottabler)
+library(tidyverse)
+library(ggridges)
+library(modelr)
+library(mgcv)
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = &quot;90%&quot;
+)
+theme_set(theme_minimal() + theme(legend.position = &quot;bottom&quot;))
+options(
+  ggplot2.continuous.colour = &quot;viridis&quot;,
+  ggplot2.continuous.fill = &quot;viridis&quot;
+)
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+city_30_df_pm25 = tibble(
   file = list.files(&quot;30_cities_data&quot;)) %&gt;% 
   mutate(
     city = str_remove(file, &quot;-air-quality.csv&quot;),
@@ -398,7 +420,7 @@ div.tocify {
   select(-file, -path) %&gt;% 
   mutate(
     city = str_to_title(city),
-    date = as.Date(date, format = &quot;%Y/%m/%d&quot;))%&gt;% 
+    date = as.Date(date, format = &quot;%Y/%m/%d&quot;)) %&gt;% 
   select(city,date,pm25)
 
 pm25_2020 = 
@@ -426,18 +448,18 @@ pm25_2017 =
   mutate(date = format(date, format = &quot;%y-%m-%d&quot;)) %&gt;% 
   select(city, date, pm25)
 
-pm25_171819= rbind(pm25_2017,pm25_2018,pm25_2019)
+pm25_171819 = rbind(pm25_2017,pm25_2018,pm25_2019)
 
-pm25_1920= rbind(pm25_2020,pm25_2019)</code></pre>
+pm25_1920 = rbind(pm25_2020,pm25_2019)</code></pre>
 <div id="chi-squared-test" class="section level1">
 <h1>Chi-Squared Test</h1>
 <p>Are cities and air quality level dependent at 5% level of significance? In other words, given the data collected above, is there a relationship between the cities and the level of air quality that they have obtained?</p>
 <p>Null hypothesis (H0): the air quality level and the different cities variables of the contingency table are independent in 2020 between February to April.</p>
 <p>Alternative hypothesis (H1): the air quality level and the different cities variables of the contingency table are dependent in 2020 between February to April.</p>
-<pre class="r"><code>city_PM25= pm25_2020 %&gt;%
+<pre class="r"><code>city_PM25 = pm25_2020 %&gt;%
   drop_na() %&gt;%
-  select(city,pm25)%&gt;%
-  mutate(level=as.character(pm25))%&gt;%
+  select(city,pm25) %&gt;%
+  mutate(level = as.character(pm25)) %&gt;%
   mutate(
     level = case_when(
       pm25 &lt;= 50 ~ &#39;Good&#39;,
@@ -445,19 +467,19 @@ pm25_1920= rbind(pm25_2020,pm25_2019)</code></pre>
       pm25 &lt;= 150 ~ &#39;Unhealthy for Sensitive People&#39;,
       pm25 &lt;= 200 ~ &#39; Unhealthy&#39;,
       pm25 &lt;= 300 ~ &#39;Very Unhealthy&#39;,
-      pm25 &lt;= 500 ~ &#39;Hazardous&#39;))%&gt;%
+      pm25 &lt;= 500 ~ &#39;Hazardous&#39;)) %&gt;%
   arrange(city,level,pm25)
 
-city_level=
-  city_PM25%&gt;%
-  group_by(city,level)%&gt;%
-  summarise(n=n())%&gt;%
-  pivot_wider(names_from = &quot;level&quot;, values_from = &quot;n&quot;)</code></pre>
-<pre><code>## `summarise()` has grouped output by &#39;city&#39;. You can override using the `.groups` argument.</code></pre>
-<pre class="r"><code>city_level[is.na(city_level)]= 0 </code></pre>
+city_level =
+  city_PM25 %&gt;%
+  group_by(city,level) %&gt;%
+  summarise(n = n()) %&gt;%
+  pivot_wider(names_from = &quot;level&quot;, values_from = &quot;n&quot;)
+
+city_level[is.na(city_level)] = 0 </code></pre>
 <div id="air-quality-level-table" class="section level2">
 <h2>Air Quality Level Table</h2>
-<pre class="r"><code>airquality_level=read.csv(&quot;test (Fei)/city_air_quality_level.csv&quot;, row.names = 1 )
+<pre class="r"><code>airquality_level = read.csv(&quot;test (Fei)/city_air_quality_level.csv&quot;, row.names = 1 )
 knitr::kable(airquality_level)</code></pre>
 <table>
 <colgroup>
@@ -802,7 +824,7 @@ knitr::kable(airquality_level)</code></pre>
 ## 
 ## data:  airquality_level
 ## X-squared = 1363.2, df = NA, p-value = 0.0004998</code></pre>
-<pre class="r"><code>qchisq(0.05, 174, lower.tail=TRUE) </code></pre>
+<pre class="r"><code>qchisq(0.05, 174, lower.tail = TRUE) </code></pre>
 <pre><code>## [1] 144.494</code></pre>
 </div>
 <div id="chi-squared-test-result" class="section level2">
@@ -814,47 +836,47 @@ knitr::kable(airquality_level)</code></pre>
 <h1>Two-Sample Paired T-test</h1>
 <p>Null hypothesis (H0): The true mean difference between the average number of AQI (pm25) for each 30 cities from February to April 2020 and the average number between 2017-2019 is equal to zero.</p>
 <p>Alternative hypothesis (H1): The true mean difference between the average number of AQI (pm25) for each 30 cities from February to April 2020 and the average number between 2017-2019 is not equal to zero.</p>
-<pre class="r"><code>mean_20=pm25_2020%&gt;%
+<pre class="r"><code>mean_20 = pm25_2020 %&gt;%
   drop_na() %&gt;% 
-  select(-date)%&gt;%
-  group_by(city)%&gt;%
-  summarise(mean=mean(pm25))%&gt;%
-  select(mean)%&gt;%
-  pull()
-
-
-mean_171819=pm25_171819%&gt;%
-  drop_na() %&gt;% 
-  select(-date)%&gt;%
-  group_by(city)%&gt;%
-  summarise(mean=mean(pm25))%&gt;%
+  select(-date) %&gt;%
+  group_by(city) %&gt;%
+  summarise(mean = mean(pm25)) %&gt;%
   select(mean) %&gt;%
   pull()
 
-table1=pm25_2020%&gt;%
-  drop_na() %&gt;% 
-  select(-date)%&gt;%
-  group_by(city)%&gt;%
-  summarise(mean_2020=mean(pm25))
 
-table2=pm25_171819%&gt;%
+mean_171819 = pm25_171819 %&gt;%
   drop_na() %&gt;% 
-  select(-date)%&gt;%
-  group_by(city)%&gt;%
-  summarise(mean_2017_2018_2019=mean(pm25))%&gt;%
+  select(-date) %&gt;%
+  group_by(city) %&gt;%
+  summarise(mean = mean(pm25)) %&gt;%
+  select(mean) %&gt;%
+  pull()
+
+table1 = pm25_2020 %&gt;%
+  drop_na() %&gt;% 
+  select(-date) %&gt;%
+  group_by(city) %&gt;%
+  summarise(mean_2020 = mean(pm25))
+
+table2 = pm25_171819 %&gt;%
+  drop_na() %&gt;% 
+  select(-date) %&gt;%
+  group_by(city) %&gt;%
+  summarise(mean_2017_2018_2019 = mean(pm25)) %&gt;%
   select(-city) 
 
-table3=pm25_2020%&gt;%
+table3 = pm25_2020 %&gt;%
   drop_na() %&gt;% 
-  select(-date)%&gt;%
-  group_by(city)%&gt;%
-  summarise(standard_deviation_2020=sd(pm25))
+  select(-date) %&gt;%
+  group_by(city) %&gt;%
+  summarise(standard_deviation_2020 = sd(pm25))
 
-table4=pm25_171819%&gt;%
+table4 = pm25_171819 %&gt;%
   drop_na() %&gt;% 
-  select(-date)%&gt;%
-  group_by(city)%&gt;%
-  summarise(standard_deviation_2017_2018_2019=sd(pm25))%&gt;%
+  select(-date) %&gt;%
+  group_by(city) %&gt;%
+  summarise(standard_deviation_2017_2018_2019 = sd(pm25)) %&gt;%
   select(-city) </code></pre>
 <div id="t-test-table" class="section level2">
 <h2>T Test Table</h2>
