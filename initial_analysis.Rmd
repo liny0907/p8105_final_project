@@ -8,7 +8,7 @@ output:
 ---
 
 
-```{r message = FALSE}
+```{r message = FALSE, include = FALSE}
 library(tidyverse)
 library(lubridate)
 library(dplyr)
@@ -27,10 +27,12 @@ scale_colour_discrete = scale_color_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 ```
 
-
-
-
-Time period we are interested in
+## Time period
+The time that we are interested in are from 
+"2018-02-01" to "2018-04-30"  
+"2019-02-01" to "2019-04-30"  
+"2020-02-01" to "2020-04-30"  
+"2021-02-01" to "2021-04-30"  
 ```{r}
 period_18 = interval(ymd("2018-02-01"), ymd("2018-04-30"))
 period_19 = interval(ymd("2019-02-01"), ymd("2019-04-30"))
@@ -38,12 +40,9 @@ period_20 = interval(ymd("2020-02-01"), ymd("2020-04-30"))
 period_21 = interval(ymd("2021-02-01"), ymd("2021-04-30"))
 ```
 
-
-
-
-
+## Air quality data
+Get the filenames of the air quality data, and tidy the data and create a `city_period_diff` to see the difference for Air pollutant.  
 ```{r}
-#Get the filenames of the air quality data.
 city_files = list.files("30_cities_data")
 onehundrd_city_files = list.files("100_cities_data")
 ```
@@ -183,6 +182,8 @@ city_period_diff %>%
 
 ```
 
+This plot shows each pollutant's Daily AQI Distribution, 2019 and 2020 Feb-Aprl, in each city.The bar on the left top are selective bar that can be used to choose PM2.5, PM10, O3, NO2, SO2 and CO. Each shows the 30 cities Daily AQI distribution for each pollutant. For PM2.5,PM10, CO and NO2, the mean AQI difference is obviously showed and most of cities have improvements. But for SO2 and O3, the improvements are showed in half cities. 
+
 
 ## Distribution Analysis
 
@@ -231,8 +232,6 @@ for (city_file in city_files) {
 
 ```
 
-
-
 ```{r}
 city_AQI_Distribution = 
   city_AQI_Distribution %>% 
@@ -242,8 +241,6 @@ city_AQI_Distribution =
            substring(city, 2), 
            sep = ""))
 ```
-
-
 
 ## Interactive Side-by-side Boxplots
 showing each pollutant's Daily PM25 AQI Distribution, 2019 and 2020 Feb-Aprl, in each city.
@@ -302,11 +299,11 @@ city_AQI_Distribution %>%
   
 ```
 
+This plot shows each pollutant's Daily AQI Distribution, 2019 and 2020 Feb-Aprl, in each city.The bar on the left top are selective bar that can be used to choose PM2.5, PM10, O3, NO2, SO2 and CO. Each shows the 30 cities 2019 and 2020 Feb-Apr period AQI distribution for each pollutant. Each city has two box plot for them. The blue one shows the 2020 Feb-Apr. The red one shows the 2021 Feb-Apr. Besides, the median, min, max, q1, q3 and outliers are showed in the box plot for each city. 
 
 
 ## Line chart of daily pm25 AQI changes for all 30 cities.
-Note that year 2019 does not have the date "Feb 29", but year 2020 does.
-
+(Note that year 2019 does not have the date "Feb 29", but year 2020 does.)
 
 ```{r, fig.width = 8, fig.height = 20, dpi=300}
 
@@ -331,7 +328,7 @@ city_AQI_Distribution %>%
 
 
 ```
-
+This line plot shows daily PM2.5 AQI data starting from Feb1 to Apr 30. The blue line are data for 2020 and red line are data for 2019. From the graphs, we can see some data are missing for 2019. The date "Feb 29" are missing in year 2019. But that is showing in year 2020. 
 
 
 ## Line chart of daily NO2 AQI changes for all 30 cities.
@@ -361,11 +358,12 @@ city_AQI_Distribution %>%
 
 
 ```
+This line plot shows daily NO2 AQI data starting from Feb1 to Apr 30. The blue line are data for 2020 and red line are data for 2019. From the graphs, we can see some data are missing for 2019. The date "Feb 29" are missing in year 2019. But that is showing in year 2020. 
 
 
-
-
-```{r}
+## Past Four Years' Feb~Aprl Mean PM2.5 AQI
+A bar graph of mean PM2.5 AQI from Feb to Apr in the past four years in 30 representative cities.
+```{r, message= FALSE, include = FALSE}
 city_4year_meanPM25 = 
   tibble(city = character(),
          mean_18 = numeric(),
@@ -374,8 +372,6 @@ city_4year_meanPM25 =
          mean_21 = numeric())
 ```
 
-## Past Four Years' Feb~Aprl Mean PM2.5 AQI
-A bar graph of mean PM2.5 AQI from Feb to Apr in the past four years in 30 representative cities.
 ```{r message = FALSE}
 for (city_file in city_files) {
   #print(city_file)
@@ -426,7 +422,7 @@ city_4year_meanPM25 =
 ```
 
 
-```{r dpi=300}
+```{r dpi=300, message= FALSE}
 city_4year_meanPM25 %>% 
   ggplot() +
   geom_bar(
@@ -442,9 +438,11 @@ city_4year_meanPM25 %>%
 
 ```
 
+This bar graph shows the PM2.5 AQI mean from Feb to Apr in the past four years for 30 cities. (note Xining does not have mean of 2021.) From the graph, the trend for PM2.5 AQI mean is decreasing and then increasing for most of 30 cities. The mean AQI in 2020 is the lowest one compared with other 3 years Due to the lock down from 2019 to 2021. The mean AQI in 2021 get back up because of the economy recovery. 
 
 
-
+## Past Four Years' Feb~Aprl Mean NO2 AQI
+A bar graph of mean NO2 AQI from Feb to Apr in the past four years in 30 representative cities.
 
 ```{r}
 city_4year_meanno2 = 
@@ -454,9 +452,6 @@ city_4year_meanno2 =
          mean_20 = numeric(),
          mean_21 = numeric())
 ```
-
-## Past Four Years' Feb~Aprl Mean NO2 AQI
-A bar graph of mean NO2 AQI from Feb to Apr in the past four years in 30 representative cities.
 
 ```{r message = FALSE}
 for (city_file in city_files) {
@@ -508,7 +503,7 @@ city_4year_meanno2 =
 ```
 
 
-```{r dpi=300}
+```{r dpi=300, message= FALSE}
 city_4year_meanno2 %>% 
   ggplot() +
   geom_bar(
@@ -524,7 +519,7 @@ city_4year_meanno2 %>%
 
 ```
 
-
+This bar graph shows the PM2.5 NO2 mean from Feb to Apr in the past four years for 30 cities. (note Xining does not have mean of 2021.) From the graph, the trend for PM2.5 AQI mean is decreasing and then increasing for most of 30 cities. The mean AQI in 2020 is the lowest one compared with other 3 years Due to the lock down from 2019 to 2021. The mean AQI in 2021 get back up because of the economy recovery. 
 
 
 
