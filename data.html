@@ -387,7 +387,29 @@ div.tocify {
 </div>
 
 
-
+<div id="data-sources" class="section level2">
+<h2>Data Sources</h2>
+<p>The primary data source of this project is the <a href="https://aqicn.org/data-platform/register/">Air Quality Historical Data Platform</a>.<br />
+This public dataset collects daily air quality index (AQI) of various pollutants in each city from local weather bureau. All AQI values were calculated using the US EPA standard.<br />
+We can search for the name of our target city, and download a csv file containing daily AQI value for past seven years of six kinds of pollutants: PM2.5, PM10, O3, NO2, SO2 and CO. Data for all 100 cities were searched and downloaded manually by all group members.</p>
+</div>
+<div id="data-description" class="section level2">
+<h2>Data description</h2>
+<p>The downloaded AQI files of each city are in two directories: “30_cities_data” contains the 30 major cities that were used for bar graphs, box plots and line charts. The “100_cities_data” contains all 100 cities we downloaded, which were used for creating the interactive map, fitting the regression models and performing statistical tests. Each city’s AQI file is very straightforward. There are only seven variables:<br />
+<code>date</code>: The date of the following pollutant’s AQI recordings, in YYYY/MM/DD format.<br />
+<code>pm25</code>: The AQI of tiny particles or droplets in the air that are two and one half microns or less in width.<br />
+<code>pm10</code>: The AQI of tiny particles or droplets in the air that are 10 microns or less in width.<br />
+<code>o3</code>: Ozone’s AQI.<br />
+<code>no2</code>: nitrogen dioxide’s AQI<br />
+<code>so2</code>: sulfur dioxide’s AQI<br />
+<code>co</code>: carbon monoxide’s AQI</p>
+<p><a href="https://www.health.ny.gov/environmental/indoors/air/pmq_a.htm#:~:text=The%20term%20fine%20particles%2C%20or,25%2C000%20microns%20in%20an%20inch.">Source of PM 2.5 and PM 10’s definition</a></p>
+</div>
+<div id="data-cleaning-and-processing" class="section level2">
+<h2>Data cleaning and processing</h2>
+<p>While the date is not ordered as expected. For example, January 2021 comes before December 2021. We used <code>as.Date()</code> to covert all dates into R’s <code>date</code> format, and used the <code>lubridate</code> library and <code>%within%</code> to directly filter out the date period we are interested in.<br />
+After some exploratory graphing, We realized that not all pollutants from all time are recorded by each city’s local weather bureau. Since our primary focus is on PM2.5, we excluded the city “Hangzhou” with PM2.5 AQI data missing during the lockdown period.</p>
+</div>
 
 
 

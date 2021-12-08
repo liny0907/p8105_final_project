@@ -7,3 +7,30 @@ output:
     toc_float: true
 ---
 
+## Data Sources
+
+The primary data source of this project is the [Air Quality Historical Data Platform](https://aqicn.org/data-platform/register/).   
+This public dataset collects daily air quality index (AQI) of various pollutants in each city from local weather bureau. All AQI values were calculated using the US EPA standard.   
+We can search for the name of our target city, and download a csv file containing daily AQI value for past seven years of six kinds of pollutants: PM2.5, PM10, O3, NO2, SO2 and CO. Data for all 100 cities were searched and downloaded manually by all group members. 
+
+
+## Data description
+
+The downloaded AQI files of each city are in two directories: "30_cities_data" contains the 30 major cities that were used for bar graphs, box plots and line charts. The "100_cities_data" contains all 100 cities we downloaded, which were used for creating the interactive map, fitting the regression models and performing statistical tests. 
+Each city's AQI file is very straightforward. There are only seven variables:   
+`date`: The date of the following pollutant's AQI recordings, in YYYY/MM/DD format.    
+`pm25`: The AQI of tiny particles or droplets in the air that are two and one half microns or less in width.  
+`pm10`: The AQI of tiny particles or droplets in the air that are 10 microns or less in width.  
+`o3`: Ozone's AQI.   
+`no2`: nitrogen dioxide's AQI  
+`so2`: sulfur dioxide's AQI  
+`co`: carbon monoxide's AQI  
+   
+   
+[Source of PM 2.5 and PM 10's definition](https://www.health.ny.gov/environmental/indoors/air/pmq_a.htm#:~:text=The%20term%20fine%20particles%2C%20or,25%2C000%20microns%20in%20an%20inch.)
+
+## Data cleaning and processing
+
+
+While the date is not ordered as expected. For example, January 2021 comes before December 2021. We used `as.Date()` to covert all dates into R's `date` format, and used the `lubridate` library and `%within%` to directly filter out the date period we are interested in.   
+After some exploratory graphing, We realized that not all pollutants from all time are recorded by each city's local weather bureau. Since our primary focus is on PM2.5, we excluded the city "Hangzhou" with PM2.5 AQI data missing during the lockdown period. 
