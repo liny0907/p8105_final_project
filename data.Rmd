@@ -33,4 +33,276 @@ Each city's AQI file is very straightforward. There are only seven variables:
 
 
 While the date is not ordered as expected. For example, January 2021 comes before December 2021. We used `as.Date()` to covert all dates into R's `date` format, and used the `lubridate` library and `%within%` to directly filter out the date period we are interested in.   
-After some exploratory graphing, We realized that not all pollutants from all time are recorded by each city's local weather bureau. Since our primary focus is on PM2.5, we excluded the city "Hangzhou" with PM2.5 AQI data missing during the lockdown period. 
+After some exploratory graphing, We realized that not all pollutants from all time are recorded by each city's local weather bureau. Since our primary focus is on PM2.5, we excluded the city "Hangzhou" with PM2.5 AQI data missing during the lockdown period. Instead, we exchange another city with "Hangzhou"
+
+From 30_cities_data and 100_cities_data 
+We choose 30 advanced-developed cities in china among the 100 cities. We wrote a function to to pull  the filenames of the air quality data from the 30_cities_data, and did the same process for 100_cities_data. Besides, we create a data frame named: `city_period_diff`. It will hold each city's mean daily AQI difference of each pollutant, between Feb~Aprl and Feb~Aprl. We also create the time period interval for "2018-02-01" ~ "2018-04-30", "2019-02-01" ~ "2019-04-30", "2020-02-01" ~ "2020-04-30", "2021-02-01" ~ "2021-04-30".
+
+```{r message = FALSE, include = FALSE}
+library(tidyverse)
+library(lubridate)
+library(dplyr)
+```
+
+```{r}
+city_files = list.files("30_cities_data")
+onehundrd_city_files = list.files("100_cities_data")
+
+
+city_period_diff = 
+  tibble(city = character(),
+         pm25 = numeric(),
+         pm10 = numeric(),
+         o3 = numeric(),
+         no2 = numeric(),
+         so2 = numeric(),
+         co = numeric(),
+         )
+
+period_18 = interval(ymd("2018-02-01"), ymd("2018-04-30"))
+period_19 = interval(ymd("2019-02-01"), ymd("2019-04-30"))
+period_20 = interval(ymd("2020-02-01"), ymd("2020-04-30"))
+period_21 = interval(ymd("2021-02-01"), ymd("2021-04-30"))
+```
+
+Compute the daily mean pollutant AQI from Feb to Aprl of year 2019 and year 2020 in each city.
+```{r message=FALSE}
+for (city_file in city_files) {
+  #print(city_file)
+  
+  path = str_c("30_cities_data/", city_file)
+  city = strsplit(city_file, split = '-')[[1]][1]
+  
+  cityAir = read_csv(path) %>% 
+    mutate(date = as.Date(date, "%Y/%m/%d")) %>%
+    arrange(date)
+  
+  cityAir_19 = cityAir %>% 
+    filter(date %within% period_19) 
+  
+  cityAir_20 = cityAir %>% 
+    filter(date %within% period_20)
+  
+  
+  pm25_19 = mean(cityAir_19$pm25, na.rm = T)
+  pm25_20 = mean(cityAir_20$pm25, na.rm = T)
+  pm25d = pm25_20 - pm25_19
+  
+  pm10_19 = mean(cityAir_19$pm10, na.rm = T)
+  pm10_20 = mean(cityAir_20$pm10, na.rm = T)
+  pm10d = pm10_20 - pm10_19
+  
+  o3_19 = mean(cityAir_19$o3, na.rm = T)
+  o3_20 = mean(cityAir_20$o3, na.rm = T)
+  o3d = o3_20 - o3_19
+  
+  no2_19 = mean(cityAir_19$no2, na.rm = T)
+  no2_20 = mean(cityAir_20$no2, na.rm = T)
+  no2d = no2_20 - no2_19
+  
+  so2_19 = mean(cityAir_19$so2, na.rm = T)
+  so2_20 = mean(cityAir_20$so2, na.rm = T)
+  so2d = so2_20 - so2_19
+  
+  co_19 = mean(cityAir_19$co, na.rm = T)
+  co_20 = mean(cityAir_20$co, na.rm = T)
+  cod = co_20 - co_19
+  
+  city_period_diff = 
+    city_period_diff %>% 
+    add_row(city = city, 
+            pm25 = pm25d,
+            pm10 = pm10d,
+            o3 = o3d,
+            no2 = no2d,
+            so2 = so2d,
+            co = cod)
+}
+```
+
+Then, we transfer the "city" in `city_period_diff` from the character to factor and make a decreasing sequence by using reorder based on the pm2.5.
+```{r}
+city_period_diff = 
+  city_period_diff %>% 
+  mutate(
+    city = paste(
+      toupper(substring(city, 1, 1)), 
+      substring(city, 2), 
+      sep = ""),
+    city = fct_reorder(city, pm25, .desc = T),
+    )
+```
+
+Now we will see how the distribution of daily PM25 AQI differ between time period 2019 Feb-Aprl and 2020 Feb~Aprl.
+
+```{r warning=FALSE, message=FALSE}
+city_AQI_Distribution = tibble()
+
+for (city_file in city_files) {
+
+  path = str_c("30_cities_data/", city_file)
+  city = strsplit(city_file, split = '-')[[1]][1]
+  
+  cityAir = read_csv(path) %>% 
+    mutate(date = as.Date(date, "%Y/%m/%d")) %>%
+    arrange(date)
+  
+  city_19 = cityAir %>% 
+    filter(date %within% period_19) %>% 
+    mutate(period = "2019Feb-Aprl",
+           day = format(date,"%m-%d"),
+           city = city) %>% 
+    relocate(city, period, day)
+  
+  #add a fake date "2019-02-29" with all AQI values as NA
+  city_19 = 
+    city_19 %>% 
+    add_row(city = city, 
+            period = "2019Feb-Aprl", 
+            day = "02-29") %>% 
+    mutate(day = as.factor(day))
+  
+  
+  city_20 = cityAir %>% 
+    filter(date %within% period_20) %>% 
+    mutate(period = "2020Feb-Aprl",
+           day = format(date,"%m-%d"),
+           day = as.factor(day),
+           city = city) %>% 
+    relocate(city, period, day)
+  
+  city_AQI_Distribution = rbind(city_AQI_Distribution, city_19)
+  city_AQI_Distribution = rbind(city_AQI_Distribution, city_20)
+}
+
+```
+
+```{r}
+city_AQI_Distribution = 
+  city_AQI_Distribution %>% 
+  mutate(period = factor(period, levels = c("2020Feb-Aprl", "2019Feb-Aprl")),
+         city = paste(
+           toupper(substring(city, 1, 1)), 
+           substring(city, 2), 
+           sep = ""))
+```
+
+In order to see the previous data, we focus on past three years. so we tidy the past Four Years' Feb~Aprl Mean PM2.5 AQI.The steps are the same as the previous one. 
+```{r, message= FALSE, include = FALSE}
+city_4year_meanPM25 = 
+  tibble(city = character(),
+         mean_18 = numeric(),
+         mean_19 = numeric(),
+         mean_20 = numeric(),
+         mean_21 = numeric())
+```
+
+```{r message = FALSE}
+for (city_file in city_files) {
+  #print(city_file)
+  
+  path = str_c("30_cities_data/", city_file)
+  city = strsplit(city_file, split = '-')[[1]][1]
+  
+  cityAir = read_csv(path) %>% 
+    mutate(date = as.Date(date, "%Y/%m/%d")) %>%
+    arrange(date)
+  
+  cityAir_18 = cityAir %>% 
+    filter(date %within% period_18)
+  
+  cityAir_19 = cityAir %>% 
+    filter(date %within% period_19) 
+  
+  cityAir_20 = cityAir %>% 
+    filter(date %within% period_20)
+  
+  cityAir_21 = cityAir %>% 
+    filter(date %within% period_21)
+  
+  mean_18 = mean(cityAir_18$pm25, na.rm = T)
+  mean_19 = mean(cityAir_19$pm25, na.rm = T)
+  mean_20 = mean(cityAir_20$pm25, na.rm = T)
+  mean_21 = mean(cityAir_21$pm25, na.rm = T)
+  
+  city_4year_meanPM25 = 
+    city_4year_meanPM25 %>%
+    add_row(city = city,
+            mean_18 = mean_18,
+            mean_19 = mean_19, 
+            mean_20 = mean_20, 
+            mean_21 = mean_21)
+}
+```
+
+```{r}
+city_4year_meanPM25 = 
+  city_4year_meanPM25 %>% 
+  mutate(city = factor(city)) %>% 
+  pivot_longer(
+    mean_18:mean_21,
+    values_to = "mean",
+    names_to = "years"
+  )
+```
+
+
+Except for PM2.5, we also want to know how NO2 mean API mean change for four years from Feb to Aprl. The steps for tidying and clearning data for NO2 are similar.  
+
+```{r}
+city_4year_meanno2 = 
+  tibble(city = character(),
+         mean_18 = numeric(),
+         mean_19 = numeric(),
+         mean_20 = numeric(),
+         mean_21 = numeric())
+```
+
+```{r message = FALSE}
+for (city_file in city_files) {
+  #print(city_file)
+  
+  path = str_c("30_cities_data/", city_file)
+  city = strsplit(city_file, split = '-')[[1]][1]
+  
+  cityAir = read_csv(path) %>% 
+    mutate(date = as.Date(date, "%Y/%m/%d")) %>%
+    arrange(date)
+  
+  cityAir_18 = cityAir %>% 
+    filter(date %within% period_18)
+  
+  cityAir_19 = cityAir %>% 
+    filter(date %within% period_19) 
+  
+  cityAir_20 = cityAir %>% 
+    filter(date %within% period_20)
+  
+  cityAir_21 = cityAir %>% 
+    filter(date %within% period_21)
+  
+  mean_18 = mean(cityAir_18$no2, na.rm = T)
+  mean_19 = mean(cityAir_19$no2, na.rm = T)
+  mean_20 = mean(cityAir_20$no2, na.rm = T)
+  mean_21 = mean(cityAir_21$no2, na.rm = T)
+  
+  city_4year_meanno2 = 
+    city_4year_meanno2 %>%
+    add_row(city = city,
+            mean_18 = mean_18,
+            mean_19 = mean_19, 
+            mean_20 = mean_20, 
+            mean_21 = mean_21)
+}
+```
+
+```{r}
+city_4year_meanno2 = 
+  city_4year_meanno2 %>% 
+  mutate(city = factor(city)) %>% 
+  pivot_longer(
+    mean_18:mean_21,
+    values_to = "mean",
+    names_to = "years"
+  )
+```
