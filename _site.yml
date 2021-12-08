@@ -12,7 +12,9 @@ navbar:
         - text: 'Regression Analysis'
           href: regression_analysis.html
     - text: "Map"
-      href: Map_of_China.html          
+      href: Map_of_China.html 
+    - text: "Data"
+      href: data.html
     - text: "Report"
       href: report.html
     - text: "About"

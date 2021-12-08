@@ -14,8 +14,37 @@ This public dataset collects daily air quality index (AQI) of various pollutants
 We can search for the name of our target city, and download a csv file containing daily AQI value for past seven years of six kinds of pollutants: PM2.5, PM10, O3, NO2, SO2 and CO. Data for all 100 cities were searched and downloaded manually by all group members. 
 
 
-## Data description
+The daily average temperature data are from [NOAA](https://www.ncdc.noaa.gov/cdo-web/results). 
+We used below code chunk to extract weather data for each city:
+```{r, eval = FALSE}
+weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c("CHM00054511", "CHM00058362", "CHM00050953", "CHM00054342", "CHM00055591", "CHM00056294", "CHM00056778", "CHM00059287", "CHM00057036", "CHM00057494"),
+    var = c("PRCP", "TAVG"), 
+    date_min = "2020-02-01",
+    date_max = "2020-04-30") %>%
+  mutate(
+    name = recode(
+      id, 
+      CHM00054511 = "Beijing", 
+      CHM00058362 = "Shanghai",
+      CHM00050953 = "Harbin",
+      CHM00054342 = "Shenyang",
+      CHM00055591 = "Lhasa",
+      CHM00056294 = "Chengdu",
+      CHM00056778 = "Kunming",
+      CHM00059287 = "Guangzhou",
+      CHM00057036 = "Xian",
+      CHM00057494 = "Wuhan"),
+    tavg = tavg / 10,
+    prcp = prcp / 10) %>%
+  select(-id) %>% 
+  rename(city = name) %>% 
+  relocate(city)
+```
 
+## Data description
+### AQI data
 The downloaded AQI files of each city are in two directories: "30_cities_data" contains the 30 major cities that were used for bar graphs, box plots and line charts. The "100_cities_data" contains all 100 cities we downloaded, which were used for creating the interactive map, fitting the regression models and performing statistical tests. 
 Each city's AQI file is very straightforward. There are only seven variables:   
 `date`: The date of the following pollutant's AQI recordings, in YYYY/MM/DD format.    
@@ -25,9 +54,15 @@ Each city's AQI file is very straightforward. There are only seven variables:
 `no2`: nitrogen dioxide's AQI  
 `so2`: sulfur dioxide's AQI  
 `co`: carbon monoxide's AQI  
-   
-   
+
 [Source of PM 2.5 and PM 10's definition](https://www.health.ny.gov/environmental/indoors/air/pmq_a.htm#:~:text=The%20term%20fine%20particles%2C%20or,25%2C000%20microns%20in%20an%20inch.)
+
+### Weather data
+The resulting weather dataset contains 4 variables:\
+`city`: city name\
+`date`: the date that daily average temperature was collected\
+`prcp`: precipitation in mm\
+`tavg`: daily average temperature
 
 ## Data cleaning and processing
 

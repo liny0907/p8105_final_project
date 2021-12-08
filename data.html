@@ -348,6 +348,9 @@ div.tocify {
   <a href="Map_of_China.html">Map</a>
 </li>
 <li>
+  <a href="data.html">Data</a>
+</li>
+<li>
   <a href="report.html">Report</a>
 </li>
 <li>
@@ -392,9 +395,36 @@ div.tocify {
 <p>The primary data source of this project is the <a href="https://aqicn.org/data-platform/register/">Air Quality Historical Data Platform</a>.<br />
 This public dataset collects daily air quality index (AQI) of various pollutants in each city from local weather bureau. All AQI values were calculated using the US EPA standard.<br />
 We can search for the name of our target city, and download a csv file containing daily AQI value for past seven years of six kinds of pollutants: PM2.5, PM10, O3, NO2, SO2 and CO. Data for all 100 cities were searched and downloaded manually by all group members.</p>
+<p>The daily average temperature data are from <a href="https://www.ncdc.noaa.gov/cdo-web/results">NOAA</a>. We used below code chunk to extract weather data for each city:</p>
+<pre class="r"><code>weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c(&quot;CHM00054511&quot;, &quot;CHM00058362&quot;, &quot;CHM00050953&quot;, &quot;CHM00054342&quot;, &quot;CHM00055591&quot;, &quot;CHM00056294&quot;, &quot;CHM00056778&quot;, &quot;CHM00059287&quot;, &quot;CHM00057036&quot;, &quot;CHM00057494&quot;),
+    var = c(&quot;PRCP&quot;, &quot;TAVG&quot;), 
+    date_min = &quot;2020-02-01&quot;,
+    date_max = &quot;2020-04-30&quot;) %&gt;%
+  mutate(
+    name = recode(
+      id, 
+      CHM00054511 = &quot;Beijing&quot;, 
+      CHM00058362 = &quot;Shanghai&quot;,
+      CHM00050953 = &quot;Harbin&quot;,
+      CHM00054342 = &quot;Shenyang&quot;,
+      CHM00055591 = &quot;Lhasa&quot;,
+      CHM00056294 = &quot;Chengdu&quot;,
+      CHM00056778 = &quot;Kunming&quot;,
+      CHM00059287 = &quot;Guangzhou&quot;,
+      CHM00057036 = &quot;Xian&quot;,
+      CHM00057494 = &quot;Wuhan&quot;),
+    tavg = tavg / 10,
+    prcp = prcp / 10) %&gt;%
+  select(-id) %&gt;% 
+  rename(city = name) %&gt;% 
+  relocate(city)</code></pre>
 </div>
 <div id="data-description" class="section level2">
 <h2>Data description</h2>
+<div id="aqi-data" class="section level3">
+<h3>AQI data</h3>
 <p>The downloaded AQI files of each city are in two directories: “30_cities_data” contains the 30 major cities that were used for bar graphs, box plots and line charts. The “100_cities_data” contains all 100 cities we downloaded, which were used for creating the interactive map, fitting the regression models and performing statistical tests. Each city’s AQI file is very straightforward. There are only seven variables:<br />
 <code>date</code>: The date of the following pollutant’s AQI recordings, in YYYY/MM/DD format.<br />
 <code>pm25</code>: The AQI of tiny particles or droplets in the air that are two and one half microns or less in width.<br />
@@ -404,6 +434,15 @@ We can search for the name of our target city, and download a csv file containin
 <code>so2</code>: sulfur dioxide’s AQI<br />
 <code>co</code>: carbon monoxide’s AQI</p>
 <p><a href="https://www.health.ny.gov/environmental/indoors/air/pmq_a.htm#:~:text=The%20term%20fine%20particles%2C%20or,25%2C000%20microns%20in%20an%20inch.">Source of PM 2.5 and PM 10’s definition</a></p>
+</div>
+<div id="weather-data" class="section level3">
+<h3>Weather data</h3>
+<p>The resulting weather dataset contains 4 variables:<br />
+<code>city</code>: city name<br />
+<code>date</code>: the date that daily average temperature was collected<br />
+<code>prcp</code>: precipitation in mm<br />
+<code>tavg</code>: daily average temperature</p>
+</div>
 </div>
 <div id="data-cleaning-and-processing" class="section level2">
 <h2>Data cleaning and processing</h2>
