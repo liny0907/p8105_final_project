@@ -327,8 +327,9 @@ city_AQI_Distribution %>%
 
 ```
 
-These line charts show daily PM2.5 AQI starting from Feb1 to Apr 30. For each city, the blue line represents data from 2020, and red line represents data from 2019. Note that year 2019 does not have the date "Feb 29", but year 2020 does. Thus in the graphs, the red lines of year 2019 does not have data for Feb 29, but the blue lines of year 2020 do.  
-We can see that although there are fluctuations, generally daily PM2.5 AQI during the lockdown is lower than the same period in year 2019, for each city.
+These line charts show daily PM2.5 AQI starting from Feb1 to Apr 30. For each city, the blue line represents data from 2020, and red line represents data from 2019. Thus in the graphs, the red lines of year 2019 does not have data for Feb 29, but the blue lines of year 2020 do.  
+We can see that although there are fluctuations, generally daily PM2.5 AQI during the lockdown is lower than the same period in year 2019, for each city. Besides, some cities such as Beijing, changchun, Harbin, Shanghai, shijiazhuang, Tianjin, Yinchuan and Zhengzhou has the violent fluctuations compared with other cities. Most of them are located in North of China. That is partly because the north cities need more fuels to housing supply and heavy industry. 
+
 
 
 ## Line charts of daily NO2 AQI changes for all 30 cities.
@@ -357,8 +358,8 @@ city_AQI_Distribution %>%
 
 ```
 
-These line charts show daily NO2 AQI starting from Feb 1 to Apr 30. Similar to PM2.5 AQI trends, daily NO2 AQI during the lockdown is generally lower than the same period in year 2019, for each city.
-
+These line charts show daily NO2 AQI starting from Feb 1 to Apr 30. Similar to PM2.5 AQI trends, daily NO2 AQI during the lockdown is generally lower than the same period in year 2019 for each city. The blue line represents data from 2020, and red line represents data from 2019. In the graphs, the red lines of year 2019 does not have data for Feb 29, but the blue lines of year 2020 do.    
+We can see that although there are fluctuations, generally daily NO2 AQI during the lockdown is lower than the same period in year 2019 for each city. Besides, most of cities has the violent fluctuations compared with the line chart daily PM2.5 AQI. Only Nanning and shenzhen have relatively less fluctuations among 30 cities. In overall, the trends for NO2 API in 2020 is decreasing. 
 
 ## Past Four Years' Feb~Apr Mean PM2.5 AQI
 A bar graph of mean PM2.5 AQI from Feb to Apr in the past four years in 30 representative cities.
