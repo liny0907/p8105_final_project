@@ -395,6 +395,7 @@ div.tocify {
 <p>The primary data source of this project is the <a href="https://aqicn.org/data-platform/register/">Air Quality Historical Data Platform</a>.<br />
 This public dataset collects daily air quality index (AQI) of various pollutants in each city from local weather bureau. All AQI values were calculated using the US EPA standard.<br />
 We can search for the name of our target city, and download a csv file containing daily AQI value for past seven years of six kinds of pollutants: PM2.5, PM10, O3, NO2, SO2 and CO. Data for all 100 cities were searched and downloaded manually by all group members.</p>
+<p>The data of GDP and population in top 100 Chinese cities in GDP are collected <a href="https://xw.qq.com/partner/vivoscreen/20201004A0BILP/20201004A0BILP00?ADTAG=vivoscreen&amp;%3BvivoRcdMark=1">online</a>. We then create a cvs file containing city name, GDP in billion CNY, and population in thousand.</p>
 <p>The daily average temperature data are from <a href="https://www.ncdc.noaa.gov/cdo-web/results">NOAA</a>. We used below code chunk to extract weather data for each city:</p>
 <pre class="r"><code>weather_df = 
   rnoaa::meteo_pull_monitors(
@@ -434,6 +435,14 @@ We can search for the name of our target city, and download a csv file containin
 <code>so2</code>: sulfur dioxide’s AQI<br />
 <code>co</code>: carbon monoxide’s AQI</p>
 <p><a href="https://www.health.ny.gov/environmental/indoors/air/pmq_a.htm#:~:text=The%20term%20fine%20particles%2C%20or,25%2C000%20microns%20in%20an%20inch.">Source of PM 2.5 and PM 10’s definition</a></p>
+</div>
+<div id="gdp-and-population-data" class="section level3">
+<h3>GDP and population data</h3>
+<p>The GDP and population dataset contains 4 variables:<br />
+<code>rank</code>: a city’s GDP ranking<br />
+<code>city</code>: city name<br />
+<code>gdp_billion</code>: GDP in billion CHY<br />
+<code>population_thousand</code>: population in thousand</p>
 </div>
 <div id="weather-data" class="section level3">
 <h3>Weather data</h3>
@@ -669,6 +678,97 @@ for (city_file in city_files) {
     values_to = &quot;mean&quot;,
     names_to = &quot;years&quot;
   )</code></pre>
+<p>In terms of the dataset of GDP and population for regression analysis, we calculate mean PM2.5 AQI (Feb-Apr) in 2019 and 2020 and mean PM2.5 AQI difference (2019 minus 2020) for each top 100 city in GDP. We then use <code>left_join</code> function to join the GDP and population dataset to the mean PM2.5 AQI difference dataset to get the resulting dataset for regression analysis.</p>
+<pre class="r"><code>library(tidyverse)
+library(ggridges)
+
+theme_set(theme_minimal() + theme(legend.position = &quot;bottom&quot;))
+
+options(
+  ggplot2.continuous.colour = &quot;viridis&quot;,
+  ggplot2.continuous.fill = &quot;viridis&quot;
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+city_100_df = 
+  tibble(
+  file = list.files(&quot;100_cities_data&quot;)) %&gt;% 
+  mutate(
+    city = str_remove(file, &quot;-air-quality.csv&quot;),
+    path = str_c(&quot;100_cities_data/&quot;, file),
+    data = map(path, read_csv)
+  ) %&gt;% 
+  unnest(data) %&gt;% 
+  select(-file, -path) %&gt;% 
+  mutate(
+    city = str_to_title(city),
+    date = as.Date(date, format = &quot;%Y/%m/%d&quot;))
+
+pm25_2020 = 
+  city_100_df %&gt;% 
+  filter(date &gt; &quot;2020-01-31&quot; &amp; date &lt; &quot;2020-05-01&quot;) %&gt;% 
+  group_by(city) %&gt;%
+  summarize(mean_pm25_2020 = mean(pm25, na.rm = T))
+  
+pm25_2019 = 
+  city_100_df %&gt;% 
+  filter(date &gt; &quot;2019-01-31&quot; &amp; date &lt; &quot;2019-05-01&quot;) %&gt;% 
+  group_by(city) %&gt;%
+  summarize(mean_pm25_2019 = mean(pm25, na.rm = T))
+
+pm25_diff = 
+  left_join(pm25_2020, pm25_2019) %&gt;% 
+  mutate(pm25_diff = mean_pm25_2019 - mean_pm25_2020)
+
+gdp_pop_df = 
+  read_csv(&quot;data/gpd_and_popluation.csv&quot;) %&gt;% 
+  janitor::clean_names() %&gt;% 
+  mutate(
+    gdp_trillion = gdp_billion / 1000,
+    pop_million = population_thousand / 1000) %&gt;% 
+  select(city, gdp_trillion, pop_million)
+
+diff_gdp_pop_df = 
+  left_join(pm25_diff, gdp_pop_df) %&gt;% 
+  select(-mean_pm25_2020, -mean_pm25_2019)</code></pre>
+<p>For regression of daily PM2.5 vs daily average temperature, we filter PM2.5 AQI from February through April in only 2020 , and collect daily average temperature data during this time period from <strong>NOAA</strong>. We then join them using <code>left_join</code> function.</p>
+<pre class="r"><code>weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c(&quot;CHM00054511&quot;, &quot;CHM00058362&quot;, &quot;CHM00050953&quot;, &quot;CHM00054342&quot;, &quot;CHM00055591&quot;, &quot;CHM00056294&quot;, &quot;CHM00056778&quot;, &quot;CHM00059287&quot;, &quot;CHM00057036&quot;, &quot;CHM00057494&quot;),
+    var = c(&quot;PRCP&quot;, &quot;TAVG&quot;), 
+    date_min = &quot;2020-02-01&quot;,
+    date_max = &quot;2020-04-30&quot;) %&gt;%
+  mutate(
+    name = recode(
+      id, 
+      CHM00054511 = &quot;Beijing&quot;, 
+      CHM00058362 = &quot;Shanghai&quot;,
+      CHM00050953 = &quot;Harbin&quot;,
+      CHM00054342 = &quot;Shenyang&quot;,
+      CHM00055591 = &quot;Lhasa&quot;,
+      CHM00056294 = &quot;Chengdu&quot;,
+      CHM00056778 = &quot;Kunming&quot;,
+      CHM00059287 = &quot;Guangzhou&quot;,
+      CHM00057036 = &quot;Xian&quot;,
+      CHM00057494 = &quot;Wuhan&quot;),
+    tavg = tavg / 10,
+    prcp = prcp / 10) %&gt;%
+  select(-id) %&gt;% 
+  rename(city = name) %&gt;% 
+  relocate(city)
+
+city_10_df =
+  city_100_df %&gt;% 
+  filter(date &gt; &quot;2020-01-31&quot; &amp; date &lt; &quot;2020-05-01&quot;) %&gt;% 
+  filter(city %in% c(&quot;Beijing&quot;, &quot;Shanghai&quot;, &quot;Harbin&quot;, &quot;Shenyang&quot;, &quot;Lhasa&quot;, &quot;Chengdu&quot;, &quot;Kunming&quot;, &quot;Guangzhou&quot;, &quot;Xian&quot;, &quot;Wuhan&quot;))
+
+pm25_tavg_df = 
+  left_join(city_10_df, weather_df, by = c(&quot;city&quot;, &quot;date&quot;)) %&gt;% 
+  arrange(date) %&gt;% 
+  select(city, date, pm25, tavg) %&gt;% 
+  filter(pm25 != &quot;NA&quot;)</code></pre>
 </div>
 
 

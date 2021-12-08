@@ -319,6 +319,6 @@ The distribution of RMSE values for each model fitting daily PM2.5 AQI vs daily 
 
 ## Regression Conclusions
 
-We don't have enough evidence to support that during the lockdown period, air quality improvement in a city has a significant linear relationship with GDP and population. The daily PM2.5 AQI isn't significantly correlated to daily average temperature either. The two non-significant linear models may be due to small sample size, so a larger sample size may be helpful for getting significant models.  
+We don't have enough evidence to support that during the lockdown period, air quality improvement in a city has a significant linear relationship with GDP and population. The daily PM2.5 AQI isn't significantly correlated linearly to daily average temperature either. The two non-significant linear models may be due to small sample size, so a larger sample size may be helpful for getting significant models.  
 
 

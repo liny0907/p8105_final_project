@@ -1,12 +1,8 @@
 ---
-title: "Impact of COVID-19 Lockdowns on Air Quality in Chinese Cities"
+title: "The Impact of COVID-19 Lockdowns on Air Quality in Chinese Cities"
 output: 
-  html_document:
-    toc: true
-    toc_float: true
+  html_document
 ---
 
-
-
-
+Weiheng Zhang, Lin Yang, Yihan Qiu, Fei Sun, Zhuolun Huang
 

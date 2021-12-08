@@ -13,6 +13,8 @@ The primary data source of this project is the [Air Quality Historical Data Plat
 This public dataset collects daily air quality index (AQI) of various pollutants in each city from local weather bureau. All AQI values were calculated using the US EPA standard.   
 We can search for the name of our target city, and download a csv file containing daily AQI value for past seven years of six kinds of pollutants: PM2.5, PM10, O3, NO2, SO2 and CO. Data for all 100 cities were searched and downloaded manually by all group members. 
 
+The data of GDP and population in top 100 Chinese cities in GDP are collected [online](https://xw.qq.com/partner/vivoscreen/20201004A0BILP/20201004A0BILP00?ADTAG=vivoscreen&%3BvivoRcdMark=1). We then create a cvs file containing city name, GDP in billion CNY, and population in thousand. 
+
 
 The daily average temperature data are from [NOAA](https://www.ncdc.noaa.gov/cdo-web/results). 
 We used below code chunk to extract weather data for each city:
@@ -57,6 +59,13 @@ Each city's AQI file is very straightforward. There are only seven variables:
 
 [Source of PM 2.5 and PM 10's definition](https://www.health.ny.gov/environmental/indoors/air/pmq_a.htm#:~:text=The%20term%20fine%20particles%2C%20or,25%2C000%20microns%20in%20an%20inch.)
 
+### GDP and population data
+The GDP and population dataset contains 4 variables:\
+`rank`: a city's GDP ranking\
+`city`: city name\
+`gdp_billion`: GDP in billion CHY\
+`population_thousand`: population in thousand
+
 ### Weather data
 The resulting weather dataset contains 4 variables:\
 `city`: city name\
@@ -65,7 +74,6 @@ The resulting weather dataset contains 4 variables:\
 `tavg`: daily average temperature
 
 ## Data cleaning and processing
-
 
 While the date is not ordered as expected. For example, January 2021 comes before December 2021. We used `as.Date()` to covert all dates into R's `date` format, and used the `lubridate` library and `%within%` to directly filter out the date period we are interested in.   
 After some exploratory graphing, We realized that not all pollutants from all time are recorded by each city's local weather bureau. Since our primary focus is on PM2.5, we excluded the city "Hangzhou" with PM2.5 AQI data missing during the lockdown period. Instead, we exchange another city with "Hangzhou"
@@ -341,3 +349,109 @@ city_4year_meanno2 =
     names_to = "years"
   )
 ```
+
+
+In terms of the dataset of GDP and population for regression analysis, we calculate mean PM2.5 AQI (Feb-Apr) in 2019 and 2020 and mean PM2.5 AQI difference (2019 minus 2020) for each top 100 city in GDP. We then use `left_join` function to join the GDP and population dataset to the mean PM2.5 AQI difference dataset to get the resulting dataset for regression analysis.
+
+```{r, message = FALSE}
+library(tidyverse)
+library(ggridges)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+city_100_df = 
+  tibble(
+  file = list.files("100_cities_data")) %>% 
+  mutate(
+    city = str_remove(file, "-air-quality.csv"),
+    path = str_c("100_cities_data/", file),
+    data = map(path, read_csv)
+  ) %>% 
+  unnest(data) %>% 
+  select(-file, -path) %>% 
+  mutate(
+    city = str_to_title(city),
+    date = as.Date(date, format = "%Y/%m/%d"))
+
+pm25_2020 = 
+  city_100_df %>% 
+  filter(date > "2020-01-31" & date < "2020-05-01") %>% 
+  group_by(city) %>%
+  summarize(mean_pm25_2020 = mean(pm25, na.rm = T))
+  
+pm25_2019 = 
+  city_100_df %>% 
+  filter(date > "2019-01-31" & date < "2019-05-01") %>% 
+  group_by(city) %>%
+  summarize(mean_pm25_2019 = mean(pm25, na.rm = T))
+
+pm25_diff = 
+  left_join(pm25_2020, pm25_2019) %>% 
+  mutate(pm25_diff = mean_pm25_2019 - mean_pm25_2020)
+
+gdp_pop_df = 
+  read_csv("data/gpd_and_popluation.csv") %>% 
+  janitor::clean_names() %>% 
+  mutate(
+    gdp_trillion = gdp_billion / 1000,
+    pop_million = population_thousand / 1000) %>% 
+  select(city, gdp_trillion, pop_million)
+
+diff_gdp_pop_df = 
+  left_join(pm25_diff, gdp_pop_df) %>% 
+  select(-mean_pm25_2020, -mean_pm25_2019)
+```
+
+For regression of daily PM2.5 vs daily average temperature, we filter PM2.5 AQI from February through April in only 2020 , and collect daily average temperature data during this time period from **NOAA**. We then join them using `left_join` function. 
+
+```{r, message = FALSE}
+weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c("CHM00054511", "CHM00058362", "CHM00050953", "CHM00054342", "CHM00055591", "CHM00056294", "CHM00056778", "CHM00059287", "CHM00057036", "CHM00057494"),
+    var = c("PRCP", "TAVG"), 
+    date_min = "2020-02-01",
+    date_max = "2020-04-30") %>%
+  mutate(
+    name = recode(
+      id, 
+      CHM00054511 = "Beijing", 
+      CHM00058362 = "Shanghai",
+      CHM00050953 = "Harbin",
+      CHM00054342 = "Shenyang",
+      CHM00055591 = "Lhasa",
+      CHM00056294 = "Chengdu",
+      CHM00056778 = "Kunming",
+      CHM00059287 = "Guangzhou",
+      CHM00057036 = "Xian",
+      CHM00057494 = "Wuhan"),
+    tavg = tavg / 10,
+    prcp = prcp / 10) %>%
+  select(-id) %>% 
+  rename(city = name) %>% 
+  relocate(city)
+
+city_10_df =
+  city_100_df %>% 
+  filter(date > "2020-01-31" & date < "2020-05-01") %>% 
+  filter(city %in% c("Beijing", "Shanghai", "Harbin", "Shenyang", "Lhasa", "Chengdu", "Kunming", "Guangzhou", "Xian", "Wuhan"))
+
+pm25_tavg_df = 
+  left_join(city_10_df, weather_df, by = c("city", "date")) %>% 
+  arrange(date) %>% 
+  select(city, date, pm25, tavg) %>% 
+  filter(pm25 != "NA")
+```
+
+
+
+
+
+

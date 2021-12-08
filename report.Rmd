@@ -41,11 +41,964 @@ The air condition in a given area is usually denoted by the Air Quality Index (A
 
 ### Data Source
 
-### Data Processing and Cleaning
+The primary data source of this project is the [Air Quality Historical Data Platform](https://aqicn.org/data-platform/register/).   
+This public dataset collects daily air quality index (AQI) of various pollutants in each city from local weather bureau. All AQI values were calculated using the US EPA standard.   
+We can search for the name of our target city, and download a csv file containing daily AQI value for past seven years of six kinds of pollutants: PM2.5, PM10, O3, NO2, SO2 and CO. Data for all 100 cities were searched and downloaded manually by all group members. 
+
+The data of GDP and population in top 100 Chinese cities in GDP are collected [online](https://xw.qq.com/partner/vivoscreen/20201004A0BILP/20201004A0BILP00?ADTAG=vivoscreen&%3BvivoRcdMark=1). We then create a cvs file containing city name, GDP in billion CNY, and population in thousand. 
+
+
+The daily average temperature data are from [NOAA](https://www.ncdc.noaa.gov/cdo-web/results). 
+We used below code chunk to extract weather data for each city:
+```{r, eval = FALSE}
+weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c("CHM00054511", "CHM00058362", "CHM00050953", "CHM00054342", "CHM00055591", "CHM00056294", "CHM00056778", "CHM00059287", "CHM00057036", "CHM00057494"),
+    var = c("PRCP", "TAVG"), 
+    date_min = "2020-02-01",
+    date_max = "2020-04-30") %>%
+  mutate(
+    name = recode(
+      id, 
+      CHM00054511 = "Beijing", 
+      CHM00058362 = "Shanghai",
+      CHM00050953 = "Harbin",
+      CHM00054342 = "Shenyang",
+      CHM00055591 = "Lhasa",
+      CHM00056294 = "Chengdu",
+      CHM00056778 = "Kunming",
+      CHM00059287 = "Guangzhou",
+      CHM00057036 = "Xian",
+      CHM00057494 = "Wuhan"),
+    tavg = tavg / 10,
+    prcp = prcp / 10) %>%
+  select(-id) %>% 
+  rename(city = name) %>% 
+  relocate(city)
+```
 
 ### Data Description
 
+#### AQI data
+The downloaded AQI files of each city are in two directories: "30_cities_data" contains the 30 major cities that were used for bar graphs, box plots and line charts. The "100_cities_data" contains all 100 cities we downloaded, which were used for creating the interactive map, fitting the regression models and performing statistical tests. 
+Each city's AQI file is very straightforward. There are only seven variables:   
+`date`: The date of the following pollutant's AQI recordings, in YYYY/MM/DD format.    
+`pm25`: The AQI of tiny particles or droplets in the air that are two and one half microns or less in width.  
+`pm10`: The AQI of tiny particles or droplets in the air that are 10 microns or less in width.  
+`o3`: Ozone's AQI.   
+`no2`: nitrogen dioxide's AQI  
+`so2`: sulfur dioxide's AQI  
+`co`: carbon monoxide's AQI  
+
+[Source of PM 2.5 and PM 10's definition](https://www.health.ny.gov/environmental/indoors/air/pmq_a.htm#:~:text=The%20term%20fine%20particles%2C%20or,25%2C000%20microns%20in%20an%20inch.)
+
+#### GDP and population data
+The GDP and population dataset contains 4 variables:\
+`rank`: a city's GDP ranking\
+`city`: city name\
+`gdp_billion`: GDP in billion CHY\
+`population_thousand`: population in thousand
+
+#### Weather data
+The resulting weather dataset contains 4 variables:\
+`city`: city name\
+`date`: the date that daily average temperature was collected\
+`prcp`: precipitation in mm\
+`tavg`: daily average temperature
+
+
+
+
+
+### Data Processing and Cleaning
+
+While the date is not ordered as expected. For example, January 2021 comes before December 2021. We used `as.Date()` to covert all dates into R's `date` format, and used the `lubridate` library and `%within%` to directly filter out the date period we are interested in.   
+After some exploratory graphing, We realized that not all pollutants from all time are recorded by each city's local weather bureau. Since our primary focus is on PM2.5, we excluded the city "Hangzhou" with PM2.5 AQI data missing during the lockdown period. Instead, we exchange another city with "Hangzhou"
+
+From 30_cities_data and 100_cities_data 
+We choose 30 advanced-developed cities in china among the 100 cities. We wrote a function to to pull  the filenames of the air quality data from the 30_cities_data, and did the same process for 100_cities_data. Besides, we create a data frame named: `city_period_diff`. It will hold each city's mean daily AQI difference of each pollutant, between Feb~Apr and Feb~Apr. We also create the time period interval for "2018-02-01" ~ "2018-04-30", "2019-02-01" ~ "2019-04-30", "2020-02-01" ~ "2020-04-30", "2021-02-01" ~ "2021-04-30".
+
+```{r message = FALSE, include = FALSE}
+library(tidyverse)
+library(lubridate)
+library(dplyr)
+```
+
+```{r}
+city_files = list.files("30_cities_data")
+onehundrd_city_files = list.files("100_cities_data")
+
+
+city_period_diff = 
+  tibble(city = character(),
+         pm25 = numeric(),
+         pm10 = numeric(),
+         o3 = numeric(),
+         no2 = numeric(),
+         so2 = numeric(),
+         co = numeric(),
+         )
+
+period_18 = interval(ymd("2018-02-01"), ymd("2018-04-30"))
+period_19 = interval(ymd("2019-02-01"), ymd("2019-04-30"))
+period_20 = interval(ymd("2020-02-01"), ymd("2020-04-30"))
+period_21 = interval(ymd("2021-02-01"), ymd("2021-04-30"))
+```
+
+Compute the daily mean pollutant AQI from Feb to Apr of year 2019 and year 2020 in each city.
+```{r message=FALSE}
+for (city_file in city_files) {
+  #print(city_file)
+  
+  path = str_c("30_cities_data/", city_file)
+  city = strsplit(city_file, split = '-')[[1]][1]
+  
+  cityAir = read_csv(path) %>% 
+    mutate(date = as.Date(date, "%Y/%m/%d")) %>%
+    arrange(date)
+  
+  cityAir_19 = cityAir %>% 
+    filter(date %within% period_19) 
+  
+  cityAir_20 = cityAir %>% 
+    filter(date %within% period_20)
+  
+  
+  pm25_19 = mean(cityAir_19$pm25, na.rm = T)
+  pm25_20 = mean(cityAir_20$pm25, na.rm = T)
+  pm25d = pm25_20 - pm25_19
+  
+  pm10_19 = mean(cityAir_19$pm10, na.rm = T)
+  pm10_20 = mean(cityAir_20$pm10, na.rm = T)
+  pm10d = pm10_20 - pm10_19
+  
+  o3_19 = mean(cityAir_19$o3, na.rm = T)
+  o3_20 = mean(cityAir_20$o3, na.rm = T)
+  o3d = o3_20 - o3_19
+  
+  no2_19 = mean(cityAir_19$no2, na.rm = T)
+  no2_20 = mean(cityAir_20$no2, na.rm = T)
+  no2d = no2_20 - no2_19
+  
+  so2_19 = mean(cityAir_19$so2, na.rm = T)
+  so2_20 = mean(cityAir_20$so2, na.rm = T)
+  so2d = so2_20 - so2_19
+  
+  co_19 = mean(cityAir_19$co, na.rm = T)
+  co_20 = mean(cityAir_20$co, na.rm = T)
+  cod = co_20 - co_19
+  
+  city_period_diff = 
+    city_period_diff %>% 
+    add_row(city = city, 
+            pm25 = pm25d,
+            pm10 = pm10d,
+            o3 = o3d,
+            no2 = no2d,
+            so2 = so2d,
+            co = cod)
+}
+```
+
+Then, we transfer the "city" in `city_period_diff` from the character to factor and make a decreasing sequence by using reorder based on the pm2.5.
+```{r}
+city_period_diff = 
+  city_period_diff %>% 
+  mutate(
+    city = paste(
+      toupper(substring(city, 1, 1)), 
+      substring(city, 2), 
+      sep = ""),
+    city = fct_reorder(city, pm25, .desc = T),
+    )
+```
+
+Now we will see how the distribution of daily PM25 AQI differ between time period 2019 Feb-Apr and 2020 Feb~Apr.
+
+```{r warning=FALSE, message=FALSE}
+city_AQI_Distribution = tibble()
+
+for (city_file in city_files) {
+
+  path = str_c("30_cities_data/", city_file)
+  city = strsplit(city_file, split = '-')[[1]][1]
+  
+  cityAir = read_csv(path) %>% 
+    mutate(date = as.Date(date, "%Y/%m/%d")) %>%
+    arrange(date)
+  
+  city_19 = cityAir %>% 
+    filter(date %within% period_19) %>% 
+    mutate(period = "2019Feb-Apr",
+           day = format(date,"%m-%d"),
+           city = city) %>% 
+    relocate(city, period, day)
+  
+  #add a fake date "2019-02-29" with all AQI values as NA
+  city_19 = 
+    city_19 %>% 
+    add_row(city = city, 
+            period = "2019Feb-Apr", 
+            day = "02-29") %>% 
+    mutate(day = as.factor(day))
+  
+  
+  city_20 = cityAir %>% 
+    filter(date %within% period_20) %>% 
+    mutate(period = "2020Feb-Apr",
+           day = format(date,"%m-%d"),
+           day = as.factor(day),
+           city = city) %>% 
+    relocate(city, period, day)
+  
+  city_AQI_Distribution = rbind(city_AQI_Distribution, city_19)
+  city_AQI_Distribution = rbind(city_AQI_Distribution, city_20)
+}
+
+```
+
+```{r}
+city_AQI_Distribution = 
+  city_AQI_Distribution %>% 
+  mutate(period = factor(period, levels = c("2020Feb-Apr", "2019Feb-Apr")),
+         city = paste(
+           toupper(substring(city, 1, 1)), 
+           substring(city, 2), 
+           sep = ""))
+```
+
+In order to see the previous data, we focus on past three years. so we tidy the past Four Years' Feb~Apr Mean PM2.5 AQI.The steps are the same as the previous one. 
+```{r, message= FALSE, include = FALSE}
+city_4year_meanPM25 = 
+  tibble(city = character(),
+         mean_18 = numeric(),
+         mean_19 = numeric(),
+         mean_20 = numeric(),
+         mean_21 = numeric())
+```
+
+```{r message = FALSE}
+for (city_file in city_files) {
+  #print(city_file)
+  
+  path = str_c("30_cities_data/", city_file)
+  city = strsplit(city_file, split = '-')[[1]][1]
+  
+  cityAir = read_csv(path) %>% 
+    mutate(date = as.Date(date, "%Y/%m/%d")) %>%
+    arrange(date)
+  
+  cityAir_18 = cityAir %>% 
+    filter(date %within% period_18)
+  
+  cityAir_19 = cityAir %>% 
+    filter(date %within% period_19) 
+  
+  cityAir_20 = cityAir %>% 
+    filter(date %within% period_20)
+  
+  cityAir_21 = cityAir %>% 
+    filter(date %within% period_21)
+  
+  mean_18 = mean(cityAir_18$pm25, na.rm = T)
+  mean_19 = mean(cityAir_19$pm25, na.rm = T)
+  mean_20 = mean(cityAir_20$pm25, na.rm = T)
+  mean_21 = mean(cityAir_21$pm25, na.rm = T)
+  
+  city_4year_meanPM25 = 
+    city_4year_meanPM25 %>%
+    add_row(city = city,
+            mean_18 = mean_18,
+            mean_19 = mean_19, 
+            mean_20 = mean_20, 
+            mean_21 = mean_21)
+}
+```
+
+```{r}
+city_4year_meanPM25 = 
+  city_4year_meanPM25 %>% 
+  mutate(city = factor(city)) %>% 
+  pivot_longer(
+    mean_18:mean_21,
+    values_to = "mean",
+    names_to = "years"
+  )
+```
+
+
+Except for PM2.5, we also want to know how NO2 mean API mean change for four years from Feb to Apr. The steps for tidying and clearning data for NO2 are similar.  
+
+```{r}
+city_4year_meanno2 = 
+  tibble(city = character(),
+         mean_18 = numeric(),
+         mean_19 = numeric(),
+         mean_20 = numeric(),
+         mean_21 = numeric())
+```
+
+```{r message = FALSE}
+for (city_file in city_files) {
+  #print(city_file)
+  
+  path = str_c("30_cities_data/", city_file)
+  city = strsplit(city_file, split = '-')[[1]][1]
+  
+  cityAir = read_csv(path) %>% 
+    mutate(date = as.Date(date, "%Y/%m/%d")) %>%
+    arrange(date)
+  
+  cityAir_18 = cityAir %>% 
+    filter(date %within% period_18)
+  
+  cityAir_19 = cityAir %>% 
+    filter(date %within% period_19) 
+  
+  cityAir_20 = cityAir %>% 
+    filter(date %within% period_20)
+  
+  cityAir_21 = cityAir %>% 
+    filter(date %within% period_21)
+  
+  mean_18 = mean(cityAir_18$no2, na.rm = T)
+  mean_19 = mean(cityAir_19$no2, na.rm = T)
+  mean_20 = mean(cityAir_20$no2, na.rm = T)
+  mean_21 = mean(cityAir_21$no2, na.rm = T)
+  
+  city_4year_meanno2 = 
+    city_4year_meanno2 %>%
+    add_row(city = city,
+            mean_18 = mean_18,
+            mean_19 = mean_19, 
+            mean_20 = mean_20, 
+            mean_21 = mean_21)
+}
+```
+
+```{r}
+city_4year_meanno2 = 
+  city_4year_meanno2 %>% 
+  mutate(city = factor(city)) %>% 
+  pivot_longer(
+    mean_18:mean_21,
+    values_to = "mean",
+    names_to = "years"
+  )
+```
+
+
+In terms of the dataset of GDP and population for regression analysis, we calculate mean PM2.5 AQI (Feb-Apr) in 2019 and 2020 and mean PM2.5 AQI difference (2019 minus 2020) for each top 100 city in GDP. We then use `left_join` function to join the GDP and population dataset to the mean PM2.5 AQI difference dataset to get the resulting dataset for regression analysis.
+
+```{r, message = FALSE}
+library(tidyverse)
+library(ggridges)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+city_100_df = 
+  tibble(
+  file = list.files("100_cities_data")) %>% 
+  mutate(
+    city = str_remove(file, "-air-quality.csv"),
+    path = str_c("100_cities_data/", file),
+    data = map(path, read_csv)
+  ) %>% 
+  unnest(data) %>% 
+  select(-file, -path) %>% 
+  mutate(
+    city = str_to_title(city),
+    date = as.Date(date, format = "%Y/%m/%d"))
+
+pm25_2020 = 
+  city_100_df %>% 
+  filter(date > "2020-01-31" & date < "2020-05-01") %>% 
+  group_by(city) %>%
+  summarize(mean_pm25_2020 = mean(pm25, na.rm = T))
+  
+pm25_2019 = 
+  city_100_df %>% 
+  filter(date > "2019-01-31" & date < "2019-05-01") %>% 
+  group_by(city) %>%
+  summarize(mean_pm25_2019 = mean(pm25, na.rm = T))
+
+pm25_diff = 
+  left_join(pm25_2020, pm25_2019) %>% 
+  mutate(pm25_diff = mean_pm25_2019 - mean_pm25_2020)
+
+gdp_pop_df = 
+  read_csv("data/gpd_and_popluation.csv") %>% 
+  janitor::clean_names() %>% 
+  mutate(
+    gdp_trillion = gdp_billion / 1000,
+    pop_million = population_thousand / 1000) %>% 
+  select(city, gdp_trillion, pop_million)
+
+diff_gdp_pop_df = 
+  left_join(pm25_diff, gdp_pop_df) %>% 
+  select(-mean_pm25_2020, -mean_pm25_2019)
+```
+
+For regression of daily PM2.5 vs daily average temperature, we filter PM2.5 AQI from February through April in only 2020 , and collect daily average temperature data during this time period from **NOAA**. We then join them using `left_join` function. 
+
+```{r, message = FALSE}
+weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c("CHM00054511", "CHM00058362", "CHM00050953", "CHM00054342", "CHM00055591", "CHM00056294", "CHM00056778", "CHM00059287", "CHM00057036", "CHM00057494"),
+    var = c("PRCP", "TAVG"), 
+    date_min = "2020-02-01",
+    date_max = "2020-04-30") %>%
+  mutate(
+    name = recode(
+      id, 
+      CHM00054511 = "Beijing", 
+      CHM00058362 = "Shanghai",
+      CHM00050953 = "Harbin",
+      CHM00054342 = "Shenyang",
+      CHM00055591 = "Lhasa",
+      CHM00056294 = "Chengdu",
+      CHM00056778 = "Kunming",
+      CHM00059287 = "Guangzhou",
+      CHM00057036 = "Xian",
+      CHM00057494 = "Wuhan"),
+    tavg = tavg / 10,
+    prcp = prcp / 10) %>%
+  select(-id) %>% 
+  rename(city = name) %>% 
+  relocate(city)
+
+city_10_df =
+  city_100_df %>% 
+  filter(date > "2020-01-31" & date < "2020-05-01") %>% 
+  filter(city %in% c("Beijing", "Shanghai", "Harbin", "Shenyang", "Lhasa", "Chengdu", "Kunming", "Guangzhou", "Xian", "Wuhan"))
+
+pm25_tavg_df = 
+  left_join(city_10_df, weather_df, by = c("city", "date")) %>% 
+  arrange(date) %>% 
+  select(city, date, pm25, tavg) %>% 
+  filter(pm25 != "NA")
+```
+
+
 ## Exploratory Analysis
+
+```{r message = FALSE, include = FALSE}
+library(tidyverse)
+library(lubridate)
+library(dplyr)
+library(leaflet)
+library(plotly)
+library(viridis)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_color_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
+### Time period
+We are majorly interested in the time period "2019-02-01" ~ "2019-04-30" and "2020-02-01" ~ "2020-04-30", where the second period is when China entered mass lockdown to control the spread of COVID-19. We used multiple strategies to visualize that, how the air quality index of different pollutants during the lockdown changed comparing to the same period in 2019, in major Chinese cities.  
+Besides the above time periods, we also extracted air quality data of each city from 2018 and 2021 to get a more comprehensive view of change in air quality in Chinese cities. 
+
+```{r}
+period_18 = interval(ymd("2018-02-01"), ymd("2018-04-30"))
+period_19 = interval(ymd("2019-02-01"), ymd("2019-04-30"))
+period_20 = interval(ymd("2020-02-01"), ymd("2020-04-30"))
+period_21 = interval(ymd("2021-02-01"), ymd("2021-04-30"))
+```
+
+### Air quality data
+`city_period_diff` will hold each city's mean daily AQI difference of each pollutant, between 2019 Feb~Apr and 2020 Feb~Apr. 
+
+```{r}
+city_files = list.files("30_cities_data")
+onehundrd_city_files = list.files("100_cities_data")
+
+city_period_diff = 
+  tibble(city = character(),
+         pm25 = numeric(),
+         pm10 = numeric(),
+         o3 = numeric(),
+         no2 = numeric(),
+         so2 = numeric(),
+         co = numeric(),
+         )
+```
+
+
+
+### Daily Mean AQI difference Analysis
+
+Compute the daily mean pollutant AQI from Feb to Apr of year 2019 and year 2020 in each city.
+```{r message=FALSE}
+for (city_file in city_files) {
+  #print(city_file)
+  
+  path = str_c("30_cities_data/", city_file)
+  city = strsplit(city_file, split = '-')[[1]][1]
+  
+  cityAir = read_csv(path) %>% 
+    mutate(date = as.Date(date, "%Y/%m/%d")) %>%
+    arrange(date)
+  
+  cityAir_19 = cityAir %>% 
+    filter(date %within% period_19) 
+  
+  cityAir_20 = cityAir %>% 
+    filter(date %within% period_20)
+  
+  
+  pm25_19 = mean(cityAir_19$pm25, na.rm = T)
+  pm25_20 = mean(cityAir_20$pm25, na.rm = T)
+  pm25d = pm25_20 - pm25_19
+  
+  pm10_19 = mean(cityAir_19$pm10, na.rm = T)
+  pm10_20 = mean(cityAir_20$pm10, na.rm = T)
+  pm10d = pm10_20 - pm10_19
+  
+  o3_19 = mean(cityAir_19$o3, na.rm = T)
+  o3_20 = mean(cityAir_20$o3, na.rm = T)
+  o3d = o3_20 - o3_19
+  
+  no2_19 = mean(cityAir_19$no2, na.rm = T)
+  no2_20 = mean(cityAir_20$no2, na.rm = T)
+  no2d = no2_20 - no2_19
+  
+  so2_19 = mean(cityAir_19$so2, na.rm = T)
+  so2_20 = mean(cityAir_20$so2, na.rm = T)
+  so2d = so2_20 - so2_19
+  
+  co_19 = mean(cityAir_19$co, na.rm = T)
+  co_20 = mean(cityAir_20$co, na.rm = T)
+  cod = co_20 - co_19
+  
+  city_period_diff = 
+    city_period_diff %>% 
+    add_row(city = city, 
+            pm25 = pm25d,
+            pm10 = pm10d,
+            o3 = o3d,
+            no2 = no2d,
+            so2 = so2d,
+            co = cod)
+}
+
+```
+
+```{r}
+city_period_diff = 
+  city_period_diff %>% 
+  mutate(
+    city = paste(
+      toupper(substring(city, 1, 1)), 
+      substring(city, 2), 
+      sep = ""),
+    
+    
+    city = fct_reorder(city, pm25, .desc = T),
+    )
+
+```
+
+### Interative bar graph of AQI Difference
+
+```{r out.width='100%'}
+city_period_diff %>% 
+  plot_ly(x = ~pm25, y = ~city, type = "bar", opacity = 1) %>% 
+  layout(title = "Feb~Apr Daily Mean PM25 AQI Difference, 2020 minus 2019",
+         barmode = 'overlay',
+         xaxis = list(title = "Mean AQI Difference"),
+         yaxis = list(autotick = F, title = "Cities"),
+         updatemenus = list(
+           list(
+            y = 1.1,
+            buttons = list(
+              list(method = "update",
+                   args = list(list(x = list(~pm25)), 
+                               list(title = "Feb~Apr Daily Mean PM25 AQI Difference, 2020 minus 2019")
+                               ),
+                   label = "pm25"),
+              list(method = "update",
+                   args = list(list(x = list(~pm10)), 
+                               list(title = "Feb~Apr Daily Mean PM10 AQI Difference, 2020 minus 2019")
+                               ),
+                   label = "pm10"),
+              list(method = "update",
+                   args = list(list(x = list(~o3)), 
+                               list(title = "Feb~Apr Daily Mean O3 AQI Difference, 2020 minus 2019")
+                               ),
+                   label = "o3"),
+              list(method = "update",
+                   args = list(list(x = list(~no2)), 
+                               list(title = "Feb~Apr Daily Mean NO2 AQI Difference, 2020 minus 2019")
+                               ),
+                   label = "no2"),
+              list(method = "update",
+                   args = list(list(x = list(~so2)), 
+                               list(title = "Feb~Apr Daily Mean SO2 AQI Difference, 2020 minus 2019")
+                               ),
+                   label = "so2"),
+              list(method = "update",
+                   args = list(list(x = list(~co)), 
+                               list(title = "Feb~Apr Daily Mean CO AQI Difference, 2020 minus 2019")
+                               ),
+                   label = "co")
+            )
+  )))
+
+```
+
+This interactive plot shows each pollutant's Daily AQI difference, the value from 2020 Feb-Apr minus the value from 2019 Feb~Apr, in each city. A negative AQI change here indicates improvements in air quality. The users can click on the dropdown selection button on the top left to choose the pollutant type: PM2.5, PM10, O3, NO2, SO2 and CO. For PM2.5,PM10, CO and NO2, the mean AQI for most cities droped during the lockdown, showing general improvements in air quality. While for SO2 and O3, there are more cities with increased AQI during lockdown, with the O3 level increased for most of the cities in China..
+
+
+### Distribution Analysis
+
+Now we will see how the distribution of daily PM25 AQI differ between time period 2019 Feb-Apr and 2020 Feb~Apr.
+
+
+```{r warning=FALSE, message=FALSE}
+city_AQI_Distribution = tibble()
+
+for (city_file in city_files) {
+
+  path = str_c("30_cities_data/", city_file)
+  city = strsplit(city_file, split = '-')[[1]][1]
+  
+  cityAir = read_csv(path) %>% 
+    mutate(date = as.Date(date, "%Y/%m/%d")) %>%
+    arrange(date)
+  
+  city_19 = cityAir %>% 
+    filter(date %within% period_19) %>% 
+    mutate(period = "2019Feb-Apr",
+           day = format(date,"%m-%d"),
+           city = city) %>% 
+    relocate(city, period, day)
+  
+  #add a fake date "2019-02-29" with all AQI values as NA
+  city_19 = 
+    city_19 %>% 
+    add_row(city = city, 
+            period = "2019Feb-Apr", 
+            day = "02-29") %>% 
+    mutate(day = as.factor(day))
+  
+  
+  city_20 = cityAir %>% 
+    filter(date %within% period_20) %>% 
+    mutate(period = "2020Feb-Apr",
+           day = format(date,"%m-%d"),
+           day = as.factor(day),
+           city = city) %>% 
+    relocate(city, period, day)
+  
+  city_AQI_Distribution = rbind(city_AQI_Distribution, city_19)
+  city_AQI_Distribution = rbind(city_AQI_Distribution, city_20)
+}
+
+```
+
+```{r}
+city_AQI_Distribution = 
+  city_AQI_Distribution %>% 
+  mutate(period = factor(period, levels = c("2020Feb-Apr", "2019Feb-Apr")),
+         city = paste(
+           toupper(substring(city, 1, 1)), 
+           substring(city, 2), 
+           sep = ""))
+```
+
+### Interactive Side-by-side Boxplots
+
+```{r out.width='100%', warning = FALSE}
+#This way is stupid but it works! I tried other methods but they just don't work as expected!!!
+city_AQI_Distribution %>% 
+  plot_ly(
+    y = ~city, x = ~pm25, color = ~period, type = "box", 
+    colors = c(rgb(0.2, 0.6, 0.8, 0.6), rgb(0.8, 0.2, 0.2, 0.6))) %>% 
+  add_trace(
+    x = ~pm10, visible = F) %>% 
+  add_trace(
+    x = ~o3, visible = F) %>% 
+  add_trace(
+    x = ~no2, visible = F) %>% 
+  add_trace(
+    x = ~so2, visible = F) %>% 
+  add_trace(
+    x = ~co, visible = F) %>% 
+  
+  layout(title = "Daily PM25 AQI Distribution, 2019 and 2020 Feb-Apr",
+         xaxis = list(title = "Daily AQI"),
+         yaxis = list(autotick = F, title = "Cities"),
+         boxmode = "group",
+         updatemenus = list(
+            list(
+              y = 1.1,
+              buttons = list(
+                list(label = "PM25",
+                     method = "update",
+                     args = list(list(visible = c(T,T, F,F, F,F, F,F, F,F, F,F)),
+                                 list(title = "Daily PM25 AQI Distribution, 2019 and 2020 Feb-Apr"))),
+                list(label = "PM10",
+                     method = "update",
+                     args = list(list(visible = c(F,F, T,T, F,F, F,F, F,F, F,F)),
+                                 list(title = "Daily PM10 AQI Distribution, 2019 and 2020 Feb-Apr"))),
+                list(label = "O3",
+                     method = "update",
+                     args = list(list(visible = c(F,F, F,F, T,T, F,F, F,F, F,F)),
+                                 list(title = "Daily O3 AQI Distribution, 2019 and 2020 Feb-Apr"))),
+                list(label = "no2",
+                     method = "update",
+                     args = list(list(visible = c(F,F, F,F, F,F, T,T, F,F, F,F)),
+                                 list(title = "Daily NO2 AQI Distribution, 2019 and 2020 Feb-Apr"))),
+                list(label = "so2",
+                     method = "update",
+                     args = list(list(visible = c(F,F, F,F, F,F, F,F, T,T, F,F)),
+                                 list(title = "Daily SO2 AQI Distribution, 2019 and 2020 Feb-Apr"))),
+                list(label = "co",
+                     method = "update",
+                     args = list(list(visible = c(F,F, F,F, F,F, F,F, F,F, T,T)),
+                                 list(title = "Daily CO AQI Distribution, 2019 and 2020 Feb-Apr")))
+                ))
+            ))
+  
+```
+
+This interactive boxplot shows each pollutant's Daily AQI Distribution, 2019 and 2020 Feb-Apr, in each city. The users can click on the dropdown selection button on the top left to choose the pollutant type: PM2.5, PM10, O3, NO2, SO2 and CO. Each city has two boxes. The blue one represents the 2020 Feb-Apr period, and the red one represents the 2021 Feb-Apr period. Besides, the median, min, max, q1, q3 and outliers are showed in the box plot for each city. This plot indicates that the distributions of daily pollutant AQI in 2020 (blue) are generally lower than those in 2019 (red).
+
+
+### Line charts of daily pm2.5 AQI for 30 major cities.
+(Note that year 2019 does not have the date "Feb 29", but year 2020 does.)
+
+```{r, fig.width = 8, fig.height = 20, dpi=300}
+
+
+city_AQI_Distribution %>% 
+  ggplot(aes(x = day, y = pm25, color = period)) + 
+  geom_line(aes(group = period), size = 0.8) + 
+  #geom_point() +
+  scale_color_hue(direction = -1) +
+  ylim(0, 400) +
+  labs(
+    title = "Daily PM25 AQI Starting From Feb 1 to Apr 30",
+    x = "Day",
+    y = "Daily PM25 AQI",
+    color = "year period") +
+  facet_wrap(~city, nrow = 10) +
+  scale_x_discrete(breaks = c("02-01", "02-11", "02-21", 
+                              "03-01", "03-11", "03-21", 
+                              "04-01", "04-11", "04-21")) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+
+
+```
+These line charts show daily PM2.5 AQI starting from Feb1 to Apr 30. For each city, the blue line represents data from 2020, and red line represents data from 2019. Note that year 2019 does not have the date "Feb 29", but year 2020 does. Thus in the graphs, the red lines of year 2019 does not have data for Feb 29, but the blue lines of year 2020 do.  
+We can see that although there are fluctuations, generally daily PM2.5 AQI during the lockdown is lower than the same period in year 2019, for each city.
+
+
+### Line charts of daily NO2 AQI changes for all 30 cities.
+
+```{r, fig.width = 8, fig.height = 20, dpi=300}
+
+
+city_AQI_Distribution %>% 
+  ggplot(aes(x = day, y = no2, color = period)) + 
+  geom_line(aes(group = period), size = 0.8) + 
+  #geom_point() +
+  scale_color_hue(direction = -1) +
+  ylim(0, 60) +
+  labs(
+    title = "Daily NO2 AQI Starting From Feb 1 to Apr 30",
+    x = "Day",
+    y = "Daily NO2 AQI",
+    color = "year period") +
+  facet_wrap(~city, nrow = 10) +
+  scale_x_discrete(breaks = c("02-01", "02-11", "02-21", 
+                              "03-01", "03-11", "03-21", 
+                              "04-01", "04-11", "04-21")) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+
+
+```
+These line charts show daily NO2 AQI starting from Feb 1 to Apr 30. Similar to PM2.5 AQI trends, daily NO2 AQI during the lockdown is generally lower than the same period in year 2019, for each city.
+
+
+### Past Four Years' Feb~Apr Mean PM2.5 AQI
+A bar graph of mean PM2.5 AQI from Feb to Apr in the past four years in 30 representative cities.
+```{r, message= FALSE, include = FALSE}
+city_4year_meanPM25 = 
+  tibble(city = character(),
+         mean_18 = numeric(),
+         mean_19 = numeric(),
+         mean_20 = numeric(),
+         mean_21 = numeric())
+```
+
+```{r message = FALSE}
+for (city_file in city_files) {
+  #print(city_file)
+  
+  path = str_c("30_cities_data/", city_file)
+  city = strsplit(city_file, split = '-')[[1]][1]
+  
+  cityAir = read_csv(path) %>% 
+    mutate(date = as.Date(date, "%Y/%m/%d")) %>%
+    arrange(date)
+  
+  cityAir_18 = cityAir %>% 
+    filter(date %within% period_18)
+  
+  cityAir_19 = cityAir %>% 
+    filter(date %within% period_19) 
+  
+  cityAir_20 = cityAir %>% 
+    filter(date %within% period_20)
+  
+  cityAir_21 = cityAir %>% 
+    filter(date %within% period_21)
+  
+  mean_18 = mean(cityAir_18$pm25, na.rm = T)
+  mean_19 = mean(cityAir_19$pm25, na.rm = T)
+  mean_20 = mean(cityAir_20$pm25, na.rm = T)
+  mean_21 = mean(cityAir_21$pm25, na.rm = T)
+  
+  city_4year_meanPM25 = 
+    city_4year_meanPM25 %>%
+    add_row(city = city,
+            mean_18 = mean_18,
+            mean_19 = mean_19, 
+            mean_20 = mean_20, 
+            mean_21 = mean_21)
+}
+```
+
+```{r}
+city_4year_meanPM25 = 
+  city_4year_meanPM25 %>% 
+  mutate(city = factor(city)) %>% 
+  pivot_longer(
+    mean_18:mean_21,
+    values_to = "mean",
+    names_to = "years"
+  )
+```
+
+
+```{r dpi=300, message = FALSE, warning = FALSE}
+city_4year_meanPM25 %>% 
+  ggplot() +
+  geom_bar(
+    aes(y = years, x = mean, fill = years), 
+  stat = "identity") +
+  facet_wrap(~city, nrow = 5) +
+  #scale_x_continuous(breaks = scales::pretty_breaks(n = 20)) +
+  theme(legend.position = "none") +
+  labs(
+    title = "A bar graph of mean PM2.5 AQI from Feb to Apr in the past four years",
+    x = "PM25 AQI Mean",
+    y = "City")
+
+```
+
+This bar graph shows mean PM2.5 AQI from Feb to Apr in the past four years for 30 cities. (note Xining does not have mean of 2021.) We can see the trend that mean PM2.5 AQI decreased from 2018 to 2020 but bounced back in 2021 for most of 30 cities. The mean PM2.5 AQI in 2020 is the lowest one compared with other 3 years. This is highly likely to be due to the lockdown policy in 2020. The mean PM2.5 AQI in 2021 gets back up because of the economy recovery. 
+
+
+### Past Four Years' Feb~Apr Mean NO2 AQI
+A bar graph of mean NO2 AQI from Feb to Apr in the past four years in 30 representative cities.
+
+```{r}
+city_4year_meanno2 = 
+  tibble(city = character(),
+         mean_18 = numeric(),
+         mean_19 = numeric(),
+         mean_20 = numeric(),
+         mean_21 = numeric())
+```
+
+```{r message = FALSE}
+for (city_file in city_files) {
+  #print(city_file)
+  
+  path = str_c("30_cities_data/", city_file)
+  city = strsplit(city_file, split = '-')[[1]][1]
+  
+  cityAir = read_csv(path) %>% 
+    mutate(date = as.Date(date, "%Y/%m/%d")) %>%
+    arrange(date)
+  
+  cityAir_18 = cityAir %>% 
+    filter(date %within% period_18)
+  
+  cityAir_19 = cityAir %>% 
+    filter(date %within% period_19) 
+  
+  cityAir_20 = cityAir %>% 
+    filter(date %within% period_20)
+  
+  cityAir_21 = cityAir %>% 
+    filter(date %within% period_21)
+  
+  mean_18 = mean(cityAir_18$no2, na.rm = T)
+  mean_19 = mean(cityAir_19$no2, na.rm = T)
+  mean_20 = mean(cityAir_20$no2, na.rm = T)
+  mean_21 = mean(cityAir_21$no2, na.rm = T)
+  
+  city_4year_meanno2 = 
+    city_4year_meanno2 %>%
+    add_row(city = city,
+            mean_18 = mean_18,
+            mean_19 = mean_19, 
+            mean_20 = mean_20, 
+            mean_21 = mean_21)
+}
+```
+
+```{r}
+city_4year_meanno2 = 
+  city_4year_meanno2 %>% 
+  mutate(city = factor(city)) %>% 
+  pivot_longer(
+    mean_18:mean_21,
+    values_to = "mean",
+    names_to = "years"
+  )
+```
+
+
+```{r dpi=300, message = FALSE, warning = FALSE}
+city_4year_meanno2 %>% 
+  ggplot() +
+  geom_bar(
+    aes(y = years, x = mean, fill = years), 
+  stat = "identity") +
+  facet_wrap(~city, nrow = 5) +
+  #scale_x_continuous(breaks = scales::pretty_breaks(n = 20)) +
+  theme(legend.position = "none") +
+  labs(
+    title = "A bar graph of mean NO2 AQI from Feb to Apr in the past four years",
+    x = "NO2 AQI Mean",
+    y = "City")
+
+```
+
+This bar graph shows mean NO2 AQI from Feb to Apr in the past four years for 30 cities. (note Xining does not have mean of 2021.) Mean NO2 AQI has similar trends to mean PM2.5 AQI. And the reason for this trend is the same as PM2.5 AQI.  
+
+
 
 ## Hypothesis Test and Analysis
 ### Chi-Squared Test
@@ -536,7 +1489,7 @@ The distribution of RMSE values for each model fitting daily PM2.5 AQI vs daily 
 
 ### Regression Conclusions
 
-We don't have enough evidence to support that during the lockdown period, air quality improvement in a city has a significant linear relationship with GDP and population. The daily PM2.5 AQI isn't significantly correlated to daily average temperature either. The two non-significant linear models may be due to small sample size, so a larger sample size may be helpful for getting significant models.  
+We don't have enough evidence to support that during the lockdown period, air quality improvement in a city has a significant linear relationship with GDP and population. The daily PM2.5 AQI isn't significantly correlated linearly to daily average temperature either. The two non-significant linear models may be due to small sample size, so a larger sample size may be helpful for getting significant models.  
 
 
 
