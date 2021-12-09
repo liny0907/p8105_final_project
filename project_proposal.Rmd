@@ -7,7 +7,7 @@ output:
     toc_float: true
 ---
 
-### The group members (names and UNIs)
+### The group members
 Zhuolun Huang, zh2494  
 Fei Sun, fs2757  
 Lin Yang, ly2565  

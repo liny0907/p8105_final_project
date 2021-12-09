@@ -1,8 +1,37 @@
 ---
-title: "The Impact of COVID-19 Lockdowns on Air Quality in Chinese Cities"
 output: 
   html_document
 ---
 
-Weiheng Zhang, Lin Yang, Yihan Qiu, Fei Sun, Zhuolun Huang
+```{css echo = F}
+.container_video {
+    position: relative;
+    width: 90%;
+    height: 0;
+    padding-bottom: 56.25%;
+}
+.container_video iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+```
+
+<h1><b><center>The Lockdown Period in China ...</center></b></h1>
+<h2><b><center>
+     --A study investigating the impact of COVID-19 lockdowns on air quality in Chinese cities.
+
+</center></b></h2>
+
+
+<center>Weiheng Zhang, Lin Yang, Yihan Qiu, Fei Sun, Zhuolun Huang</center>
+
+
+<center><div class="container_video">
+<iframe 
+src="https://www.youtube.com/embed/Dv7sILbyZbs"
+frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div></center>
 
