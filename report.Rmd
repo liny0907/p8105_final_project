@@ -112,11 +112,10 @@ The resulting weather dataset contains 4 variables:\
 
 ### Data Processing and Cleaning
 
-While the date is not ordered as expected. For example, January 2021 comes before December 2021. We used `as.Date()` to covert all dates into R's `date` format, and used the `lubridate` library and `%within%` to directly filter out the date period we are interested in.   
-After some exploratory graphing, We realized that not all pollutants from all time are recorded by each city's local weather bureau. Since our primary focus is on PM2.5, we excluded the city "Hangzhou" with PM2.5 AQI data missing during the lockdown period. Instead, we exchange another city with "Hangzhou"
+The daily AQI data of each city was not ordered in time as expected. For example, January 2021 came before December 2021. We used `as.Date()` to covert all dates into R's `date` format, and used the `lubridate` library and `%within%` to directly filter out the date period we are interested in.   
+After some exploratory graphing, We realized that not all pollutants from all time are recorded by each city's local weather bureau, and we had to change our city selections. For example, we excluded the city "Hangzhou" from out original set of cities, since Hangzhou's PM2.5 AQI data during the lockdown period was missing. We used another city close to Hangzhou to fill it's position.
 
-From 30_cities_data and 100_cities_data 
-We choose 30 advanced-developed cities in china among the 100 cities. We wrote a function to to pull  the filenames of the air quality data from the 30_cities_data, and did the same process for 100_cities_data. Besides, we create a data frame named: `city_period_diff`. It will hold each city's mean daily AQI difference of each pollutant, between Feb~Apr and Feb~Apr. We also create the time period interval for "2018-02-01" ~ "2018-04-30", "2019-02-01" ~ "2019-04-30", "2020-02-01" ~ "2020-04-30", "2021-02-01" ~ "2021-04-30".
+For graph representations, We choose 30 advanced-developed cities in china among the 100 cities. We wrote a function to to pull the filenames of the air quality data from the 30_cities_data directory, and did the same process for 100_cities_data. We also create a data frame named: `city_period_diff`. It will hold each city's mean daily AQI difference of each pollutant, between Feb~Aprl 2019 and Feb~Aprl 2020. We used `interval()` to create time intervals that will be used to extract air quality data from out interested time period: "2018-02-01" ~ "2018-04-30", "2019-02-01" ~ "2019-04-30", "2020-02-01" ~ "2020-04-30", and "2021-02-01" ~ "2021-04-30".
 
 ```{r message = FALSE, include = FALSE}
 library(tidyverse)
@@ -327,7 +326,7 @@ city_4year_meanPM25 =
 ```
 
 
-Except for PM2.5, we also want to know how NO2 mean API mean change for four years from Feb to Apr. The steps for tidying and clearning data for NO2 are similar.  
+Besides PM2.5, we also want to know how NO2 mean API mean change for four years from Feb to Apr. The steps for tidying and clearning data for NO2 are similar.  
 
 ```{r}
 city_4year_meanno2 = 
@@ -390,7 +389,7 @@ city_4year_meanno2 =
 
 In terms of the dataset of GDP and population for regression analysis, we calculate mean PM2.5 AQI (Feb-Apr) in 2019 and 2020 and mean PM2.5 AQI difference (2019 minus 2020) for each top 100 city in GDP. We then use `left_join` function to join the GDP and population dataset to the mean PM2.5 AQI difference dataset to get the resulting dataset for regression analysis.
 
-```{r, message = FALSE}
+```{r, message = FALSE, warning=FALSE}
 library(tidyverse)
 library(ggridges)
 
@@ -510,7 +509,7 @@ scale_fill_discrete = scale_fill_viridis_d
 ```
 
 ### Time period
-We are majorly interested in the time period "2019-02-01" ~ "2019-04-30" and "2020-02-01" ~ "2020-04-30", where the second period is when China entered mass lockdown to control the spread of COVID-19. We used multiple strategies to visualize that, how the air quality index of different pollutants during the lockdown changed comparing to the same period in 2019, in major Chinese cities.  
+We are majorly interested in the time period "2019-02-01" ~ "2019-04-30" and "2020-02-01" ~ "2020-04-30", where the second period is when China entered mass lockdown to control the spread of COVID-19. We used multiple strategies to visualize how the air quality index of different pollutants during the lockdown changed comparing to the same period in 2019, in major Chinese cities.  
 Besides the above time periods, we also extracted air quality data of each city from 2018 and 2021 to get a more comprehensive view of change in air quality in Chinese cities. 
 
 ```{r}
@@ -661,7 +660,7 @@ city_period_diff %>%
 
 ```
 
-This interactive plot shows each pollutant's Daily AQI difference, the value from 2020 Feb-Apr minus the value from 2019 Feb~Apr, in each city. A negative AQI change here indicates improvements in air quality. The users can click on the dropdown selection button on the top left to choose the pollutant type: PM2.5, PM10, O3, NO2, SO2 and CO. For PM2.5,PM10, CO and NO2, the mean AQI for most cities droped during the lockdown, showing general improvements in air quality. While for SO2 and O3, there are more cities with increased AQI during lockdown, with the O3 level increased for most of the cities in China..
+This interactive plot shows each pollutant's Daily AQI difference, the value from 2020 Feb-Apr minus the value from 2019 Feb~Apr, in each city. A negative AQI change here indicates improvements in air quality. The users can click on the dropdown selection button on the top left to choose the pollutant type: PM2.5, PM10, O3, NO2, SO2 and CO. For PM2.5,PM10, CO and NO2. The mean AQI for most cities droped during the lockdown, showing general improvements in air quality. While for SO2 and O3, there are more cities with increased AQI during lockdown, with the O3 level increased for most of the cities in China.
 
 
 ### Distribution Analysis

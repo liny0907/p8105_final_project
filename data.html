@@ -455,9 +455,9 @@ We can search for the name of our target city, and download a csv file containin
 </div>
 <div id="data-cleaning-and-processing" class="section level2">
 <h2>Data cleaning and processing</h2>
-<p>While the date is not ordered as expected. For example, January 2021 comes before December 2021. We used <code>as.Date()</code> to covert all dates into R’s <code>date</code> format, and used the <code>lubridate</code> library and <code>%within%</code> to directly filter out the date period we are interested in.<br />
-After some exploratory graphing, We realized that not all pollutants from all time are recorded by each city’s local weather bureau. Since our primary focus is on PM2.5, we excluded the city “Hangzhou” with PM2.5 AQI data missing during the lockdown period. Instead, we exchange another city with “Hangzhou”</p>
-<p>From 30_cities_data and 100_cities_data We choose 30 advanced-developed cities in china among the 100 cities. We wrote a function to to pull the filenames of the air quality data from the 30_cities_data, and did the same process for 100_cities_data. Besides, we create a data frame named: <code>city_period_diff</code>. It will hold each city’s mean daily AQI difference of each pollutant, between Feb~Aprl and Feb~Aprl. We also create the time period interval for “2018-02-01” ~ “2018-04-30”, “2019-02-01” ~ “2019-04-30”, “2020-02-01” ~ “2020-04-30”, “2021-02-01” ~ “2021-04-30”.</p>
+<p>The daily AQI data of each city was not ordered in time as expected. For example, January 2021 came before December 2021. We used <code>as.Date()</code> to covert all dates into R’s <code>date</code> format, and used the <code>lubridate</code> library and <code>%within%</code> to directly filter out the date period we are interested in.<br />
+After some exploratory graphing, We realized that not all pollutants from all time are recorded by each city’s local weather bureau, and we had to change our city selections. For example, we excluded the city “Hangzhou” from out original set of cities, since Hangzhou’s PM2.5 AQI data during the lockdown period was missing. We used another city close to Hangzhou to fill it’s position.</p>
+<p>For graph representations, We choose 30 advanced-developed cities in china among the 100 cities. We wrote a function to to pull the filenames of the air quality data from the 30_cities_data directory, and did the same process for 100_cities_data. We also create a data frame named: <code>city_period_diff</code>. It will hold each city’s mean daily AQI difference of each pollutant, between Feb~Aprl 2019 and Feb~Aprl 2020. We used <code>interval()</code> to create time intervals that will be used to extract air quality data from out interested time period: “2018-02-01” ~ “2018-04-30”, “2019-02-01” ~ “2019-04-30”, “2020-02-01” ~ “2020-04-30”, and “2021-02-01” ~ “2021-04-30”.</p>
 <pre class="r"><code>city_files = list.files(&quot;30_cities_data&quot;)
 onehundrd_city_files = list.files(&quot;100_cities_data&quot;)
 
@@ -584,7 +584,7 @@ for (city_file in city_files) {
            toupper(substring(city, 1, 1)), 
            substring(city, 2), 
            sep = &quot;&quot;))</code></pre>
-<p>In order to see the previous data, we focus on past three years. so we tidy the past Four Years’ Feb~Aprl Mean PM2.5 AQI.The steps are the same as the previous one.</p>
+<p>In order to see the previous data, we focus on past three years. so we tidy the past Four Years’ Feb~Aprl Mean PM2.5 AQI. The steps are the same as the previous one.</p>
 <pre class="r"><code>for (city_file in city_files) {
   #print(city_file)
   
@@ -628,7 +628,7 @@ for (city_file in city_files) {
     values_to = &quot;mean&quot;,
     names_to = &quot;years&quot;
   )</code></pre>
-<p>Except for PM2.5, we also want to know how NO2 mean API mean change for four years from Feb to Aprl. The steps for tidying and clearning data for NO2 are similar.</p>
+<p>Besides analyzing PM2.5, we also want to know how NO2 mean API mean change for four years from Feb to Aprl. The steps for tidying and cleaning data for NO2 are similar.</p>
 <pre class="r"><code>city_4year_meanno2 = 
   tibble(city = character(),
          mean_18 = numeric(),

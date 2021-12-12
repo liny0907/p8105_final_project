@@ -1,9 +1,7 @@
 ---
 title: "Maps of Air Pollutants in 100 Cities "
 output: 
-  html_document:
-    toc: true
-    toc_float: true
+  html_document
 ---
 
 ```{r message = FALSE, include = FALSE}
@@ -14,6 +12,7 @@ library(p8105.datasets)
 library(leaflet)
 library(crosstalk)
 library(leaflet.extras)
+
 
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
 
@@ -149,7 +148,7 @@ pal <- colorNumeric(palette = "RdBu", domain = c(-45, 45), reverse = TRUE)
 allCity_sd = SharedData$new(long_all_city_period_diff)
 
 allcity_map = allCity_sd %>% 
-  leaflet(width = "100%") %>% 
+  leaflet(height = 550, width = 900) %>% 
   addProviderTiles(providers$Esri.NatGeoWorldMap) %>% 
   addCircleMarkers(~long, ~lat, radius = 3, opacity = 1, color = ~pal(diff), popup = ~click_label) %>% 
   addLegend("bottomleft", pal = pal, values = ~diff)

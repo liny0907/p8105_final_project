@@ -75,11 +75,10 @@ The resulting weather dataset contains 4 variables:\
 
 ## Data cleaning and processing
 
-While the date is not ordered as expected. For example, January 2021 comes before December 2021. We used `as.Date()` to covert all dates into R's `date` format, and used the `lubridate` library and `%within%` to directly filter out the date period we are interested in.   
-After some exploratory graphing, We realized that not all pollutants from all time are recorded by each city's local weather bureau. Since our primary focus is on PM2.5, we excluded the city "Hangzhou" with PM2.5 AQI data missing during the lockdown period. Instead, we exchange another city with "Hangzhou"
+The daily AQI data of each city was not ordered in time as expected. For example, January 2021 came before December 2021. We used `as.Date()` to covert all dates into R's `date` format, and used the `lubridate` library and `%within%` to directly filter out the date period we are interested in.   
+After some exploratory graphing, We realized that not all pollutants from all time are recorded by each city's local weather bureau, and we had to change our city selections. For example, we excluded the city "Hangzhou" from out original set of cities, since Hangzhou's PM2.5 AQI data during the lockdown period was missing. We used another city close to Hangzhou to fill it's position.
 
-From 30_cities_data and 100_cities_data 
-We choose 30 advanced-developed cities in china among the 100 cities. We wrote a function to to pull  the filenames of the air quality data from the 30_cities_data, and did the same process for 100_cities_data. Besides, we create a data frame named: `city_period_diff`. It will hold each city's mean daily AQI difference of each pollutant, between Feb~Aprl and Feb~Aprl. We also create the time period interval for "2018-02-01" ~ "2018-04-30", "2019-02-01" ~ "2019-04-30", "2020-02-01" ~ "2020-04-30", "2021-02-01" ~ "2021-04-30".
+For graph representations, We choose 30 advanced-developed cities in china among the 100 cities. We wrote a function to to pull the filenames of the air quality data from the 30_cities_data directory, and did the same process for 100_cities_data. We also create a data frame named: `city_period_diff`. It will hold each city's mean daily AQI difference of each pollutant, between Feb~Aprl 2019 and Feb~Aprl 2020. We used `interval()` to create time intervals that will be used to extract air quality data from out interested time period: "2018-02-01" ~ "2018-04-30", "2019-02-01" ~ "2019-04-30", "2020-02-01" ~ "2020-04-30", and "2021-02-01" ~ "2021-04-30".
 
 ```{r message = FALSE, include = FALSE}
 library(tidyverse)
@@ -230,7 +229,7 @@ city_AQI_Distribution =
            sep = ""))
 ```
 
-In order to see the previous data, we focus on past three years. so we tidy the past Four Years' Feb~Aprl Mean PM2.5 AQI.The steps are the same as the previous one. 
+In order to see the previous data, we focus on past three years. so we tidy the past Four Years' Feb~Aprl Mean PM2.5 AQI. The steps are the same as the previous one. 
 ```{r, message= FALSE, include = FALSE}
 city_4year_meanPM25 = 
   tibble(city = character(),
@@ -290,7 +289,7 @@ city_4year_meanPM25 =
 ```
 
 
-Except for PM2.5, we also want to know how NO2 mean API mean change for four years from Feb to Aprl. The steps for tidying and clearning data for NO2 are similar.  
+Besides analyzing PM2.5, we also want to know how NO2 mean API mean change for four years from Feb to Aprl. The steps for tidying and cleaning data for NO2 are similar.  
 
 ```{r}
 city_4year_meanno2 = 
@@ -353,7 +352,7 @@ city_4year_meanno2 =
 
 In terms of the dataset of GDP and population for regression analysis, we calculate mean PM2.5 AQI (Feb-Apr) in 2019 and 2020 and mean PM2.5 AQI difference (2019 minus 2020) for each top 100 city in GDP. We then use `left_join` function to join the GDP and population dataset to the mean PM2.5 AQI difference dataset to get the resulting dataset for regression analysis.
 
-```{r, message = FALSE}
+```{r, message = FALSE, warning = FALSE}
 library(tidyverse)
 library(ggridges)
 
