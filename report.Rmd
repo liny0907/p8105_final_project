@@ -82,10 +82,10 @@ weather_df =
 #### AQI data
 The downloaded AQI files of each city are in two directories: "30_cities_data" contains the 30 major cities that were used for bar graphs, box plots and line charts. The "100_cities_data" contains all 100 cities we downloaded, which were used for creating the interactive map, fitting the regression models and performing statistical tests. 
 Each city's AQI file is very straightforward. There are only seven variables:   
-`date`: The date of the following pollutant's AQI recordings, in YYYY/MM/DD format.    
-`pm25`: The AQI of tiny particles or droplets in the air that are two and one half microns or less in width.  
-`pm10`: The AQI of tiny particles or droplets in the air that are 10 microns or less in width.  
-`o3`: Ozone's AQI.   
+`date`: The date of the following pollutant's AQI recordings, in YYYY/MM/DD format    
+`pm25`: The AQI of tiny particles or droplets in the air that are two and one half microns or less in width  
+`pm10`: The AQI of tiny particles or droplets in the air that are 10 microns or less in width  
+`o3`: Ozone's AQI   
 `no2`: nitrogen dioxide's AQI  
 `so2`: sulfur dioxide's AQI  
 `co`: carbon monoxide's AQI  
@@ -115,7 +115,7 @@ The resulting weather dataset contains 4 variables:\
 The daily AQI data of each city was not ordered in time as expected. For example, January 2021 came before December 2021. We used `as.Date()` to covert all dates into R's `date` format, and used the `lubridate` library and `%within%` to directly filter out the date period we are interested in.   
 After some exploratory graphing, We realized that not all pollutants from all time are recorded by each city's local weather bureau, and we had to change our city selections. For example, we excluded the city "Hangzhou" from out original set of cities, since Hangzhou's PM2.5 AQI data during the lockdown period was missing. We used another city close to Hangzhou to fill it's position.
 
-For graph representations, We choose 30 advanced-developed cities in china among the 100 cities. We wrote a function to to pull the filenames of the air quality data from the 30_cities_data directory, and did the same process for 100_cities_data. We also create a data frame named: `city_period_diff`. It will hold each city's mean daily AQI difference of each pollutant, between Feb~Aprl 2019 and Feb~Aprl 2020. We used `interval()` to create time intervals that will be used to extract air quality data from out interested time period: "2018-02-01" ~ "2018-04-30", "2019-02-01" ~ "2019-04-30", "2020-02-01" ~ "2020-04-30", and "2021-02-01" ~ "2021-04-30".
+For graph representations, We choose 30 advanced-developed cities in china among the 100 cities. We wrote a function to loop through each city's air quality data in the 30_cities_data directory, and did the same process for the 100_cities_data directory. We also create a data frame named: `city_period_diff`. It will hold each city's mean daily AQI difference of each pollutant, between Feb~Aprl 2019 and Feb~Aprl 2020. We used `interval()` to create time intervals that will be used to extract air quality data from out interested time period: "2018-02-01" ~ "2018-04-30", "2019-02-01" ~ "2019-04-30", "2020-02-01" ~ "2020-04-30", and "2021-02-01" ~ "2021-04-30".
 
 ```{r message = FALSE, include = FALSE}
 library(tidyverse)
