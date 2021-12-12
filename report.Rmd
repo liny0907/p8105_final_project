@@ -1418,7 +1418,7 @@ fit_tavg = lm(pm25 ~tavg, data = pm25_tavg_df)
 MASS::boxcox(fit_tavg)
 ```
 
-The box-cox plot shows that log-likelihood has the maximum value around lambda = 0.5, so square root of pm25_diff is the recommended transformation.
+The box-cox plot shows that log-likelihood has the maximum value around lambda = 0.5, so square root of daily PM2.5 AQI is the recommended transformation.
 
 #### MLR
 
