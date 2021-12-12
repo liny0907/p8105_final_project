@@ -1,5 +1,5 @@
 ---
-title: "Maps of Air Pollutants in 100 Cities "
+title: "Map of AQI Differences in 100 Cities in China"
 output: 
   html_document
 ---
@@ -26,7 +26,7 @@ scale_fill_discrete = scale_fill_viridis_d
 ```
 
 
-The difference of daily mean AQI between 2020-02-01 ~ 2020-04-30 and 2019-02-01 ~ 2019-04-30.
+The difference of daily mean AQI between 2020-02-01 ~ 2020-04-30 and 2019-02-01 ~ 2019-04-30.  
 
 ```{r message = FALSE, include = FALSE}
 period_19 = interval(ymd("2019-02-01"), ymd("2019-04-30"))
@@ -148,7 +148,7 @@ pal <- colorNumeric(palette = "RdBu", domain = c(-45, 45), reverse = TRUE)
 allCity_sd = SharedData$new(long_all_city_period_diff)
 
 allcity_map = allCity_sd %>% 
-  leaflet(height = 550, width = 900) %>% 
+  leaflet(height = 500, width = 900) %>% 
   addProviderTiles(providers$Esri.NatGeoWorldMap) %>% 
   addCircleMarkers(~long, ~lat, radius = 3, opacity = 1, color = ~pal(diff), popup = ~click_label) %>% 
   addLegend("bottomleft", pal = pal, values = ~diff)
@@ -162,12 +162,11 @@ bscols(
   filter_select("Pollutant Type", "Pollutant Type", allCity_sd, ~type, multiple = F)
 )
 ```
-Use the above drop-down selection to view different pollutants.  
+Use the above drop-down selection to view different pollutants.    
   
-
-(Note: negative values indicate improvement of air quality in 2020 compared to 2019 and positive values indicate deterioration of air quality in 2020 compared to 2019.)
-
-The map of China included in our analysis exhibits the distribution of magnitude of air quality improvement during the lockdown period across 100 cities. Each dot represents a city we selected, and the color indicates its degree of air quality improvement. 
+  
+  
+The map of China included in our analysis exhibits the distribution of magnitude of air quality improvement during the lockdown period across 100 cities. Each dot represents a city we selected, and the color indicates its degree of air quality improvement. A negative value of difference (blue point) indicates improvement of air quality in 2020 compared to 2019. And a positive value of difference (red point) indicate deterioration of air quality in 2020 compared to 2019.
 
 We can see that most cities with significant air quality improvement tend to cluster in the North China and Yangtze River Delta region. This might be partially explained by the economic structure. Industrial output value accounts for a relatively large proportion of GDP in these two areas. Normally, there are a lot of industrial activities going on there. However, during the lockdown period, nearly all of them were partially or completely suspended. As industry does have an unignorable negative impact on air quality, it’s not difficult to see why notable air quality improvement could be observed in these two regions.
 
