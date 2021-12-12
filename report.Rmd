@@ -1011,11 +1011,7 @@ library(tidyverse)
 library(ggridges)
 library(modelr)
 library(mgcv)
-knitr::opts_chunk$set(
-  fig.width = 6,
-  fig.asp = .6,
-  out.width = "90%"
-)
+
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
 options(
   ggplot2.continuous.colour = "viridis",
@@ -1357,7 +1353,7 @@ We then did cross validation for three different models of mean PM2.5 AQI differ
 ```{r, message = FALSE}
 weather_df = 
   rnoaa::meteo_pull_monitors(
-    c("CHM00054511", "CHM00058362", "CHM00050953", "CHM00054342", "CHM00055591", "CHM00056294", "CHM00056778", "CHM00059287", "CHM00057036", "CHM00057494"),
+    c("CHM00054511", "CHM00058362", "CHM00050953", "CHM00054342", "CHM00055591", "CHM00056294", "CHM00056778", "CHM00059287", "CHM00057036", "CHM00057494", "CHM00054161", "CHM00057687", "CHM00057515", "CHM00058847", "CHM00057816", "CHM00058321", "CHM00054823", "CHM00052889", "CHM00058606", "CHM00058238", "CHM00059431", "CHM00053698", "CHM00054527", "CHM00051463", "CHM00052866", "CHM00053614", "CHM00057083"),
     var = c("PRCP", "TAVG"), 
     date_min = "2020-02-01",
     date_max = "2020-04-30") %>%
@@ -1373,25 +1369,43 @@ weather_df =
       CHM00056778 = "Kunming",
       CHM00059287 = "Guangzhou",
       CHM00057036 = "Xian",
-      CHM00057494 = "Wuhan"),
+      CHM00057494 = "Wuhan",
+      CHM00054161 = "Changchun",
+      CHM00057687 = "Changsha",
+      CHM00057515 = "Chongqing",
+      CHM00058847 = "Fuzhou",
+      CHM00057816 = "Guiyang",
+      CHM00058321 = "Hefei",
+      CHM00054823 = "Jinan",
+      CHM00052889 = "Lanzhou",
+      CHM00058606 = "Nanchang",
+      CHM00058238 = "Nanjing",
+      CHM00059431 = "Nanning",
+      CHM00053698 = "Shijiazhuang",
+      CHM00053772 = "Taiyuan",
+      CHM00054527 = "Tianjin",
+      CHM00051463 = "Wulumuqi",
+      CHM00052866 = "Xining",
+      CHM00053614 = "Yinchuan",
+      CHM00057083 = "Zhengzhou"),
     tavg = tavg / 10,
     prcp = prcp / 10) %>%
   select(-id) %>% 
   rename(city = name) %>% 
   relocate(city)
 
-city_10_df =
+city_30_df =
   city_100_df %>% 
   filter(date > "2020-01-31" & date < "2020-05-01") %>% 
-  filter(city %in% c("Beijing", "Shanghai", "Harbin", "Shenyang", "Lhasa", "Chengdu", "Kunming", "Guangzhou", "Xian", "Wuhan"))
+  filter(city %in% c("Beijing", "Shanghai", "Harbin", "Shenyang", "Lhasa", "Chengdu", "Kunming", "Guangzhou", "Xian", "Wuhan", "Changchun", "Changsha", "Chongqing", "Fuzhou", "Guiyang", "Hefei", "Jinan", "Lanzhou", "Nanchang", "Nanjing", "Nanning", "Shijiazhuang", "Taiyuan", "Tianjin", "Wulumuqi", "Xining", "Yinchuan", "Zhengzhou"))
 
 pm25_tavg_df = 
-  left_join(city_10_df, weather_df, by = c("city", "date")) %>% 
+  left_join(city_30_df, weather_df, by = c("city", "date")) %>% 
   arrange(date) %>% 
   select(city, date, pm25, tavg) %>% 
   filter(pm25 != "NA")
 ```
-We also hypothesize that daily PM2.5 AQI may correlate to daily average temperature. We collect 02/2020 - 04/2020 temperature data for 10 representative cities in all the regions(East, South, West, North) to avoid bias caused by locations if possible. The resulting data frame has `r nrow(pm25_tavg_df)` observations of `r ncol(pm25_tavg_df)` variables. Below are the variables:\
+We also hypothesize that daily PM2.5 AQI may correlate to daily average temperature. We collect 02/2020 - 04/2020 temperature data for 28 out of the 30 representative cities. Temperature data for Shenzhen and Suzhou are not founded. The resulting data frame has `r nrow(pm25_tavg_df)` observations of `r ncol(pm25_tavg_df)` variables. Below are the variables:\
 `city`: city name\
 `date`: the date on which PM2.5 AQI and average temperature were collected\
 `pm25`: PM2.5 AQI on that day\
@@ -1404,66 +1418,67 @@ fit_tavg = lm(pm25 ~tavg, data = pm25_tavg_df)
 MASS::boxcox(fit_tavg)
 ```
 
-The box-cox plot shows that log-likelihood has the maximum value around lambda = 0, so natural logarithm of pm25_diff is the recommended transformation. 
+The box-cox plot shows that log-likelihood has the maximum value around lambda = 0.5, so square root of pm25_diff is the recommended transformation.
 
 #### MLR
 
 ```{r}
-log_pm25_tavg_df =
+sqrt_pm25_tavg_df =
   pm25_tavg_df %>% 
-  mutate(lnpm25 = log(pm25))
+  mutate(sqrtpm25 = sqrt(pm25))
 
-log_fit = lm(lnpm25 ~tavg, data = log_pm25_tavg_df)
-log_fit %>%
+sqrt_fit = lm(sqrtpm25 ~tavg, data = sqrt_pm25_tavg_df)
+
+sqrt_fit %>%
   broom::tidy() %>% 
   knitr::kable(caption = "Linear Regression Results")
 ```
 
-Based on this table, tavg variable has a slope of 0.0028 with p value of 0.139 which is larger than 0.05. Therefore, daily average temperature in a city may not have significant effects on predictions of air quality improvement. However, the p value of this model is much less than that of the model mean PM2.5 AQI difference vs GDP and population, meaning the linear model daily PM2.5 AQI vs daily average temperature is more significant.
+Based on this table, tavg variable has a slope of -0.012 with p value of 0.033 which is smaller than 0.05. Therefore, at 5 significance level, we can conclude that daily average temperatures in a city have significant effects on predictions of square root of daily PM2.5 AQI. The square root of daily PM2.5 AQI decreases by 0.012 as daily average temperature increases by 1 Celsius degree. 
 
 #### Model diagnostics 
 
 ```{r, dpi = 300, fig.height = 6, fig.width = 6}
 par(mfrow = c(2,2))
-plot(log_fit)
+plot(sqrt_fit)
 ```
 
-Residuals seem to be evenly distributed around 0, which is an indication of constant variance. There are some potential outliers, such as #766 and 163. The normal QQ plot shows a roughly straight line, meaning residuals are normally distributed. Therefore, our model fitting for daily pm2.5 AQI difference dependent on daily average temperature doesn't violate assumptions on residuals. 
+Residuals seem to be evenly distributed around 0, which is an indication of constant variance. There are some potential outliers, such as #2136 and 2108. The normal QQ plot shows a roughly straight line, meaning residuals are normally distributed. Therefore, our model fitting for daily pm2.5 AQI difference dependent on daily average temperature doesn't violate assumptions on residuals. 
 
 
 #### Cross validation
 
-Fit three models for `lnpm25` vs. `tavg`.
-```{r, dpi = 300}
-linear_mod_tavg = lm(lnpm25 ~ tavg, data = log_pm25_tavg_df)
-smooth_mod_tavg = gam(lnpm25 ~ s(tavg), data = log_pm25_tavg_df)
-wiggly_mod_tavg = gam(lnpm25 ~ s(tavg, k = 30), sp = 10e-6, data = log_pm25_tavg_df)
+Fit three models for `sqrtpm25` vs. `tavg`.
+```{r, warning = FALSE, dpi = 300}
+linear_mod_tavg = lm(sqrtpm25 ~ tavg, data = sqrt_pm25_tavg_df)
+smooth_mod_tavg = gam(sqrtpm25 ~ s(tavg), data = sqrt_pm25_tavg_df)
+wiggly_mod_tavg = gam(sqrtpm25 ~ s(tavg, k = 30), sp = 10e-6, data = sqrt_pm25_tavg_df)
 
-log_pm25_tavg_df %>% 
+sqrt_pm25_tavg_df %>% 
   gather_predictions(linear_mod_tavg, smooth_mod_tavg, wiggly_mod_tavg) %>% 
   mutate(model = fct_inorder(model)) %>% 
-  ggplot(aes(x = tavg, y = lnpm25)) + 
+  ggplot(aes(x = tavg, y = sqrtpm25)) + 
   geom_point(alpha = .5) +
   geom_line(aes(y = pred), color = "red") + 
   facet_grid(~model) +
   labs(
     x = "Daily Average Temperature",
-    y = "Log(Daily PM2.5 AQI)",
-    title = "Models of Log(Daily PM2.5 AQI) vs Daily Average Temperature"
+    y = "Sqrt(Daily PM2.5 AQI)",
+    title = "Models of Sqrt(Daily PM2.5 AQI) vs Daily Average Temperature"
   )
 ```
 
-Cross validation for `lnpm25` vs. `tavg`.
+Cross validation for `sqrtpm25` vs. `tavg`.
 ```{r, dpi = 300}
 cv_tavg_df = 
-  crossv_mc(log_pm25_tavg_df, 100) %>% 
+  crossv_mc(sqrt_pm25_tavg_df, 100) %>% 
   mutate(
     train = map(train, as_tibble),
     test = map(test, as_tibble)) %>% 
   mutate(
-    linear_mod  = map(train, ~lm(lnpm25 ~ tavg, data = .x)),
-    smooth_mod  = map(train, ~mgcv::gam(lnpm25 ~ s(tavg), data = .x)),
-    wiggly_mod  = map(train, ~gam(lnpm25 ~ s(tavg, k = 30), sp = 10e-6, data = .x))) %>% 
+    linear_mod  = map(train, ~lm(sqrtpm25 ~ tavg, data = .x)),
+    smooth_mod  = map(train, ~mgcv::gam(sqrtpm25 ~ s(tavg), data = .x)),
+    wiggly_mod  = map(train, ~gam(sqrtpm25 ~ s(tavg, k = 30), sp = 10e-6, data = .x))) %>% 
   mutate(
     rmse_linear = map2_dbl(linear_mod, test, ~rmse(model = .x, data = .y)),
     rmse_smooth = map2_dbl(smooth_mod, test, ~rmse(model = .x, data = .y)),
@@ -1482,25 +1497,24 @@ cv_tavg_df %>%
   labs(
     x = "Model",
     y = "RMSE",
-    title = "Distribution of RMSE across Models (Log(pm2.5 AQI) vs Tavg)")
+    title = "Distribution of RMSE across Models (Sqrt(pm2.5 AQI) vs Tavg)")
 ```
-The distribution of RMSE values for each model fitting daily PM2.5 AQI vs daily average temperature suggests that the smooth model works better than linear and wiggly models. 
+The distribution of RMSE values for each model fitting square root of daily PM2.5 AQI vs daily average temperature suggests that the linear and smooth model work slightly better than wiggly model.  
 
 ### Regression Conclusions
 
-We don't have enough evidence to support that during the lockdown period, air quality improvement in a city has a significant linear relationship with GDP and population. The daily PM2.5 AQI isn't significantly correlated linearly to daily average temperature either. The two non-significant linear models may be due to small sample size, so a larger sample size may be helpful for getting significant models.  
-
+We don't have enough evidence to support that during the lockdown period, air quality improvement in a city has a significant linear relationship with GDP and population. However, the square root of daily PM2.5 AQI is found to have a significant negative linear correlation with daily average temperature. The non-significant linear model fitting mean AQI difference vs GDP and population may be due to small sample size, so a larger sample size may be helpful for getting a significant model.  
 
 
 ## Discussion and Conclusion
 
-Overall, we found that there was a significant relationship between the lockdown and air quality level for 30 cities combined, which was consistent with our initial hypothesis. The air quality for the 30 cities was generally better during the lockdown compared to the same period in the past year. However, contrary to what we expected before, none of GDP, population, and temperature served as predictors for air quality improvement after we conducted the regression analysis. 
+Overall, we found that there was a significant relationship between the lockdown and air quality level for 30 cities combined, which was consistent with our initial hypothesis. The air quality for the 30 cities was generally better during the lockdown compared to the same period in the past year. However, contrary to what we expected before, neither GDP or population served as predictors for air quality improvement after we conducted the regression analysis. On the other hand, daily average temperature was found to be a significant predictor of daily PM2.5 AQI. 
 
 The map of China included in our analysis exhibits the distribution of magnitude of air quality improvement during the lockdown period across 100 cities. Each dot represents a city we selected, and the color indicates its degree of air quality improvement. The bluer the dot is, the more improvement it had made. 
 
 We can see that most cities with significant air quality improvement tend to cluster in the North China and Yangtze River Delta region. This might be partially explained by the economic structure. Industrial output value accounts for a relatively large proportion of GDP in these two areas. Normally, there are a lot of industrial activities going on there. However, during the lockdown period, nearly all of them were partially or completely suspended. As industry does have an unignorable negative impact on air quality, it’s not difficult to see why notable air quality improvement could be observed in these two regions.
 
-There are a few notable limitations in our project. Firstly, besides GDP, population, and temperature, there might be variables that are more closely related to air quality improvements, for example, industrial output value. However, due to limited access to expected datasets, we failed to include it in our regression model.  In addition, the 30 cities we selected are not representative since they are all relatively large in terms of scale. There are many more small cities that we hadn’t investigated. Therefore, the results we obtained in this project were not generalizable to all Chinese cities.  Finally, the datasets we found contained a lot of missing values, which might undermine the reliability and validity of our study in some degree.
+There are a few notable limitations in our project. Firstly, besides GDP, population, and temperature, there might be variables that are more closely related to air quality improvements, for example, industrial output value. However, due to limited access to expected datasets, we failed to include it in our regression model. In addition, the 30 cities we selected are not representative since they are all relatively large in terms of scale. There are many more small cities that we hadn’t investigated. Therefore, the results we obtained in this project were not generalizable to all Chinese cities.  Finally, the datasets we found contained a lot of missing values, which might undermine the reliability and validity of our study in some degree.
 
 This project also further implicates that current economic and social development is nearly always at the expense of environmental degradation.  However, there are promising ways that could tackle this problem effectively.  For example, choosing means of transportation that are more environmental-friendly, using cleaner and renewable energies for production, and reducing hazardous substance emission could all ameliorate the situation to some extent.
 
